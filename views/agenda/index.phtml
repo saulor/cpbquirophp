@@ -1,0 +1,327 @@
+<?php
+	$params = $this->getParams();
+	$compromissos = $params["compromissos"];
+	$fisioterapeutas = $params["fisioterapeutas"];
+	$month = date('m'); 
+	$year = date('Y'); 
+	
+	echo '<div class="compromisso-wrapper" style="float: left; margin-bottom: 10px;">';
+	echo '<div class="circle circle3"></div>';
+	echo '<span>Livre</span>';
+	echo '</div>';
+	foreach (Agenda::getTipos() as $key => $value) {
+		echo '<div class="compromisso-wrapper" style="float: left; margin-bottom: 10px;">';
+		echo '<div class="circle circle' . $key . '"></div>';
+		echo '<span>' . $value . '</span>';
+		echo '</div>';
+	}
+?>
+
+<div id="opcoes-wrapper">
+<span id="cadastrar"><a href="?modulo=agenda&acao=cadastrar">Novo Compromisso</a></span>
+</div>
+
+<table width="100%" border="0" class="calendar agenda">
+	<thead>
+		<th colspan="3" style="text-align:left;">
+			<button id="<?php echo date('Y-m-d', strtotime('first day of previous month')); ?>" class="fc-prev-button fc-button fc-state-default fc-corner-left" type="button">
+				<span class="fc-icon fc-icon-left-single-arrow"></span>
+			</button>&nbsp;
+		</th>
+		<th>
+			<?php
+				if (count($fisioterapeutas) > 0) {
+					echo '<select id="fisioterapeutas" name="fisioterapeuta">';
+					echo '<option value="">Todos os Fisioterapeutas</option>';
+					foreach ($fisioterapeutas as $f) {
+						echo '<option id="fisioterapeuta' . $f["id"] . '" value="' . $f["id"] . '"';
+						//if ($i == date('Y')) {
+						//	echo ' selected="selected"';
+						//}
+						echo '">' . $f["nome"] . '</option>';
+					}
+					echo '</select>';
+				}
+			?>
+			<select id="mes" name="mes">
+				<option id="mes1" value="1"<?php if(date('m') == 1) echo ' selected="selected"'; ?>>Janeiro</option>
+				<option id="mes2" value="2"<?php if(date('m') == 2) echo ' selected="selected"'; ?>>Fevereiro</option>
+				<option id="mes3" value="3"<?php if(date('m') == 3) echo ' selected="selected"'; ?>>Março</option>
+				<option id="mes4" value="4"<?php if(date('m') == 4) echo ' selected="selected"'; ?>>Abril</option>
+				<option id="mes5" value="5"<?php if(date('m') == 5) echo ' selected="selected"'; ?>>Maio</option>
+				<option id="mes6" value="6"<?php if(date('m') == 6) echo ' selected="selected"'; ?>>Junho</option>
+				<option id="mes7" value="7"<?php if(date('m') == 7) echo ' selected="selected"'; ?>>Julho</option>
+				<option id="mes8" value="8"<?php if(date('m') == 8) echo ' selected="selected"'; ?>>Agosto</option>
+				<option id="mes9" value="9"<?php if(date('m') == 9) echo ' selected="selected"'; ?>>Setembro</option>
+				<option id="mes10" value="10"<?php if(date('m') == 10) echo ' selected="selected"'; ?>>Outubro</option>
+				<option id="mes11" value="11"<?php if(date('m') == 11) echo ' selected="selected"'; ?>>Novembro</option>
+				<option id="mes12" value="12"<?php if(date('m') == 12) echo ' selected="selected"'; ?>>Dezembro</option>
+			</select>
+			<select id="ano" name="ano">
+				<?php 
+				for ($i=2013; $i<=date('Y')+2; $i++) {
+					echo '<option id="ano' . $i . '" value="' . $i . '"';
+					if ($i == date('Y')) {
+						echo ' selected="selected"';
+					}
+					echo '">' . $i . '</option>';
+				}
+				?>
+			</select>
+			<img id="loader" src="imagens/ajax-loader-agenda.gif" style="display: none;" />
+		</th>
+		<th colspan="3" style="text-align:right;">
+			<button id="<?php echo date('Y-m-d', strtotime('first day of next month')); ?>" class="fc-next-button fc-button fc-state-default fc-corner-right" type="button">
+				<span class="fc-icon fc-icon-right-single-arrow"></span>
+			</button>
+		</th>
+	</thead>
+	<tbody id="result-ajax">
+		<tr>
+			<?php
+				// Create array containing abbreviations of days of week.
+			     $daysOfWeek = array('Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb');
+			     // What is the first day of the month in question?
+			     $firstDayOfMonth = mktime(0, 0, 0, $month, 1, $year);
+			     // How many days does this month contain?
+			     $numberDays = date('t', $firstDayOfMonth);
+			     // Retrieve some information about the first day of the
+			     // month in question.
+			     $dateComponents = getdate($firstDayOfMonth);
+			     // What is the name of the month in question?
+			     $monthName = $dateComponents['month'];
+			     // What is the index value (0-6) of the first day of the
+			     // month in question.
+			     $dayOfWeek = $dateComponents['wday'];
+			     
+			     // Create the calendar headers
+			     
+				foreach($daysOfWeek as $day) {
+					echo '<th class="header">' . $day . '</th>';
+				} 
+				
+				$currentDay = 1;
+				
+				echo '</tr><tr>';
+				
+				// The variable $dayOfWeek is used to
+				// ensure that the calendar
+				// display consists of exactly 7 columns.
+				
+				if ($dayOfWeek > 0) { 
+					echo '<td colspan=' . $dayOfWeek . '>&nbsp;</td>'; 
+				}
+				
+				$month = str_pad($month, 2, "0", STR_PAD_LEFT);
+				
+				while ($currentDay <= $numberDays) {
+					// Seventh column (Saturday) reached. Start a new row.
+					if ($dayOfWeek == 7) {
+						$dayOfWeek = 0;
+						echo '</tr><tr>';
+					}
+					$currentDayRel = str_pad($currentDay, 2, "0", STR_PAD_LEFT);
+					$date = "$year-$month-$currentDayRel";
+					echo '<td rel="' . $date . '"';
+					if (date('d') == $currentDay) {
+						echo ' class="today"';
+					}
+					echo '>';
+					echo '<div class="day';
+					if (date('d') == $currentDay) {
+						echo ' today';
+					}
+					echo '">' . $currentDay . '</div>';
+				
+					echo '<div class="compromissos-wrapper';
+					if (date('d') == $currentDay) {
+						echo ' today';
+					}
+					echo '">';
+					
+					for ($i = 0; $i < 23; $i++) {
+						
+						$time = mktime(07, $i*30, 0, 0, 0, 0);
+						$hora = date('H:i', $time);
+						
+						echo '<div id="compromisso" style="clear:both;">';
+						echo '<div class="circle circle';
+						
+						$temCompromissoNesseDia = array_key_exists($currentDay, $compromissos);
+						
+						if ($temCompromissoNesseDia) {
+							$temCompromissoNessaHora = array_key_exists($hora, $compromissos[$currentDay]);
+							if ($temCompromissoNessaHora) {
+								echo $compromissos[$currentDay][$hora]["tipo"];
+							}
+							else {
+								echo "3";
+							}
+						}
+						else {
+							echo "3";
+						}
+						echo '"></div>';
+						
+						if ($temCompromissoNesseDia) {
+							if ($temCompromissoNessaHora) {
+								echo '<a href="?modulo=agenda&acao=cadastrar&compromisso=';
+								echo $compromissos[$currentDay][$hora]["id"] . '">';
+								echo '<small>';
+								echo $hora;
+								echo ' ' . compactaTexto(html_entity_decode($compromissos[$currentDay][$hora]["nomePaciente"], ENT_NOQUOTES, 'utf-8'), 15);
+								echo '</small></a>';
+							}
+							else {
+								echo '<a href="?modulo=agenda&acao=cadastrar&data=' . str_pad($currentDay, 2, "0", STR_PAD_LEFT) . '/' . $month . '/' . $year . '&hora=' . $hora  .'">';
+								echo '<small>';
+								echo $hora;
+								echo '</small></a>';
+							}
+						}
+						else {
+							echo '<a href="?modulo=agenda&acao=cadastrar&data=' . str_pad($currentDay, 2, "0", STR_PAD_LEFT) . '/' . $month . '/' . $year . '&hora=' . $hora  .'">';
+							echo '<small>';
+							echo $hora;
+							echo '</small></a>';
+						}
+
+						echo '</div>';
+
+					}
+					
+					echo "</div>";
+					echo '</td>';
+					// Increment counters
+					$currentDay++;
+					$dayOfWeek++;
+				}
+					
+				// Complete the row of the last week in month, if necessary
+				
+				if ($dayOfWeek != 7) { 
+					$remainingDays = 7 - $dayOfWeek;
+					echo '<td colspan="' . $remainingDays . '">&nbsp;</td>'; 
+				}
+				
+			?>
+		</tr>
+	</tbody>
+</table>
+
+<script>
+
+	$("#mes").on("change", function(){
+		var mes = $("#mes").val();
+		var ano = $("#ano").val();
+		var fisioterapeuta = $("#fisioterapeutas").val();
+		$("#loader").css("display", "inline");
+		$.ajax({
+			method: "POST",
+			url: "views/agenda/ajax2.php",
+			dataType: "json",
+			data: {mes: mes, ano: ano, fisioterapeuta: fisioterapeuta}
+		}).done(function(response) {
+			$(".fc-prev-button").attr('id', response.prevData);
+			$(".fc-next-button").attr('id', response.nextData);
+			$('#result-ajax tr:not(:first)').children().remove();
+			$('#result-ajax tr:first-child').after(response.result);
+			$("#loader").css("display", "none");
+		});
+	});
+	
+	$("#ano").on("change", function(){
+		var mes = $("#mes").val();
+		var ano = $("#ano").val();
+		var fisioterapeuta = $("#fisioterapeutas").val();
+		$("#loader").css("display", "inline");
+		$.ajax({
+			method: "POST",
+			url: "views/agenda/ajax2.php",
+			dataType: "json",
+			data: {mes: mes, ano: ano, fisioterapeuta: fisioterapeuta}
+		}).done(function(response) {
+			$(".fc-prev-button").attr('id', response.prevData);
+			$(".fc-next-button").attr('id', response.nextData);
+			$('#result-ajax tr:not(:first)').children().remove();
+			$('#result-ajax tr:first-child').after(response.result);
+			$("#loader").css("display", "none");
+		});
+	});
+	
+	$("#fisioterapeutas").on("change", function(){
+		var mes = $("#mes").val();
+		var ano = $("#ano").val();
+		var fisioterapeuta = $("#fisioterapeutas").val();
+		$("#loader").css("display", "inline");
+		$.ajax({
+			method: "POST",
+			url: "views/agenda/ajax2.php",
+			dataType: "json",
+			data: {mes: mes, ano: ano, fisioterapeuta: fisioterapeuta}
+		}).done(function(response) {
+			$(".fc-prev-button").attr('id', response.prevData);
+			$(".fc-next-button").attr('id', response.nextData);
+			$('#result-ajax tr:not(:first)').children().remove();
+			$('#result-ajax tr:first-child').after(response.result);
+			$("#loader").css("display", "none");
+		});
+	});
+	
+	
+	$(".fc-prev-button").on("click", function(){
+		var data = $(".fc-prev-button").attr('id');
+		var fisioterapeuta = $("#fisioterapeutas").val();
+		$("#loader").css("display", "inline");
+		$.ajax({
+			method: "POST",
+			url: "views/agenda/ajax.php",
+			dataType: "json",
+			data: {data: data, fisioterapeuta: fisioterapeuta}
+		}).done(function(response) {
+			$("#mes" + response.mes).prop("selected", true);
+			if ($("#ano" + response.ano).length == 0) {
+				$('<option/>', {
+					id: '#ano' + response.ano, 
+					value: response.ano,
+					selected: 'selected',
+					text: response.ano
+				}).appendTo('#ano');
+			}
+			$("#ano" + response.ano).prop("selected", true);
+			$(".fc-prev-button").attr('id', response.prevData);
+			$(".fc-next-button").attr('id', response.nextData);
+			$('#result-ajax tr:not(:first)').children().remove();
+			$('#result-ajax tr:first-child').after(response.result);
+			$("#loader").css("display", "none");
+		});
+	});
+	
+	$(".fc-next-button").on("click", function(){
+		var data = $(".fc-next-button").attr('id');
+		var fisioterapeuta = $("#fisioterapeutas").val();
+		$("#loader").css("display", "inline");
+		$.ajax({
+			method: "POST",
+			url: "views/agenda/ajax.php",
+			dataType: "json",
+			data: {data: data, fisioterapeuta: fisioterapeuta}
+		}).done(function(response) {
+			$("#mes" + response.mes).prop("selected", true);
+			if ($("#ano" + response.ano).length == 0) {
+				$('<option/>', {
+					id: '#ano' + response.ano, 
+					value: response.ano,
+					selected: 'selected',
+					text: response.ano
+				}).appendTo('#ano');
+			}
+			$("#ano" + response.ano).prop("selected", true);
+			$(".fc-prev-button").attr('id', response.prevData);
+			$(".fc-next-button").attr('id', response.nextData);
+			$('#result-ajax tr:not(:first)').children().remove();
+			$('#result-ajax tr:first-child').after(response.result);
+			$("#loader").css("display", "none");
+		});
+	});
+</script>

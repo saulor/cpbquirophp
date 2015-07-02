@@ -1,0 +1,47 @@
+<?php
+	$params = $this->getParams();
+    $quantidade = $params["quantidade"];
+    $quantidadePorPagina = $params["quantidadePorPagina"];
+    $pagina = $params["pagina"];
+    $objetos = $params["objetos"];
+    
+    if ($quantidade == 0) {
+        $inicio = 0;
+   	}
+    else {
+        $inicio = ($quantidadePorPagina * $pagina) - ($quantidadePorPagina - 1);
+   	}
+    
+    if ($inicio + ($quantidadePorPagina - 1) > $quantidade) {
+        $fim = $quantidade;
+   	}
+    else {
+        $fim = $inicio + ($quantidadePorPagina - 1);
+  	}
+  	
+  	$table = array(
+  		'fields' => array(
+	  		'nome' => array(
+	  			'ajax' => true,
+	  			'editField' => true,
+	  			'label' => 'Nome'
+	  		),
+	  		'nomePermissao' => array(
+	  			'ajax' => true,
+	  			'align' => 'center',
+	  			'label' => 'Permissão'
+	  		),
+	  		'dataFormatada' => array(
+	  			'ajax' => true,
+	  			'class' => 'data',
+	  			'align' => 'center',
+	  			'label' => 'Data'
+	  		)
+	  	),
+  		'acoesMassa' => array(
+  			'excluir' => 'Excluir'
+  		)
+  	);
+        
+	include('views/includes/listagem.phtml'); 
+?>

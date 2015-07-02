@@ -1,0 +1,56 @@
+<?php
+	$params = $this->getParams();
+	$paciente = $params["paciente"];
+?>	
+
+<div id="my_camera" style="width:320px; height:240px;"></div>
+
+<div id="my_result"></div>
+
+<script language="JavaScript">
+
+    Webcam.attach('#my_camera');
+
+    function take_snapshot() {
+    	
+    	$("#tirar").css("display", "none");
+        var data_uri = Webcam.snap();
+        
+     	Webcam.on('uploadProgress', function(progress) {
+             $("#upload").css("display", "block"); 
+        });
+        
+        Webcam.on('uploadComplete', function(code, text) {
+            
+            switch(code) {
+            
+                case 200:
+                	$("#upload").html('Foto enviada com sucesso (<a href="?modulo=pacientes&acao=cadastrar&id=<?php echo$paciente["id"]; ?>">Visualizar</a>)'); 
+                	$("#my_camera").remove(); 
+                break;
+                
+                case 404:
+                	$("#upload").html('Erro'); 
+                	$("#my_camera").remove(); 
+                break;
+                
+                default:
+                break;
+            }
+            
+        });
+        
+        var file = 'upload.php<?php if($paciente["id"] != 0) echo '?id=' . $paciente["id"]; ?>';
+        
+        Webcam.upload(data_uri, file);
+        
+        location.href = '?modulo=pacientes&acao=cadastrar&id=<?php echo $paciente["id"]; ?>';
+       	
+    }
+    
+</script>
+
+<p id="progresso">
+	<a id="tirar" href="javascript:void(take_snapshot())">Tirar foto</a>
+	<span id="upload" style="display: none;">Fazendo upload da foto...</span>
+</p>

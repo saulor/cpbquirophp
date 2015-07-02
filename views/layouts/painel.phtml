@@ -1,0 +1,203 @@
+<?php
+	$configuracoes = new Configuration(array(
+			"type" => "ini"
+		)
+	);
+	$configuracoes = $configuracoes->initialize()->parse('configuracoes');
+	$params = $this->getParams();
+?>
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title><?php echo $configuracoes->configuracao->sigla; echo " &rsaquo; Sistema de gerenciamento"; if (!empty($params["title"])) echo " &rsaquo; " . $params["title"]; ?></title>
+<link rel="icon" href="favicon.ico" type="image/gif"> 
+
+<link rel="stylesheet" type="text/css" href="<?php echo WWW_ROOT; ?>/styles/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="<?php echo WWW_ROOT; ?>/styles/lavish-bootstrap.css">
+<link rel="stylesheet" type="text/css" href="<?php echo WWW_ROOT; ?>/styles/simplegrid.css">
+<link rel="stylesheet" type="text/css" href="<?php echo WWW_ROOT; ?>/styles/main.css">
+<link rel="stylesheet" type="text/css" href="<?php echo WWW_ROOT; ?>/styles/datepicker.css">
+<link rel="stylesheet" type="text/css" href="<?php echo WWW_ROOT; ?>/styles/cores.css">
+<link rel="stylesheet" type="text/css" href="<?php echo WWW_ROOT; ?>/styles/hint.css">
+<link rel="stylesheet" type="text/css" href="<?php echo WWW_ROOT; ?>/scripts/jquery-ui-1.11.1/jquery-ui.min.css">
+
+<script type="text/javascript" src="<?php echo WWW_ROOT; ?>/scripts/jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="<?php echo WWW_ROOT; ?>/scripts/jquery-ui-1.11.1/jquery-ui.min.js"></script>
+<script type="text/javascript" src="<?php echo WWW_ROOT; ?>/webtools/ckeditor/ckeditor.js"></script>
+<script type="text/javascript" src="<?php echo WWW_ROOT; ?>/scripts/jquery.maskedinput.min_1.3.1.js"></script>
+<script type="text/javascript" src="<?php echo WWW_ROOT; ?>/scripts/numeric.js"></script>
+<script type="text/javascript" src="<?php echo WWW_ROOT; ?>/scripts/funcoes.js"></script>
+<script type="text/javascript" src="<?php echo WWW_ROOT; ?>/scripts/webcamjs/webcam.js"></script>
+
+<link rel="stylesheet" type="text/css" href="<?php echo WWW_ROOT; ?>/scripts/fullcalendar-2.2.3/fullcalendar.css" />
+<script type="text/javascript" src="<?php echo WWW_ROOT; ?>/scripts/jquery.ui.datepicker-pt-BR.js"></script>
+
+<script type="text/javascript">
+    
+    $(document).ready(function(){
+    
+    	var expandir = $(".left ul li span.item");
+    	
+    	expandir.each(function(){
+    		$(this).click(function(){
+    			$(".left ul li ul").each(function(){
+    				if ($(this).css('display') == 'block')
+    					$(this).slideUp(500);
+    			});
+    			if($(this).parent().parent().find('ul:eq(0)').css('display') == 'none'){
+    				$(this).parent().parent().find('ul:eq(0)').slideDown(500);
+    			}
+    			else{
+    				$(this).parent().parent().find('ul:eq(0)').slideUp(500);
+    			}
+    		});
+    	});
+    	
+    	$(".telefoneCelular").mask("(99)99999-9999");
+    	$(".telefoneResidencial").mask("(99)9999-9999");
+    	$(".hora").mask("99:99");
+        $(".cpf").mask("999.999.999-99");
+		$(".data").attr("maxlength", 11);
+		$(".data").mask("99/99/9999");
+        $(".cep").mask("99999-999");
+        $(".numeric").numeric();
+        $(".decimal").numeric(",");
+        $(".datepicker").datepicker({ 
+        	dateFormat: 'dd/mm/yy' 
+        });
+    });
+
+</script>
+
+</head>
+<body>
+
+<div id="page">
+	<header role="logo">
+		<div class="inner">
+			<a href="index.php">
+				<hgroup>
+					<h1><?php echo $configuracoes->configuracao->sigla; ?></h1>
+				</hgroup>
+			</a>
+		</div>
+	</header>
+	
+	<div class="inner main" style="border-top: 3px solid #2e6a98;">
+		
+		<div id="primary" class="primary" role="main">
+			
+			<?php if (isset($_SESSION[PREFIX . "loginId"])) {  ?>
+			
+			<aside id="left" class="left" role="menu">	
+			
+				<?php 
+					$menu = '<ul>';
+					$xml = simplexml_load_file("menu.xml");
+					foreach ($xml->children() as $modulos) {
+						$menu .= '<li><a href="#">';
+						$menu .= '<span class="item">'.$modulos["label"].'</span></a>';
+						$itens = $modulos->children();
+						$menu .= '<ul';
+						if (isset($_GET['modulo']) && $modulos['id'] == $_GET['modulo']) {
+							$menu .= ' style="display:block"';
+						}
+						$menu .= '>';
+						foreach ($itens as $item) {
+							$attributes = $item->attributes();
+							$menu .= '<li><a href="?modulo='.$modulos["id"];
+							if (isset($attributes['id'])) {
+								$menu .= '&acao='.$attributes['id'];
+							}
+							$menu .= '">'.$item.'</a></li>';
+						}
+						$menu .= '</ul></li>';
+						
+					}
+					$menu .= '<li><a href="sair.php"><span class="item">Sair</span></a></li>';
+					$menu .= "</ul>";
+					echo $menu;
+				?>
+				
+			</aside>
+			
+			<?php }  ?>
+			
+			<div class="right"<?php if (!isset($_SESSION[PREFIX . "loginId"])) echo 'style="border:0"'; ?>>
+			
+				<?php if (isset($_SESSION[PREFIX . "loginId"])) {  ?>
+				
+				<nav role="breadcrumbs">
+					<ol class="breadcrumb">
+						<li>
+							<a href="index.php"><?php echo $configuracoes->configuracao->sigla; ?></a>
+						</li>
+						
+						<?php
+							
+							if (isset($params["breadcrumbs"])) {
+								
+								// percorre os itens do breadcrumb para calcular o tamanho total dele
+								// se o tamanho for maior do que o esperado será tirada a diferença do maior item
+								
+								$tamanhoBreadcrumb = 5; 
+								foreach ($params["breadcrumbs"] as $key => $value) {
+									foreach ($value as $titulo => $link) {
+										$tamanhoBreadcrumb = $tamanhoBreadcrumb + (strlen($titulo) + 3);	
+									}
+								}
+								
+								$diferenca = 0;
+								
+								// 95 é a quantidade de caracteres que cabe na barra de breadcrumbs
+								// 19 é a média de caracteres que cabem em cada item do breadcrumb para totalizar os 95
+								
+								// calcula a sobra
+								if ($tamanhoBreadcrumb > 95) {
+									$diferenca = $tamanhoBreadcrumb - 95;
+								}
+									
+								foreach ($params["breadcrumbs"] as $key => $value) {
+									foreach ($value as $titulo => $link) {
+										echo '<li>';
+										if (!empty($link)) {
+											echo '<a href="' . $link . '">';
+										}
+										if ($tamanhoBreadcrumb > 95 && strlen($titulo) > 19) {
+											echo substr($titulo, 0, strlen($titulo) - $diferenca) . ' ...';
+										}
+										else {
+											echo $titulo;
+										}
+										if (!empty($link)) {
+											echo '</a>';
+										}
+										echo '</li>';
+									}
+								}
+							}
+						?>
+						
+					</ol>
+				</nav>
+				
+				<?php }  ?>
+				
+				<?php if (isset($_GET['modulo'])) echo getMensagem($_GET['modulo']); ?>
+				
+				<?php echo $contents; ?>
+				
+			</div>
+		</div>
+	</div>
+	<footer>
+	<?php if (isset($_SESSION[PREFIX . "loginId"])) { ?>
+	<p>Você acessou como <a href="?modulo=usuarios&acao=alterar&id=<?php echo $_SESSION[PREFIX . "loginId"]; ?>"><?php echo $_SESSION[PREFIX . "loginNome"]; ?></a> (<a href="sair.php">Sair</a>)</p>
+	<?php } ?>
+	<?php echo $configuracoes->configuracao->sigla . " - " . $configuracoes->configuracao->nome . " © " . date('Y'); ?></footer>
+</div>
+</body>
+</html>
+	
+	

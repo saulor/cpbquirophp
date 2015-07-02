@@ -1,0 +1,152 @@
+<form class="form-inline" method="post" action="?modulo=<?php echo $_GET['modulo']; ?>&acao=opcoes<?php if (isset($pagina)) echo "&p=" . $pagina; if(isset($order)) echo "&order=" . $order; ?>">
+	
+	<div id="resume-info">
+		<small>
+			<strong id="inicio">
+				<?php echo $inicio; ?>
+			</strong> &rsaquo; 
+			<strong id="fim">
+				<?php echo $fim; ?>
+			</strong> de 
+			<strong id="quantidade">
+				<?php echo $quantidade; ?>
+			</strong> registros
+		</small>
+	</div>
+	
+    <div id="acoes">
+        <select class="form-control" name="acoes">
+            <option value="0">--Ações em massa--</option>
+            <?php
+            	foreach ($table["acoesMassa"] as $key => $value) {
+            		echo '<option value="' . $key . '">' . $value . '</option>';
+            	}
+            ?>
+        </select>
+        <input class="btn btn-default" type="submit" value="Aplicar" /> 
+    </div>
+		
+    <?php
+	    $qString = array();
+	    foreach (explode("&", $_SERVER['QUERY_STRING']) as $queryString) {
+	    	$chave = explode("=", $queryString);
+	    	if ($chave[0] != 'p') {
+	    		$qString[] = $queryString;
+	    	}
+	    }
+	    if ($quantidade > $quantidadePorPagina) {
+	    	echo paginacao($quantidade, $quantidadePorPagina, $pagina, implode("&", $qString));
+	    }
+    ?>
+    
+    <table class="table lista">
+    <thead>
+        <tr>
+			<th>&nbsp;</th>
+            <th>
+                <input type="checkbox" name="objetos[0]" value="-1" onClick="selecionarTodos(this)"/>
+            </th>
+            <?php
+            	foreach ($table['fields'] as $key => $f) {
+            		echo '<th';
+            		if (isset($f['align'])) {
+            			echo ' class="' . $f['align'] . '"';
+            		}
+            		echo '><a href="?' . $_SERVER['QUERY_STRING'] . '&order=' . $key . '">' . $f["label"] . '</a></th>';
+            	}
+            
+            ?>
+            <th class="acoes" colspan="2">Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+	    <tr id="buscaAjax">
+	    	<td>&nbsp;</td>
+	    	<td>
+	    		<img class="loader" src="imagens/ajax-loader2.gif">
+	    	</td>
+	    	<?php
+	    		foreach ($table["fields"] as $key => $f) {
+	    			echo '<td>';
+	    			if (isset($f["ajax"]) && $f["ajax"]) {
+		    			echo '<input class="form-control';
+		    			if (isset($f['class'])) {
+		    				echo ' ' . $f['class'];
+		    			}
+		    			echo '" type="text" placeholder="' . $f["label"] . '" name="' . $key . '" onkeyup="pesquisa(1, \'views/' . $_GET["modulo"] . '/ajax.php\')" />';
+		    			echo '</td>';
+		    		}
+	    		}
+	    	?>
+	    </tr>
+	    <?php	
+	    	foreach ($params["objetos"] as $objeto) {
+	    		echo '<tr>';
+	    		echo '<th scope="row">';
+				echo '<small>' . $inicio++ . '</small>';
+				echo '</th>';
+				echo '<td>';
+	            echo '<input type="checkbox" name="objetos[]" value="' . $objeto["id"] . '" />';
+	            echo '</td>';
+				foreach ($table['fields'] as $key => $f) {
+					if (array_key_exists($key, $objeto)) {
+						echo '<td';
+						if (isset($f['align'])) {
+							echo ' class="' . $f['align'] . '"';
+						}
+						echo '>';
+						if (isset($f["editField"])) {
+							echo '<a href="?modulo=' . $_GET['modulo'] . '&acao=cadastrar&id=' . $objeto["id"] . '"';
+							echo '>';
+						}
+						echo $objeto[$key];
+						if (isset($f["editField"])) {
+							echo '</a>';
+						}
+						if (isset($f["info"])) {
+							echo '<br /><small>';
+							echo eval($f["info"]);
+							echo '</small>';
+						}
+						if (isset($f["acoes"])) {
+							echo '<div>';
+							$as = array();
+							foreach ($f["acoes"] as $key => $value) {
+								$a = '<a href="?modulo=' . $_GET['modulo'] . '&acao=' . $key;
+								$a .= '&id=' . $objeto["id"] . '">';
+								$a .= $value;
+								$a .= '</a>';
+								$as[] = $a; 	
+							}
+							echo implode(" | ", $as);
+							echo '</div>';
+						}
+						echo '</td>';
+					}
+				}
+				
+				echo '<td>';
+				echo '<a href="?modulo=' . $_GET['modulo'] . '&acao=cadastrar&id=' . $objeto["id"] . '">';
+				echo '<img title="Editar" alt="Editar" src="imagens/edit-icon.gif" />';
+				echo '</a>';
+				echo '</td>';
+				echo '<td>';
+				echo '<a ';
+				echo ' onclick="excluir(\'' . $_GET['modulo'] . '\', {\'acao\' : \'excluir\', \'id\' : ' . $objeto["id"] . '});return false;"';
+				echo 'href="?modulo=' . $_GET['modulo'] . '&acao=excluir&id=' . $objeto["id"] . '">';
+				echo '<img title="Excluir" alt="Excluir" src="imagens/delete-icon.gif" />';
+				echo '</a>';
+				echo '</td>';
+				
+				echo '</tr>';
+	    	}
+	    ?>
+    </tbody>
+    </table>
+</form>
+
+<?php
+    if ($quantidade > $quantidadePorPagina) {
+    	echo paginacao($quantidade, $quantidadePorPagina, $pagina, implode("&", $qString));
+    }
+?>

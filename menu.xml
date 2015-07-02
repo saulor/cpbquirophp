@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modulos>
+	<modulo id="agenda" label="Agenda">
+		<acao>Compromissos</acao>
+		<acao id="cadastrar">Novo Compromisso</acao>
+	</modulo>
+	<modulo id="pacientes" label="Pacientes">
+		<acao>Editar</acao>
+		<acao id="cadastrar">Novo</acao>
+	</modulo>
+	<!--modulo id="permissoes" label="Permissões">
+		<acao>Editar</acao>
+		<acao id="nova">Nova</acao>
+	</modulo-->
+	<modulo id="usuarios" label="Usuários">
+		<acao>Editar</acao>
+		<acao id="cadastrar">Novo</acao>
+	</modulo>
+</modulos>

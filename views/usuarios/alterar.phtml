@@ -1,0 +1,79 @@
+<?php
+	$params = $this->getParams();
+	$usuario = $params["usuario"];
+?>
+
+<link rel="stylesheet" type="text/css" href="styles/formulario.css" />
+
+<form id="formulario" method="post">
+
+	<!--ul>
+		<li>
+			<label class="tamanho3" for="Nome">Nome:</label>
+			<input name="nome" type="text" size="60" value="<?php echo $usuario["nome"] ?>" autofocus="autofocus"/>
+		</li>
+		
+		<li>
+			<label class="tamanho3" for="Login">Login:</label>
+			<input name="login" type="text" size="40" value="<?php echo $usuario["login"] ?>" />
+		</li>
+		
+		<li>
+			<label class="tamanho3" for="Senha atual">Senha atual:</label>
+			<input name="senhaAtual" type="password" size="40" />
+		</li>
+
+		<li>
+			<label class="tamanho3" for="Nova senha">Nova senha:</label>
+			<input name="novaSenha" type="password" size="40" />
+		</li>
+
+		<li>
+			<label class="tamanho3" for="E-mail">E-mail:</label>
+			<input name="email" class="email" type="text" value="<?php echo $usuario["email"] ?>" size="50" />
+		</li>
+
+		<li>
+			<input type="submit" value="Alterar" /> 
+		</li>
+		
+	</ul-->
+	
+	<input type="hidden" name="id" value="<?php echo $usuario["id"]; ?>" />
+	
+	<ul>
+		<li>
+			<label class="tamanho3" for="Nome">Nome:</label>
+			<input name="nome" type="text" size="60" value="<?php echo $usuario["nome"] ?>" autofocus="autofocus"/>
+		</li>
+		
+		<li class="tresColunas">
+			<p>
+				<label for="Login">Login:</label>
+				<input name="login" type="text" value="<?php echo $usuario["login"]; ?>" />
+			</p>
+			
+			<p>
+				<label for="Senha atual">Senha atual:</label>
+				<input name="senhaAtual" type="password" />
+			</p>
+			
+			<p>
+				<label for="Nova senha">Nova senha:</label>
+				<input name="novaSenha" type="password" />
+			</p>
+		</li>
+
+		<li>
+			<label class="tamanho3" for="E-mail">E-mail:</label>
+			<input name="email" class="email" type="text" value="<?php echo $usuario["email"] ?>" size="50" />
+		</li>
+
+		<li>
+			<input type="submit" value="Alterar" /> 
+		</li>
+		
+	</ul>
+
+</form>
+

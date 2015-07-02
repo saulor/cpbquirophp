@@ -1,0 +1,115 @@
+@charset "utf-8";
+
+form ul {
+	margin:0;
+	padding:0;
+	list-style-type:none;
+}
+
+form ul li {
+	display: block;
+	margin:5px 0 5px 0;
+	padding:0;
+}
+
+form ul li label {
+	display: block;
+	float: left;
+	width: 200px;
+}
+
+input,
+textarea {
+	width: auto !important;
+}
+
+select,
+textarea {
+	margin: 0 0 8px 0;	
+}
+
+
+
+/* 
+
+form ul li p {
+	margin: 0;
+	padding: 0;
+}
+
+form ul li span {
+	display: block;
+	float: left;
+	margin: 5px 10px 10px 0;
+	padding: 0;
+}
+
+form ul li.duasColunas,
+form ul li.tresColunas {
+	overflow: auto;
+}
+
+form ul li.duasColunas p {
+	width: 45%;
+	float: left;
+	padding:0 20px 0 0;
+}
+
+form ul li.tresColunas p {
+	width: 30%;
+	float: left;
+	padding:0 20px 0 0;
+}
+
+/*form ul li.duasColunas div p {
+	width:47%;
+	padding:0 20px 0 0;
+}
+
+form ul li.duasColunas div p.estilo1 {
+	width:78%;
+}
+
+form ul li.duasColunas div p.estilo2 {
+	width:15%;
+}
+
+form ul li.duasColunas div p.estilo3 {
+	width:30%;
+}
+
+form ul li.duasColunas div p.estilo4 {
+	width: 63%;	
+}
+
+form ul li.tresColunas div p {
+	width:30%;
+	padding:0 20px 0 0
+}
+
+form ul li.tresColunas div p input,
+form ul li.tresColunas div p select {
+	width: 100%;
+}
+
+input[type=text], 
+select { 
+	width:98%; 
+}
+
+input.pequeno,
+select.pequeno {
+	width:29%;
+}
+
+input.medio,
+select.medio {
+	width:50%;
+}
+
+input.medio2,
+select.medio2 {
+	width:65%;
+}
+
+*/

@@ -1,0 +1,30 @@
+<?php
+	$params = $this->getParams();
+    $aniversariantes = $params["aniversariantes"];
+    //print_r($aniversariantes);
+?>
+<p>
+	<img src="imagens/birthday2.png" alt="" />
+	<strong><u>Aniversariantes do mês de <?php echo getMesPorExtenso(date('m')); ?></u></strong>
+	<img src="imagens/birthday1.png" alt="" />
+</p>
+<?php
+	$hoje = date('d');
+	$arr = array();
+	foreach ($aniversariantes as $aniversariante) {
+		list($dia,$mes,$ano) = explode("/", $aniversariante["dataNascimento"]);
+		$txt = '';
+		$txt = '<span';
+		if ($dia == $hoje) {
+			$txt .= ' style="font-weight:bold;" class="destaque"';
+		}
+		$txt .= '>';
+		$txt .= $aniversariante["nome"];
+		$txt .= " (";
+		$txt .= $dia;
+		$txt .= ")";
+		$txt .= '</span>';
+		$arr[] = $txt;
+	}
+	echo '<p>' . implode(", ", $arr) . '<p>';
+?>
