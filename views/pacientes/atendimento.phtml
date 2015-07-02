@@ -1,0 +1,291 @@
+<?php
+	$params = $this->getParams();
+	$paciente = $params["paciente"];
+	$atendimento = $params["atendimento"];
+?>
+
+<form id="formulario" enctype="multipart/form-data" method="post">
+
+	<input name="Atendimento[id]" type="hidden" value="<?php echo $atendimento["id"]; ?>" />
+	<input name="Atendimento[paciente]" type="hidden" value="<?php echo $paciente["id"]; ?>" />
+
+	<fieldset>
+		<legend><strong>Dados do paciente</strong> <a href="?modulo=pacientes&acao=cadastrar&id=<?php echo $paciente["id"]; ?>&r=<?php echo urlencode('?' . $_SERVER['QUERY_STRING']); ?>"><small>(Atualizar)</small></a> <a target="_blank" href="?modulo=pacientes&acao=ficha&id=<?php echo $paciente["id"]; ?>&r=<?php echo urlencode('?' . $_SERVER['QUERY_STRING']); ?>"><small>(Imprimir Ficha)</small></a></legend>
+		
+		<div class="grid">
+			<div class="col-6-12">
+				<div class="content">
+					<p><strong>Nome:</strong> <?php echo $paciente["nome"]; ?> (<?php echo $paciente["idade"]?> ano(s))</p>
+				</div>
+			</div>
+			<div class="col-3-12">
+				<div class="content">
+					<p><strong>Sexo:</strong> <?php echo $paciente["sexo"]; ?></p>
+				</div>
+			</div>
+			<div class="col-3-12">
+				<div class="content">
+					<p><strong>Data de Nasc.:</strong> <?php echo $paciente["dataNascimento"]; ?></p>
+				</div>
+			</div>
+		</div>
+		
+		<div class="grid">
+			<div class="col-6-12">
+				<div class="content">
+					<p><strong>Profissão:</strong> <?php echo $paciente["profissao"]; ?></p>
+				</div>
+			</div>
+			<div class="col-3-12">
+				<div class="content">
+					<p><strong>Tel.. Resid.:</strong> <?php echo $paciente["telefoneResidencial"]; ?></p>
+				</div>
+			</div>
+			<div class="col-3-12">
+				<div class="content">
+					<p><strong>Tel. Cel.:</strong> <?php echo $paciente["telefoneCelular"]; ?></p>
+				</div>
+			</div>
+		</div>
+		
+		<div class="grid">
+			<div class="col-6-12">
+				<div class="content">
+					<p><strong>E-mail:</strong> <?php echo $paciente["email"]; ?></p>
+				</div>
+			</div>
+			<div class="col-2-12">
+				<div class="content">
+					<p><strong>CPF:</strong> <?php echo $paciente["cpf"]; ?></p>
+				</div>
+			</div>
+		</div>
+		
+		<div class="grid">
+			<div class="col-6-12">
+				<div class="content">
+					<p><strong>CEP:</strong> <?php echo $paciente["cep"]; ?></p>
+				</div>
+			</div>
+		</div>
+		
+		<div class="grid">
+			<div class="col-6-12">
+				<div class="content">
+					<p><strong>Endereço:</strong> <?php echo $paciente["endereco"]; ?><?php if (!empty($paciente["numero"])) echo ', ' . $paciente["numero"]?></p>
+				</div>
+			</div>
+			<div class="col-6-12">
+				<div class="content">
+					<p><strong>Complemento:</strong> <?php echo $paciente["complemento"]; ?></p>
+				</div>
+			</div>
+			
+		</div>
+		
+		<div class="grid">
+			<div class="col-6-12">
+				<div class="content">
+					<p><strong>Bairro:</strong> <?php echo $paciente["bairro"]; ?></p>
+				</div>
+			</div>
+			<div class="col-6-12">
+				<div class="content">
+					<p><strong>Cidade:</strong> <?php echo $paciente["cidade"]; ?> <?php if (!empty($paciente["cidade"])) echo "(" . $paciente["uf"] . ")"; ?></p>
+				</div>
+			</div>
+		</div>
+		
+	</fieldset>
+	
+	<fieldset>
+		<legend><strong>Avaliação do paciente</strong></legend>
+		
+		<div class="grid">
+			<div class="col-1-12">
+				<div class="content">
+					<label for="Altura"><strong>Altura:</strong></label>
+				</div>
+			</div>
+			<div class="col-3-12">
+				<div class="content">
+					<input class="decimal form-control" type="text" id="altura" class="decimal" name="Atendimento[altura]" value="<?php echo $atendimento["altura"]; ?>" onblur="calculaImc()" />
+				</div>
+			</div>
+			<div class="col-1-12">
+				<div class="content">
+					<label for="Peso"><strong>Peso:</strong></label>
+				</div>
+			</div>
+			<div class="col-3-12">
+				<div class="content">
+					<input class="decimal form-control" type="text" id="peso" name="Atendimento[peso]" value="<?php echo $atendimento["peso"]; ?>" onblur="calculaImc()" />
+				</div>
+			</div>
+			<div class="col-1-12">
+				<div class="content">
+					<label for="IMC"><strong>IMC:</strong></label>
+				</div>
+			</div>
+			<div class="col-3-12">
+				<div class="content">
+					<input class="decimal form-control" type="text" id="imc" name="Atendimento[imc]" value="<?php echo $atendimento["imc"]; ?>" />
+				</div>
+			</div>
+		</div>
+		
+		<br />
+		
+		<div class="grid">
+			<div class="col-1-1">
+				<div class="content">
+					<label for="História da doença atual (HDA)"><strong>História da doença atual (HDA):</strong></label>
+				</div>
+			</div>
+			<div class="col-1-1">
+				<div class="content">
+					<textarea class="ckeditor" name="Atendimento[hda]"><?php echo $atendimento["hda"]; ?></textarea>
+				</div>
+			</div>
+		</div>
+		
+		<br />
+		
+		<div class="grid">
+			<div class="col-1-1">
+				<div class="content">
+					<label for="Localização e grau das dores"><strong>Localização e grau das dores:</strong></label>
+				</div>
+			</div>
+		</div>
+		
+		
+			<?php 
+				$count = 0;
+				
+				$getDor = function($dores, $local) {
+					foreach ($dores as $dor) {
+						if ($dor["local"] == $local) {
+							return $dor;
+						}
+					}
+					return NULL;
+				};
+				
+				foreach (Atendimento::getLocalizacaoDores() as $key => $value) {
+					$dor = $getDor($atendimento["dores"], $key);
+					$id = $dor ? $dor["id"] : 0;
+					echo '<div class="grid">';
+					
+					echo '<div class="col-2-12">';
+					echo '<div class="content">';
+					echo '<input type="hidden" name="Dores[' . $count . '][id]" value="' . $id . '" />';
+					echo '<input type="checkbox" name="Dores[' . $count . '][local]" value="' . $key . '"';
+					if ($dor) {
+						echo ' checked="checked"';
+					}
+					echo ' /> ' . $value;
+					echo '</div>';
+					echo '</div>';
+					
+					echo '<div class="col-5-12">';
+					echo '<div class="content">';
+					echo '<input class="form-control" type="text" placeholder="Característica da dor" name="Dores[' . $count . '][caracteristica]"';
+					if ($dor) {
+						echo ' value="' . $dor["caracteristica"] . '"';
+					}
+					echo ' />';
+					echo '</div>';
+					echo '</div>';
+					
+					echo '<div class="col-1-12">';
+					echo '<div class="content">';
+					echo ' <input class="decimal form-control" type="text" placeholder="Grau" name="Dores[' . $count . '][grau]"';
+					if ($dor && $dor["grau"] > 0) {
+						echo ' value="' . $dor["grau"] . '"';
+					}
+					echo ' /> ';
+					echo '</div>';
+					echo '</div>';
+					
+					$intensidades = array();
+					
+					if ($dor) {
+						$intensidades = explode(",", $dor["intensidade"]);
+					}
+					
+					echo '<div class="col-1-12">';
+					echo '<div class="content">';
+					echo ' <input type="checkbox" name="Dores[' . $count . '][intensidade][]" value="' . Atendimento::ATENDIMENTO_DOR_GRAU_LEVE . '"';
+					if (in_array(Atendimento::ATENDIMENTO_DOR_GRAU_LEVE, $intensidades)) {
+						echo ' checked="checked"';
+					}
+					echo ' /> Leve';
+					echo '</div>';
+					echo '</div>';
+					
+					echo '<div class="col-2-12" style="text-align:center;">';
+					echo '<div class="content">';
+					echo ' <input type="checkbox" name="Dores[' . $count . '][intensidade][]" value="' . Atendimento::ATENDIMENTO_DOR_GRAU_MODERADO . '"';
+					if (in_array(Atendimento::ATENDIMENTO_DOR_GRAU_MODERADO, $intensidades)) {
+						echo ' checked="checked"';
+					}
+					echo ' /> Moderado';
+					echo '</div>';
+					echo '</div>';
+					
+					echo '<div class="col-1-12">';
+					echo '<div class="content">';
+					echo ' <input type="checkbox" name="Dores[' . $count . '][intensidade][]" value="' . Atendimento::ATENDIMENTO_DOR_GRAU_GRAVE . '" ';
+					if (in_array(Atendimento::ATENDIMENTO_DOR_GRAU_GRAVE, $intensidades)) {
+						echo ' checked="checked"';
+					}
+					echo '/> Grave';
+					$count++;
+					echo '</div>';
+					echo '</div>';
+					 
+					echo '</div><p></p>';
+				}
+			?>	
+		
+			
+		<div class="grid">
+			<div class="col-1-1">
+				<div class="content">
+					<label for="Avaliação Postural"><strong>Avaliação Postural:</strong></label>
+				</div>
+			</div>
+			<div class="col-1-1">
+				<div class="content">
+					<textarea class="ckeditor" name="Atendimento[avaliacaoPostural]"><?php echo $atendimento["avaliacaoPostural"]; ?></textarea>
+				</div>
+			</div>
+		</div>
+		
+		<br />
+		
+		<div class="grid">
+			<div class="col-1-1">
+				<div class="content">
+					<label for="Evolução"><strong>Evolução:</strong></label>
+				</div>
+			</div>
+			<div class="col-1-1">
+				<div class="content">
+					<textarea class="ckeditor" name="Atendimento[evolucao]"><?php echo $atendimento["evolucao"]; ?></textarea>
+				</div>
+			</div>
+		</div>
+			
+	</fieldset>
+	
+	<br />
+
+	<input class="btn btn-default" type="submit" value="Salvar" /> 
+
+</form>
+
+<script type="text/javascript">
+
+</script>

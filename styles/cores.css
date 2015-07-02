@@ -1,0 +1,180 @@
+@charset "UTF-8";
+/* CSS Document */
+
+body {
+    background:#f0f0f0;
+    color:#444;
+}
+
+.main { 
+    background:#fff; 
+}
+
+.breadcrumbs { 
+    background-color:#f1f0f0; 
+    border:1px solid #ccc; 
+}
+
+fieldset {
+	border: 1px solid #ccc;
+	padding: 10px;
+}
+
+legend {
+	padding: 0;
+	margin: 0;
+}
+
+.right { 
+	border-left: 1px solid #f1f0f0;
+}
+
+div#mensagem.info {
+    border:1px solid #ece583;
+	background: #ffffe0;
+}
+
+div#mensagem.error {
+    border:1px solid #cc0000;
+	background: #ffebe8;
+}
+
+nav#paginacao ul li {
+    border: 1px solid #0098db;
+}
+
+nav#paginacao ul li.current {
+    text-align:center;
+    background-color:#0098db;
+}
+
+nav#paginacao ul li.current a {
+    color:#fff;
+}
+
+nav#paginacao ul li a:hover {
+    color:#fff;
+}
+
+nav#paginacao ul li:hover {
+    background: #3e4095;
+    border: 1px solid #3e4095;
+}
+
+.destaque {
+    color: red;
+}
+
+
+
+/*
+
+a { 
+    color:#3e4095;
+}
+
+a.desativada { 
+    color:#CDB38B;
+}
+
+a:focus { 
+    color:#8B0E23; 
+}
+
+a:hover,
+a:active { 
+    color:#0098db; 
+}
+
+#access a.assistive-text:active,
+#access a.assistive-text:focus { 
+    background:#eee;
+    border-bottom:1px solid #ddd;
+    color:#1982d1; 
+}
+
+header[role=logo] { 
+ 
+}
+
+input,
+select,
+fieldset {
+    border: 1px solid #ccc;
+}
+
+footer {
+	color:#333;
+}
+
+.top-menu a, 
+.top-menu span { 
+}
+
+#main-menu a { 
+	color:#fff;
+}
+
+#main-menu a:hover { 
+
+}	
+
+#main-menu a.active { 
+
+}	
+
+.left {
+
+}
+
+form table {     
+	border-bottom: 1px solid #0098db;
+}
+
+form table thead a {
+	color: #fff;
+}
+
+form table thead a:hover {
+	color: #3e4095;
+	text-decoration: none !important;
+}
+
+form table tbody a,
+form table tbody span{ 
+    color: #3e4095; 
+}
+
+form table thead tr {
+    background-color:#0098db;
+    color: #fff;
+}
+
+form table tr:hover .hint {  
+    color: #FFFFFF;  
+    background: rgba(0, 0, 0, 0.6);  
+}
+
+form table tbody td small {
+	color:#ccc;
+}
+	
+div#dica p {
+	background-color: #ffefd5;
+	border:1px solid #bdb76b;
+}
+
+span.jvscrpt {
+	color:#FF7F24;
+}
+
+div.estatisticas table thead th {
+	background:#FF7F50;
+	color: #fff;
+}
+
+div.estatisticas table tbody td.dado {
+	background:#FFFACD;
+}
+
+*/

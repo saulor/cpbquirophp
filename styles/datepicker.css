@@ -1,0 +1,20 @@
+.ui-datepicker { 
+	font-family:Georgia,serif !important;
+	border: 1px solid #0081c2 !important;  
+}  
+
+.ui-datepicker-header {  
+    /*background: url('../img/dark_leather.png') repeat 0 0 #000;*/
+    background: #0081c2 !important;  
+    color: #e0e0e0;  
+    font-weight: bold;  
+    -webkit-box-shadow: inset 0px 1px 1px 0px rgba(250, 250, 250, 2);  
+    -moz-box-shadow: inset 0px 1px 1px 0px rgba(250, 250, 250, .2);  
+    box-shadow: inset 0px 1px 1px 0px rgba(250, 250, 250, .2);  
+    text-shadow: 1px -1px 0px #000;  
+    filter: dropshadow(color=#000, offx=1, offy=-1);  
+    line-height: 30px;  
+    border-width: 1px 0 0 0;  
+    border-style: solid;  
+    border-color: #fff !important;  
+}  

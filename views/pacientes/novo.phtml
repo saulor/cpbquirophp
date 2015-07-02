@@ -1,0 +1,325 @@
+<?php
+	$params = $this->getParams();
+	$paciente = $params["paciente"];
+?>
+
+<style>
+	[class*='col-'] {
+		margin-bottom: 10px;
+	}
+</style>
+
+<form method="post">
+	<input type="hidden" name="Paciente[id]" value="<?php echo $paciente["id"]; ?>" />
+	<fieldset>
+		<legend>Dados Pessoais</legend>
+		<div class="grid">
+			<div class="col-3-12">
+				<div class="content" style="height: 240px;">
+					<?php
+						
+						$acao = 'Tirar';
+						$src = "imagens/user.gif";
+						
+						if ($paciente["id"] != 0) {
+							if (!empty($paciente["foto"])) {
+								$diretorio = DIR_UPLOADS . SEPARADOR_DIRETORIO . 'pacientes' . SEPARADOR_DIRETORIO . $paciente["id"] . SEPARADOR_DIRETORIO . $paciente["foto"];
+								if (existeArquivo($diretorio)) {
+									$acao = 'Mudar';
+									$excluir = 'Excluir';
+									$src = 'uploads/pacientes/' . $paciente["id"] . '/' . $paciente["foto"];
+								}
+							}
+						}
+						
+						echo '<img style="width:100%;" src="' . $src . '" alt="" /><br />';
+						
+						if ($paciente["id"] != 0) { 
+							echo '<p style="text-align:center;padding:0;margin:0;">';
+							echo '<a href="?modulo=pacientes&acao=foto&id=' . $paciente["id"] . '">';
+							echo '<small>';
+							echo $acao;
+							echo ' foto';
+							echo '</small>';
+							echo '</a>';
+							echo '</p>';
+							if (isset($excluir)) {
+								echo '<p style="text-align:center;padding:0;margin:0;">';
+								echo '<a onclick="excluir(\'pacientes\', {\'acao\' : \'remover\', \'id\' : ' . $paciente["id"] . '});return false;" href="?modulo=pacientes&acao=remover&id=' . $paciente["id"] . '">';
+								echo '<small>';
+								echo 'Excluir foto';
+								echo '</small>';
+								echo '</a>';
+								echo '</p>';
+							}
+						}
+						
+					?>
+				</div>
+			</div>
+			<div class="col-3-12">
+				<div class="content">
+					<label style="float: right;" class="control-label" for="Nome">Nome:</label>
+				</div>
+			</div>
+			<div class="col-6-12">
+				<div class="content">
+					<input class="form-control" type="text" name="Paciente[nome]" value="<?php echo $paciente["nome"]; ?>" autofocus="autofocus" />
+				</div>
+			</div>
+			<div class="col-3-12">
+				<div class="content">
+					<label style="float: right;" for="Data de Nascimento">Data de Nascimento:</label>
+				</div>
+			</div>
+			<div class="col-2-12">
+				<div class="content">
+					<input class="form-control data" name="Paciente[dataNascimento]" class="Paciente[dataNascimento]" onblur="calculaIdade(this, '<?php echo date('d/m/Y'); ?>')" type="text" value="<?php echo $paciente["dataNascimento"]; ?>" />
+				</div>
+			</div>
+			<div class="col-2-12">
+				<div class="content">
+					<label for="Idade">Idade:</label>
+				</div>
+			</div>
+			<div class="col-2-12">
+				<div class="content">
+					<input class="form-control" name="Paciente[idade]" id="idade" type="text" value="<?php echo $paciente["idade"]; ?>" />
+				</div>
+			</div>
+			<div class="col-3-12">
+				<div class="content">
+					<label style="float: right;" for="Profissão">Profissão:</label>
+				</div>
+			</div>
+			<div class="col-6-12">
+				<div class="content">
+					<input class="form-control" name="Paciente[profissao]" id="profissao" type="text" value="<?php echo $paciente["profissao"]; ?>" />
+				</div>
+			</div>
+			<div class="col-3-12">
+				<div class="content">
+					<label style="float: right;" for="Sexo">Sexo:</label>
+				</div>
+			</div>
+			<div class="col-2-12">
+				<div class="content">
+					<select class="form-control" name="Paciente[sexo]">
+						<option value="">--Selecione--</option>
+					    <option value="M"<?php if($paciente["sexo"] == "M") echo ' selected="selected"'; ?>>Masculino</option>
+					    <option value="F"<?php if($paciente["sexo"] == "F") echo ' selected="selected"'; ?>>Feminino</option>
+					</select>
+				</div>
+			</div>
+			<div class="col-2-12">
+				<div class="content">
+					<label for="CPF">CPF:</label>
+				</div>
+			</div>
+			<div class="col-2-12">
+				<div class="content">
+					<input class="form-control cpf" name="Paciente[cpf]" type="text" value="<?php echo $paciente["cpf"]; ?>" />
+				</div>
+			</div>
+			<div class="col-3-12">
+				<div class="content">
+					<label style="float: right;" for="Telefone Residencial">Telefone Res.:</label>
+				</div>
+			</div>
+			<div class="col-2-12">
+				<div class="content">
+					<input class="form-control telefoneResidencial"  name="Paciente[telefoneResidencial]" type="text" value="<?php echo $paciente["telefoneResidencial"]; ?>" />
+				</div>
+			</div>
+			<div class="col-2-12">
+				<div class="content">
+					<label for="Telefone Celular">Telefone Cel.:</label>
+				</div>
+			</div>
+			<div class="col-2-12">
+				<div class="content">
+					<input class="form-control telefoneCelular"  name="Paciente[telefoneCelular]" type="text" value="<?php echo $paciente["telefoneCelular"]; ?>" />
+				</div>
+			</div>
+			<div class="col-3-12">
+				<div class="content">
+					<label style="float: right;" class="control-label" for="E-mail">E-mail:</label>
+				</div>
+			</div>
+			<div class="col-6-12">
+				<div class="content">
+					<input class="form-control" type="text" name="Paciente[email]" autofocus="autofocus" value="<?php echo $paciente["email"]; ?>" />
+				</div>
+			</div>
+			
+		</div>
+	</fieldset>
+	
+	<fieldset>
+		<legend>Endereço</legend>
+		
+		<div class="grid">
+			<div class="col-2-12">
+				<div class="content">
+					<label for="Cep">Cep:</label>
+				</div>
+			</div>
+			<div class="col-2-12">
+				<div class="content">
+					<input name="Paciente[cep]" class="form-control cep" onblur="consultaCep(this)" type="text" value="<?php echo $paciente["cep"]; ?>" />
+				</div>
+			</div>
+			<div class="col-1-12">
+				<div class="content">
+					<img style="margin-top: 12px;" class="loader" src="imagens/ajax-loader2.gif" />
+				</div>
+			</div>
+		</div>
+			
+		<div class="grid">
+			<div class="col-2-12">
+				<div class="content">
+					<label for="Endereço">Endereço:</label>
+				</div>
+			</div>
+			<div class="col-7-12">
+				<div class="content">
+					<input class="form-control" id="endereco" name="Paciente[endereco]" type="text" value="<?php echo $paciente["endereco"]; ?>" />
+				</div>
+			</div>
+			<div class="col-1-12">
+				<div class="content">
+					<label for="Número">Número:</label>
+				</div>
+			</div>
+			<div class="col-2-12">
+				<div class="content">
+					<input class="form-control" name="Paciente[numero]" type="text" value="<?php echo $paciente["numero"]; ?>" />
+				</div>
+			</div>
+		</div>
+		
+		<div class="grid">
+			<div class="col-2-12">
+				<div class="content">
+					<label for="Complemento">Complemento:</label>
+				</div>
+			</div>
+			<div class="col-4-12">
+				<div class="content">
+					<input class="form-control" name="Paciente[complemento]" type="text" value="<?php echo $paciente["complemento"]; ?>" />
+				</div>
+			</div>
+			<div class="col-1-12">
+				<div class="content">
+					<label for="Bairro">Bairro:</label>
+				</div>
+			</div>
+			<div class="col-5-12">
+				<div class="content">
+					<input id="bairro" class="form-control" name="Paciente[bairro]" type="text" value="<?php echo $paciente["bairro"]; ?>" />
+				</div>
+			</div>
+		</div>
+		
+		<div class="grid">
+			<div class="col-2-12">
+				<div class="content">
+					<label for="Cidade">Cidade:</label>
+				</div>
+			</div>
+			<div class="col-7-12">
+				<div class="content">
+					<input id="cidade" class="form-control" name="Paciente[cidade]" type="text" value="<?php echo $paciente["cidade"]; ?>" />
+				</div>
+			</div>
+			<div class="col-1-12">
+				<div class="content">
+					<label style="float: right;" for="UF">UF:</label>
+				</div>
+			</div>
+			<div class="col-2-12">
+				<div class="content">
+					<select class="form-control" id="uf" name="Paciente[uf]">
+						<option value="" <?php if ($paciente["uf"] == "0") echo 'selected="selected"';  ?>>--Selecione--</option>
+						<option value="AC" <?php if ($paciente["uf"] == "AC") echo 'selected="selected"'; ?>>AC</option>
+						<option value="AL" <?php if ($paciente["uf"] == "AL") echo 'selected="selected"'; ?>>AL</option>
+						<option value="AP" <?php if ($paciente["uf"] == "AP") echo 'selected="selected"'; ?>>AP</option>
+						<option value="AM" <?php if ($paciente["uf"] == "AM") echo 'selected="selected"'; ?>>AM</option>
+						<option value="BA" <?php if ($paciente["uf"] == "BA") echo 'selected="selected"'; ?>>BA</option>
+						<option value="CE" <?php if ($paciente["uf"] == "CE") echo 'selected="selected"'; ?>>CE</option>
+						<option value="DF" <?php if ($paciente["uf"] == "DF") echo 'selected="selected"'; ?>>DF</option>
+						<option value="ES" <?php if ($paciente["uf"] == "ES") echo 'selected="selected"'; ?>>ES</option>
+						<option value="GO" <?php if ($paciente["uf"] == "GO") echo 'selected="selected"'; ?>>GO</option>
+						<option value="MA" <?php if ($paciente["uf"] == "MA") echo 'selected="selected"'; ?>>MA</option>
+						<option value="MT" <?php if ($paciente["uf"] == "MT") echo 'selected="selected"'; ?>>MT</option>
+						<option value="MS" <?php if ($paciente["uf"] == "MS") echo 'selected="selected"'; ?>>MS</option>
+						<option value="MG" <?php if ($paciente["uf"] == "MG") echo 'selected="selected"'; ?>>MG</option>
+						<option value="PA" <?php if ($paciente["uf"] == "PA") echo 'selected="selected"'; ?>>PA</option>
+						<option value="PB" <?php if ($paciente["uf"] == "PB") echo 'selected="selected"'; ?>>PB</option>
+						<option value="PR" <?php if ($paciente["uf"] == "PR") echo 'selected="selected"'; ?>>PR</option>
+						<option value="PE" <?php if ($paciente["uf"] == "PE") echo 'selected="selected"'; ?>>PE</option>
+						<option value="PI" <?php if ($paciente["uf"] == "PI") echo 'selected="selected"'; ?>>PI</option>
+						<option value="RJ" <?php if ($paciente["uf"] == "RJ") echo 'selected="selected"'; ?>>RJ</option>
+						<option value="RN" <?php if ($paciente["uf"] == "RN") echo 'selected="selected"'; ?>>RN</option>
+						<option value="RS" <?php if ($paciente["uf"] == "RS") echo 'selected="selected"'; ?>>RS</option>
+						<option value="RO" <?php if ($paciente["uf"] == "RO") echo 'selected="selected"'; ?>>RO</option>
+						<option value="RR" <?php if ($paciente["uf"] == "RR") echo 'selected="selected"'; ?>>RR</option>
+						<option value="SC" <?php if ($paciente["uf"] == "SC") echo 'selected="selected"'; ?>>SC</option>
+						<option value="SP" <?php if ($paciente["uf"] == "SP") echo 'selected="selected"'; ?>>SP</option>
+						<option value="SE" <?php if ($paciente["uf"] == "SE") echo 'selected="selected"'; ?>>SE</option>
+						<option value="TO" <?php if ($paciente["uf"] == "TO") echo 'selected="selected"'; ?>>TO</option>
+					</select>
+				</div>
+			</div>
+		</div>
+	</fieldset>
+	
+	<fieldset>
+		<legend><strong>Outras informações</strong></legend>
+		
+		<div class="grid">
+			<div class="col-2-12">
+				<div class="content">
+					<label for="Tipo de tratamento">Tipo de tratamento:</label>
+				</div>
+			</div>
+			
+			<div class="col-7-12">
+				<div class="content">
+					<?php
+						$tratamentos = count($paciente["tratamentos"]) > 0 ? explode(",", $paciente["tratamentos"]) : array();
+						foreach (Paciente::getTiposTratamento() as $key => $value) {
+							echo '<label class="checkbox-inline"><input type="checkbox"';
+							if (in_array($key, $tratamentos)) {
+								echo ' checked="checked"';
+							}
+							echo ' name="Paciente[tratamentos][]" value="' . $key . '" /> ' . $value . '</label>';
+						}
+					?>
+				</div>
+			</div>
+		</div>
+		
+		<div class="grid">
+		
+			<div class="col-2-12">
+				<div class="content">
+					<label for="Observações">Observações:</label>
+				</div>
+			</div>
+			
+			<div class="col-10-12">
+				<div class="content">
+					<textarea class="form-control" name="observacoes" rows="5"><?php echo $paciente["observacoes"]; ?></textarea>
+				</div>
+			</div>
+		</div>
+		
+	</fieldset>
+	
+	
+	<br />
+	
+	<input class="btn btn-default" type="submit" value="Salvar" />
+</form>

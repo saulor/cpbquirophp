@@ -1,0 +1,65 @@
+<?php
+	$params = $this->getParams();
+    $quantidade = $params["quantidade"];
+    $quantidadePorPagina = $params["quantidadePorPagina"];
+    $pagina = $params["pagina"];
+    $objetos = $params["objetos"];
+    
+    if ($quantidade == 0) {
+        $inicio = 0;
+   	}
+    else {
+        $inicio = ($quantidadePorPagina * $pagina) - ($quantidadePorPagina - 1);
+   	}
+    
+    if ($inicio + ($quantidadePorPagina - 1) > $quantidade) {
+        $fim = $quantidade;
+   	}
+    else {
+        $fim = $inicio + ($quantidadePorPagina - 1);
+  	}
+  	
+  	$table = array(
+  		'fields' => array(
+	  		'nome' => array(
+	  			'ajax' => true,
+	  			'editField' => true,
+	  			'label' => 'Nome',
+	  			'info' => 'return Paciente::getTratamentos($objeto["tratamentos"]);',
+	  			'acoes' => array(
+	  				'atendimento' => 'Atendimento',
+	  				'ficha' => 'Ficha'
+	  			)
+	  		),
+	  		'cpf' => array(
+	  			'ajax' => true,
+	  			'align' => 'center',
+	  			'class' => 'cpf',
+	  			'label' => 'CPF',
+	  		),
+	  		'email' => array(
+	  			'align' => 'center',
+	  			'label' => 'Email',
+	  		),
+	  		'telefoneResidencial' => array(
+	  			'align' => 'center',
+	  			'label' => 'Tel. Res.',
+	  		),
+	  		'telefoneCelular' => array(
+	  			'align' => 'center',
+	  			'label' => 'Tel. Cel.',
+	  		),
+	  		'data' => array(
+	  			'ajax' => true,
+	  			'class' => 'data',
+	  			'align' => 'center',
+	  			'label' => 'Data',
+	  		)
+	  	),
+  		'acoesMassa' => array(
+  			'excluir' => 'Excluir'
+  		)
+  	);
+        
+	include('views/includes/listagem.phtml'); 
+?>
