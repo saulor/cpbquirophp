@@ -20,6 +20,15 @@ class Ficha extends FPDF {
 		$this->setX(10);
 		$this->Cell(13,270,'',0,0,0,true,'');
 		$this->Image($logo,$x,$y,$tamanho);
+<<<<<<< HEAD
+=======
+		$this->SetY($nomeInstituicaoY);
+		$this->SetX($nomeInstituicaoX);
+		$this->SetFont('Helvetica','B',12);
+		$this->SetTextColor(252, 102, 0);
+		//$this->MultiCell(130,6,utf8_decode($nomeInstituicao));
+		$this->SetY(35);
+>>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
 	}
 	
 	function Footer() {

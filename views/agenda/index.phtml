@@ -80,6 +80,7 @@
 		<tr>
 			<?php
 				// Create array containing abbreviations of days of week.
+<<<<<<< HEAD
 			    $daysOfWeek = array('Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb');
 			    //$daysOfWeek = array('Ter', 'Qua', 'Qui', 'Sex');
 			    // What is the first day of the month in question?
@@ -96,6 +97,23 @@
 			    $dayOfWeek = $dateComponents['wday'];
 			     
 			    // Create the calendar headers
+=======
+			     $daysOfWeek = array('Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb');
+			     // What is the first day of the month in question?
+			     $firstDayOfMonth = mktime(0, 0, 0, $month, 1, $year);
+			     // How many days does this month contain?
+			     $numberDays = date('t', $firstDayOfMonth);
+			     // Retrieve some information about the first day of the
+			     // month in question.
+			     $dateComponents = getdate($firstDayOfMonth);
+			     // What is the name of the month in question?
+			     $monthName = $dateComponents['month'];
+			     // What is the index value (0-6) of the first day of the
+			     // month in question.
+			     $dayOfWeek = $dateComponents['wday'];
+			     
+			     // Create the calendar headers
+>>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
 			     
 				foreach($daysOfWeek as $day) {
 					echo '<th class="header">' . $day . '</th>';
