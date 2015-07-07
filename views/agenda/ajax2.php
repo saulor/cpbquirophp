@@ -57,7 +57,7 @@
 	for ($i=$mesRange["start"];$i<=$mesRange["end"];$i++) {
 		foreach ($objetos as $objeto) {
 			if ($objeto["diaCompromisso"] == $i) {
-				$compromissos[$i][$objeto["hora"]] = $objeto;
+				$compromissos[(int) $i][$objeto["hora"]] = $objeto;
 			}
 		}
 	}
@@ -152,7 +152,7 @@
 					$result .= '</small></a>';
 				}
 				else {
-					$result .= '<a href="?modulo=agenda&acao=cadastrar&data=' . str_pad($currentDay, 2, "0", STR_PAD_LEFT) . '/' . $month . '/' . $year . '&hora=' . $hora  .'">';
+					$result .= '<a href="?modulo=agenda&acao=cadastrar&data=' . str_pad($currentDay, 2, "0", STR_PAD_LEFT) . '/' . $mes . '/' . $ano . '&hora=' . $hora  .'">';
 					$result .= '<small>';
 					$result .= $hora;
 					$result .= '</small></a>';

@@ -56,7 +56,7 @@
 	for ($i=$mesRange["start"];$i<=$mesRange["end"];$i++) {
 		foreach ($objetos as $objeto) {
 			if ($objeto["dia"] == $i) {
-				$compromissos[$i][$objeto["hora"]] = $objeto;
+				$compromissos[(int) $i][$objeto["hora"]] = $objeto;
 			}
 		}
 	}
@@ -119,7 +119,7 @@
 		
 		$result .= '">';
 		
-		for ($i = 1; $i < 23; $i++) {
+		for ($i = 0; $i < 23; $i++) {
 								
 			$time = mktime(07, $i*30, 0, 0, 0, 0);
 			$hora = date('H:i', $time);
