@@ -189,6 +189,11 @@ table input {
 	width: 100% !important;
 }
 
+table.agenda thead select {
+	color: #333;
+	font-size: 0.8em;
+}
+
 table.agenda td,
 table.agenda th {
 	text-align: center;
@@ -228,11 +233,6 @@ table.agenda small {
 table.agenda a small {
 	text-align: left;
 }
-
-div.compromissos-wrapper.today {
-
-}
-
 
 
 /*

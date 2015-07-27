@@ -56,11 +56,7 @@
 	for ($i=$mesRange["start"];$i<=$mesRange["end"];$i++) {
 		foreach ($objetos as $objeto) {
 			if ($objeto["dia"] == $i) {
-<<<<<<< HEAD
 				$compromissos[(int) $i][$objeto["hora"]] = $objeto;
-=======
-				$compromissos[$i][$objeto["hora"]] = $objeto;
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
 			}
 		}
 	}
@@ -123,11 +119,7 @@
 		
 		$result .= '">';
 		
-<<<<<<< HEAD
 		for ($i = 0; $i < 23; $i++) {
-=======
-		for ($i = 1; $i < 23; $i++) {
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
 								
 			$time = mktime(07, $i*30, 0, 0, 0, 0);
 			$hora = date('H:i', $time);
@@ -161,7 +153,7 @@
 					$result .= '</small></a>';
 				}
 				else {
-					$result .= '<a href="?modulo=agenda&acao=cadastrar&data=' . str_pad($currentDay, 2, "0", STR_PAD_LEFT) . '/' . $mes . '/' . $year . '&hora=' . $hora  .'">';
+					$result .= '<a href="?modulo=agenda&acao=cadastrar&data=' . str_pad($currentDay, 2, "0", STR_PAD_LEFT) . '/' . $mes . '/' . $ano . '&hora=' . $hora  .'">';
 					$result .= '<small>';
 					$result .= $hora;
 					$result .= '</small></a>';

@@ -57,11 +57,7 @@
 	for ($i=$mesRange["start"];$i<=$mesRange["end"];$i++) {
 		foreach ($objetos as $objeto) {
 			if ($objeto["diaCompromisso"] == $i) {
-<<<<<<< HEAD
 				$compromissos[(int) $i][$objeto["hora"]] = $objeto;
-=======
-				$compromissos[$i][$objeto["hora"]] = $objeto;
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
 			}
 		}
 	}
@@ -156,11 +152,7 @@
 					$result .= '</small></a>';
 				}
 				else {
-<<<<<<< HEAD
 					$result .= '<a href="?modulo=agenda&acao=cadastrar&data=' . str_pad($currentDay, 2, "0", STR_PAD_LEFT) . '/' . $mes . '/' . $ano . '&hora=' . $hora  .'">';
-=======
-					$result .= '<a href="?modulo=agenda&acao=cadastrar&data=' . str_pad($currentDay, 2, "0", STR_PAD_LEFT) . '/' . $month . '/' . $year . '&hora=' . $hora  .'">';
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
 					$result .= '<small>';
 					$result .= $hora;
 					$result .= '</small></a>';

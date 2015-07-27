@@ -88,7 +88,7 @@ class PacientesController extends Controller {
     		if (count($_POST) > 0) {
     	
     			$dados = $_POST["Paciente"];
-    			$dados["tratamentos"] = implode(",", $dados["tratamentos"]);
+    			$dados["tratamentos"] = isset($dados["tratamentos"]) ? implode(",", $dados["tratamentos"]) : array();
     			
     			$obrigatorios = array(
     				"nome" => array(
@@ -540,34 +540,21 @@ class PacientesController extends Controller {
     		$f->setTextColor(0,0,0);
     		$f->setY(38);
     		$f->setX(30);
-<<<<<<< HEAD
     		$f->SetFont('Helvetica','B',12);
-=======
     		$f->SetFont('Helvetica','B',11);
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
     		$f->Cell(0,0,utf8_decode('FICHA DO PACIENTE'));
     		
     		$f->setY(48);
     		$f->setX(30);
-<<<<<<< HEAD
     		$f->SetFont('Helvetica','B',10);
-=======
-    		$f->SetFont('Helvetica','B',9);
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
     		
 			$f->Cell(0,0,utf8_decode('IDENTIFICAÇÃO'));
 
 			$f->setY($f->getY()+6);
 			$f->setX(30);
-<<<<<<< HEAD
-			$f->SetFont('Helvetica','B',9);
+			$f->SetFont('Helvetica','B',10);
 			$f->Cell(0,0,utf8_decode('NOME'));
-			$f->SetFont('Helvetica','',10);
-=======
-			$f->SetFont('Helvetica','B',8);
-			$f->Cell(0,0,utf8_decode('NOME'));
-			$f->SetFont('Helvetica','',8);
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
+			$f->SetFont('Helvetica','',9);
 			$f->setY($f->getY()+6);
 			$f->setX(31);
 			$f->Cell(105,0.1,'',0,0,0,true,'');
@@ -577,15 +564,9 @@ class PacientesController extends Controller {
 			
 			$f->setY($f->getY()-4);
 			$f->setX(138);
-<<<<<<< HEAD
-			$f->SetFont('Helvetica','B',9);
+			$f->SetFont('Helvetica','B',10);
 			$f->Cell(0,0,utf8_decode('IDADE'));
-			$f->SetFont('Helvetica','',10);
-=======
-			$f->SetFont('Helvetica','B',8);
-			$f->Cell(0,0,utf8_decode('IDADE'));
-			$f->SetFont('Helvetica','',8);
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
+			$f->SetFont('Helvetica','',9);
 			$f->setY($f->getY()+6);
 			$f->setX(138);
 			$f->Cell(17,0.1,'',0,0,0,true,'');
@@ -595,15 +576,9 @@ class PacientesController extends Controller {
 					
 			$f->setY($f->getY()-4);
 			$f->setX(156);
-<<<<<<< HEAD
-			$f->SetFont('Helvetica','B',9);
+			$f->SetFont('Helvetica','B',10);
 			$f->Cell(0,0,utf8_decode('CPF'));
-			$f->SetFont('Helvetica','',10);
-=======
-			$f->SetFont('Helvetica','B',8);
-			$f->Cell(0,0,utf8_decode('CPF'));
-			$f->SetFont('Helvetica','',8);
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
+			$f->SetFont('Helvetica','',9);
 			$f->setY($f->getY()+6);
 			$f->setX(157);
 			$f->Cell(36,0.1,'',0,0,0,true,'');
@@ -613,15 +588,9 @@ class PacientesController extends Controller {
 			
 			$f->setY($f->getY() + 6);
 			$f->setX(30);
-<<<<<<< HEAD
-			$f->SetFont('Helvetica','B',9);
+			$f->SetFont('Helvetica','B',10);
 			$f->Cell(0,0,utf8_decode('DATA DE NASCIMENTO'));
-			$f->SetFont('Helvetica','',10);
-=======
-			$f->SetFont('Helvetica','B',8);
-			$f->Cell(0,0,utf8_decode('DATA DE NASCIMENTO'));
-			$f->SetFont('Helvetica','',8);
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
+			$f->SetFont('Helvetica','',9);
 			$f->setY($f->getY() + 6);
 			$f->setX(31);
 			$f->Cell(40,0.1,'',0,0,0,true,'');
@@ -631,15 +600,9 @@ class PacientesController extends Controller {
 			
 			$f->setY($f->getY() - 4);
 			$f->setX(72);
-<<<<<<< HEAD
-			$f->SetFont('Helvetica','B',9);
+			$f->SetFont('Helvetica','B',10);
 			$f->Cell(0,0,utf8_decode('SEXO'));
-			$f->SetFont('Helvetica','',10);
-=======
-			$f->SetFont('Helvetica','B',8);
-			$f->Cell(0,0,utf8_decode('SEXO'));
-			$f->SetFont('Helvetica','',8);
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
+			$f->SetFont('Helvetica','',9);
 			$f->setY($f->getY() + 6);
 			$f->setX(73);
 			$f->Cell(40,0.1,'',0,0,0,true,'');
@@ -649,15 +612,9 @@ class PacientesController extends Controller {
 			
 			$f->setY($f->getY() - 4);
 			$f->setX(114);
-<<<<<<< HEAD
-			$f->SetFont('Helvetica','B',9);
+			$f->SetFont('Helvetica','B',10);
 			$f->Cell(0,0,utf8_decode('ESTADO CIVIL'));
-			$f->SetFont('Helvetica','',10);
-=======
-			$f->SetFont('Helvetica','B',8);
-			$f->Cell(0,0,utf8_decode('ESTADO CIVIL'));
-			$f->SetFont('Helvetica','',8);
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
+			$f->SetFont('Helvetica','',9);
 			$f->setY($f->getY() + 6);
 			$f->setX(115);
 			$f->Cell(78,0.1,'',0,0,0,true,'');		
@@ -667,15 +624,9 @@ class PacientesController extends Controller {
 			
 			$f->setY($f->getY() + 6);
 			$f->setX(30);
-<<<<<<< HEAD
-			$f->SetFont('Helvetica','B',9);
+			$f->SetFont('Helvetica','B',10);
 			$f->Cell(0,0,utf8_decode('CEP'));
-			$f->SetFont('Helvetica','',10);
-=======
-			$f->SetFont('Helvetica','B',8);
-			$f->Cell(0,0,utf8_decode('CEP'));
-			$f->SetFont('Helvetica','',8);
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
+			$f->SetFont('Helvetica','',9);
 			$f->setY($f->getY() + 6);
 			$f->setX(31);
 			$f->Cell(40,0.1,'',0,0,0,true,'');
@@ -685,21 +636,14 @@ class PacientesController extends Controller {
 			
 			$f->setY($f->getY() - 4);
 			$f->setX(72);
-<<<<<<< HEAD
-			$f->SetFont('Helvetica','B',9);
+			$f->SetFont('Helvetica','B',10);
 			$f->Cell(0,0,utf8_decode('ENDEREÇO/Nº/COMPLEMENTO'));
-			$f->SetFont('Helvetica','',10);
-=======
-			$f->SetFont('Helvetica','B',8);
-			$f->Cell(0,0,utf8_decode('ENDEREÇO/Nº/COMPLEMENTO'));
-			$f->SetFont('Helvetica','',8);
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
+			$f->SetFont('Helvetica','',9);
 			$f->setY($f->getY() + 6);
 			$f->setX(73);
 			$f->Cell(120,0.1,'',0,0,0,true,'');
 			$f->setY($f->getY() - 2);
 			$f->setX(72);
-<<<<<<< HEAD
 			$endereco = $dados["endereco"];
 			if (!empty($dados["numero"])) {
 				$endereco .= ", " . $dados["numero"];
@@ -709,20 +653,13 @@ class PacientesController extends Controller {
 			}
 			$f->Cell(0,0,utf8_decode($endereco));
 			
-			$f->setY($f->getY()+6);
-			$f->setX(30);
-			$f->SetFont('Helvetica','B',9);
-			$f->Cell(0,0,utf8_decode('BAIRRO'));
-			$f->SetFont('Helvetica','',10);
-=======
-			$f->Cell(0,0,utf8_decode($dados["endereco"] . " " .$dados["numero"] . " " . $dados["complemento"]));
+		
 			
 			$f->setY($f->getY()+6);
 			$f->setX(30);
-			$f->SetFont('Helvetica','B',8);
+			$f->SetFont('Helvetica','B',10);
 			$f->Cell(0,0,utf8_decode('BAIRRO'));
-			$f->SetFont('Helvetica','',8);
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
+			$f->SetFont('Helvetica','',9);
 			$f->setY($f->getY()+6);
 			$f->setX(31);
 			$f->Cell(82,0.1,'',0,0,0,true,'');
@@ -732,15 +669,9 @@ class PacientesController extends Controller {
 
 			$f->setY($f->getY()-4);
 			$f->setX(114);
-<<<<<<< HEAD
-			$f->SetFont('Helvetica','B',9);
+			$f->SetFont('Helvetica','B',10);
 			$f->Cell(0,0,utf8_decode('CIDADE'));
-			$f->SetFont('Helvetica','',10);
-=======
-			$f->SetFont('Helvetica','B',8);
-			$f->Cell(0,0,utf8_decode('CIDADE'));
-			$f->SetFont('Helvetica','',8);
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
+			$f->SetFont('Helvetica','',9);
 			$f->setY($f->getY()+6);
 			$f->setX(115);
 			$f->Cell(78,0.1,'',0,0,0,true,'');
@@ -750,15 +681,9 @@ class PacientesController extends Controller {
 
 			$f->setY($f->getY()+6);
 			$f->setX(30);
-<<<<<<< HEAD
-			$f->SetFont('Helvetica','B',9);
-			$f->Cell(0,0,utf8_decode('TELEFONE CELULAR'));
-			$f->SetFont('Helvetica','',10);
-=======
-			$f->SetFont('Helvetica','B',8);
-			$f->Cell(0,0,utf8_decode('TELEFONE CELULAR'));
-			$f->SetFont('Helvetica','',8);
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
+			$f->SetFont('Helvetica','B',10);
+			$f->Cell(0,0,utf8_decode('TELEF. CELULAR'));
+			$f->SetFont('Helvetica','',9);
 			$f->setY($f->getY()+6);
 			$f->setX(31);
 			$f->Cell(38,0.1,'',0,0,0,true,'');
@@ -768,15 +693,9 @@ class PacientesController extends Controller {
 			
 			$f->setY($f->getY()-4);
 			$f->setX(71);
-<<<<<<< HEAD
-			$f->SetFont('Helvetica','B',9);
-			$f->Cell(0,0,utf8_decode('TELEFONE RESIDENCIAL'));
-			$f->SetFont('Helvetica','',10);
-=======
-			$f->SetFont('Helvetica','B',8);
-			$f->Cell(0,0,utf8_decode('TELEFONE RESIDENCIAL'));
-			$f->SetFont('Helvetica','',8);
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
+			$f->SetFont('Helvetica','B',10);
+			$f->Cell(0,0,utf8_decode('TELEF. RESIDENCIAL'));
+			$f->SetFont('Helvetica','',9);
 			$f->setY($f->getY()+6);
 			$f->setX(72);
 			$f->Cell(38,0.1,'',0,0,0,true,'');
@@ -786,15 +705,9 @@ class PacientesController extends Controller {
 
 			$f->setY($f->getY()+6);
 			$f->setX(30);
-<<<<<<< HEAD
-			$f->SetFont('Helvetica','B',9);
+			$f->SetFont('Helvetica','B',10);
 			$f->Cell(0,0,utf8_decode('E-MAIL'));
-			$f->SetFont('Helvetica','',10);
-=======
-			$f->SetFont('Helvetica','B',8);
-			$f->Cell(0,0,utf8_decode('E-MAIL'));
-			$f->SetFont('Helvetica','',8);
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
+			$f->SetFont('Helvetica','',9);
 			$f->setY($f->getY()+6);
 			$f->setX(31);
 			$f->Cell(81,0.1,'',0,0,0,true,'');
@@ -804,15 +717,9 @@ class PacientesController extends Controller {
 			
 			$f->setY($f->getY()-4);
 			$f->setX(113);
-<<<<<<< HEAD
-			$f->SetFont('Helvetica','B',9);
+			$f->SetFont('Helvetica','B',10);
 			$f->Cell(0,0,utf8_decode('PROFISSÃO'));
-			$f->SetFont('Helvetica','',10);
-=======
-			$f->SetFont('Helvetica','B',8);
-			$f->Cell(0,0,utf8_decode('PROFISSÃO'));
-			$f->SetFont('Helvetica','',8);
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
+			$f->SetFont('Helvetica','',9);
 			$f->setY($f->getY()+6);
 			$f->setX(114);
 			$f->Cell(78,0.1,'',0,0,0,true,'');
@@ -822,15 +729,9 @@ class PacientesController extends Controller {
 			
 			$f->setY($f->getY()+6);
 			$f->setX(30);
-<<<<<<< HEAD
-			$f->SetFont('Helvetica','B',9);
+			$f->SetFont('Helvetica','B',10);
 			$f->Cell(0,0,utf8_decode('TRATAMENTOS'));
-			$f->SetFont('Helvetica','',10);
-=======
-			$f->SetFont('Helvetica','B',8);
-			$f->Cell(0,0,utf8_decode('TRATAMENTOS'));
-			$f->SetFont('Helvetica','',8);
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
+			$f->SetFont('Helvetica','',9);
 			$f->setY($f->getY()+6);
 			$f->setX(31);
 			$f->Cell(161,0.1,'',0,0,0,true,'');
@@ -840,15 +741,9 @@ class PacientesController extends Controller {
 			
 			$f->setY($f->getY()+6);
 			$f->setX(30);
-<<<<<<< HEAD
-			$f->SetFont('Helvetica','B',9);
+			$f->SetFont('Helvetica','B',10);
 			$f->Cell(0,0,utf8_decode('ALTURA'));
-			$f->SetFont('Helvetica','',10);
-=======
-			$f->SetFont('Helvetica','B',8);
-			$f->Cell(0,0,utf8_decode('ALTURA'));
-			$f->SetFont('Helvetica','',8);
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
+			$f->SetFont('Helvetica','',9);
 			$f->setY($f->getY()+6);
 			$f->setX(31);
 			$f->Cell(13,0.1,'',0,0,0,true,'');
@@ -858,15 +753,9 @@ class PacientesController extends Controller {
 			
 			$f->setY($f->getY()-4);
 			$f->setX(45);
-<<<<<<< HEAD
-			$f->SetFont('Helvetica','B',9);
+			$f->SetFont('Helvetica','B',10);
 			$f->Cell(0,0,utf8_decode('PESO'));
-			$f->SetFont('Helvetica','',10);
-=======
-			$f->SetFont('Helvetica','B',8);
-			$f->Cell(0,0,utf8_decode('PESO'));
-			$f->SetFont('Helvetica','',8);
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
+			$f->SetFont('Helvetica','',9);
 			$f->setY($f->getY()+6);
 			$f->setX(46);
 			$f->Cell(13,0.1,'',0,0,0,true,'');
@@ -876,15 +765,9 @@ class PacientesController extends Controller {
 			
 			$f->setY($f->getY()-4);
 			$f->setX(60);
-<<<<<<< HEAD
-			$f->SetFont('Helvetica','B',9);
+			$f->SetFont('Helvetica','B',10);
 			$f->Cell(0,0,utf8_decode('IMC'));
-			$f->SetFont('Helvetica','',10);
-=======
-			$f->SetFont('Helvetica','B',8);
-			$f->Cell(0,0,utf8_decode('IMC'));
-			$f->SetFont('Helvetica','',8);
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
+			$f->SetFont('Helvetica','',9);
 			$f->setY($f->getY()+6);
 			$f->setX(61);
 			$f->Cell(13,0.1,'',0,0,0,true,'');
@@ -894,15 +777,9 @@ class PacientesController extends Controller {
 			
 			$f->setY($f->getY()+8);
 			$f->setX(30);
-<<<<<<< HEAD
-			$f->SetFont('Helvetica','B',9);
+			$f->SetFont('Helvetica','B',10);
 			$f->Cell(0,0,utf8_decode('HISTÓRIA DA DOENÇA ATUAL'));
-			$f->SetFont('Helvetica','',10);
-=======
-			$f->SetFont('Helvetica','B',8);
-			$f->Cell(0,0,utf8_decode('HISTÓRIA DA DOENÇA ATUAL'));
-			$f->SetFont('Helvetica','',8);
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
+			$f->SetFont('Helvetica','',9);
 			$f->setX(31);
 			$f->setY($f->getY()+2);
 			$f->setX(30);
@@ -910,15 +787,9 @@ class PacientesController extends Controller {
 			
 			$f->setY($f->getY()+6);
 			$f->setX(30);
-<<<<<<< HEAD
-			$f->SetFont('Helvetica','B',9);
+			$f->SetFont('Helvetica','B',10);
 			$f->Cell(0,0,utf8_decode('AVALIAÇÃO POSTURAL'));
-			$f->SetFont('Helvetica','',10);
-=======
-			$f->SetFont('Helvetica','B',8);
-			$f->Cell(0,0,utf8_decode('AVALIAÇÃO POSTURAL'));
-			$f->SetFont('Helvetica','',8);
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
+			$f->SetFont('Helvetica','',9);
 			$f->setX(31);
 			$f->setY($f->getY()+2);
 			$f->setX(30);
@@ -926,15 +797,9 @@ class PacientesController extends Controller {
 			
 			$f->setY($f->getY()+6);
 			$f->setX(30);
-<<<<<<< HEAD
-			$f->SetFont('Helvetica','B',9);
+			$f->SetFont('Helvetica','B',10);
 			$f->Cell(0,0,utf8_decode('EVOLUÇÃO'));
-			$f->SetFont('Helvetica','',10);
-=======
-			$f->SetFont('Helvetica','B',8);
-			$f->Cell(0,0,utf8_decode('EVOLUÇÃO'));
-			$f->SetFont('Helvetica','',8);
->>>>>>> 8e86ef22ab831f420da5502e014833c0d9a4f8a1
+			$f->SetFont('Helvetica','',9);
 			$f->setX(31);
 			$f->setY($f->getY()+2);
 			$f->setX(30);

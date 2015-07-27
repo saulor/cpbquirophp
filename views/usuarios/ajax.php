@@ -73,6 +73,7 @@
 		);
 		
 		$result = '';
+		$inicio = 1;
 		
 		foreach ($dados as $objeto) {
 			$result .= '<tr>';
