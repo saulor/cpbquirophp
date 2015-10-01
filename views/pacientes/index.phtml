@@ -1,15 +1,18 @@
 <?php
 	$params = $this->getParams();
+    $modulo = $_GET["modulo"];
+    $exibir = isset($_GET["exibir"]) ? $_GET["exibir"] : NULL;
+    $order = isset($_GET["order"]) ? $_GET["order"] : NULL;
     $quantidade = $params["quantidade"];
     $quantidadePorPagina = $params["quantidadePorPagina"];
     $pagina = $params["pagina"];
     $objetos = $params["objetos"];
     
     if ($quantidade == 0) {
-        $inicio = 0;
+        $iniCount = $inicio = 0;
    	}
     else {
-        $inicio = ($quantidadePorPagina * $pagina) - ($quantidadePorPagina - 1);
+        $iniCount = $inicio = ($quantidadePorPagina * $pagina) - ($quantidadePorPagina - 1);
    	}
     
     if ($inicio + ($quantidadePorPagina - 1) > $quantidade) {
@@ -22,17 +25,31 @@
   	$table = array(
   		'fields' => array(
 	  		'nome' => array(
-	  			'ajax' => true,
-	  			'editField' => true,
+	  			'ajax' => 'ajax.php',
+	  			'order' => true,
+	  			'link' => array(
+	  				'condition' => 'return true;',
+	  				'link' => 'return "?modulo=' . $modulo . '&acao=cadastrar&id=" . $objeto["id"];'
+	  			),
 	  			'label' => 'Nome',
-	  			'info' => 'return Paciente::getTratamentos($objeto["tratamentos"]);',
-	  			'acoes' => array(
-	  				'atendimento' => 'Atendimento',
-	  				'ficha' => 'Ficha'
+	  			'info' => array(
+	  				0 => array(
+	  					'info' => 'return Paciente::getTratamentos($objeto["tratamentos"]);'
+	  				)
+	  			),
+	  			'links' => array(
+	  				'Atendimento' => array(
+	  					'condition' => 'return true;',
+	  					'url' => 'return "?modulo=' . $modulo . '&acao=atendimento&id=" . $objeto["id"];'
+	  				),
+	  				'Ficha' => array(
+	  					'condition' => 'return true;',
+	  					'url' => 'return "?modulo=' . $modulo . '&acao=ficha&id=" . $objeto["id"];'
+	  				)
 	  			)
 	  		),
 	  		'cpf' => array(
-	  			'ajax' => true,
+	  			'ajax' => 'ajax.php',
 	  			'align' => 'center',
 	  			'class' => 'cpf',
 	  			'label' => 'CPF',
@@ -49,11 +66,19 @@
 	  			'align' => 'center',
 	  			'label' => 'Tel. Cel.',
 	  		),
-	  		'data' => array(
-	  			'ajax' => true,
+	  		'dataFormatada' => array(
+	  			'content' => 'return date("d/m/Y", $objeto["timestamp"]);',
+	  			'ajax' => 'ajax.php',
 	  			'class' => 'data',
 	  			'align' => 'center',
 	  			'label' => 'Data',
+	  		)
+	  	),
+	  	'acoes' => array(
+	  		'Excluir' => array(
+	  			'condition' => 'return true;',
+	  			'acao' => 'return "excluir";',
+	  			'id' => 'return $objeto["id"];'
 	  		)
 	  	),
   		'acoesMassa' => array(

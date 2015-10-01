@@ -1,11 +1,14 @@
 <?php
 	session_start();
+	ini_set('display_errors', 0); 
+	error_reporting(E_ALL); 
 	date_default_timezone_set('America/Sao_Paulo');
 	if (!isset($_SESSION["mensagemSe"])) {
 		$_SESSION["mensagemSe"] = array();
 	}
-	DEFINE("PREFIX", "cpq");
+	DEFINE("PREFIX", "cpq_");
 	DEFINE("WWW_ROOT", "http://localhost/~saulor/cpbquirophp");
+	//DEFINE("WWW_ROOT", "http://sistema.centropbquiropraxia.com.br");
 	DEFINE("DIR_ROOT", dirname(__file__));
 	DEFINE("QUANTIDADE_POR_PAGINA", 10);
 	DEFINE("SEPARADOR_DIRETORIO", "/");

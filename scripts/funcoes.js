@@ -82,48 +82,61 @@ function calculaIdade(obj, hoje) {
 	}
 }
 
-function pesquisa (pagina, url) {
-	
-	$(".loader").css("display", "block");
-	var opcoesPesquisa = $('#buscaAjax input');
-	var busca = {
-		pagina : pagina
-	};
-	$(opcoesPesquisa).each(function(){
-		busca[$(this).attr('name')] = $(this).val();
-	});
-	
-	buscaAjax(url, busca).success(function (data) {
+function calculaImc() {
+	var altura = parseFloat($("#altura").val().replace(",", "."));
+	var peso = parseFloat($("#peso").val().replace(",", "."));
+	if (altura > 0 && peso > 0) {
+		var imc = peso / (altura * altura);
+		imc = String(Math.round(imc * 100) / 100);
+		$("#imc").val(imc.replace(".", ","));
+	}
+}
 
-		i = 0;		
-		var quantidade = data.quantidade;
-		var inicio = (quantidade == 0) ? 0 : 1 + ((pagina - 1) * 10);
-		var fim = (data.length - 1) + ((pagina - 1) * 10);
-		
-		//var html = montaTabela (data, pagina);
+function excluir (modulo, queryString) {
+	if (confirm("Tem certeza que deseja excluir?")) {
+		var url = "?modulo=" + modulo;
+		for (var qStr in queryString) {
+			url += "&" + qStr + "=" + queryString[qStr];
+		}
+		redirect(url);
+	}
+	return false;
+}
 
-		$("#quantidade").html(quantidade);
-		$("#inicio").html(inicio);
-		$("#fim").html(fim);
-		
-		$("#buscaAjax").nextAll("tr").remove();
-		$("#buscaAjax").after(data.result);
-		
-		$(".paginacao").html(getPaginacao(pagina, quantidade, inicio, fim));
-		
-		$(".paginacao a").each(function(){
-			var id = $(this).attr("id");
-			var paginaArray = id.split("_");
-			$(this).on("click", function(){
-				pesquisa (paginaArray[1], url);
-				return false;
-			});
-		});
-		
-		$(".loader").css("display", "none");
-		
-	});
-	
+function redirect(url){
+    location.href = url;
+}
+
+function criaElemento(tipo, atributos) {
+	var elemento = document.createElement(tipo);
+	for (var att in atributos) {
+		elemento.setAttribute(att, atributos[att]);
+	}
+	return elemento;
+}
+
+function criaElementoTexto(texto) {
+	return document.createTextNode(texto);
+}
+
+function maisArquivos() {
+	var container = $('#enviar');
+	var quantidade = $(container).find('div.arquivo').length + 1;
+	var divGrid = criaElemento('div', {'class' : 'grid arquivo'});
+	var divCol312 = criaElemento('div', {'class' : 'col-3-12'});
+	var divCol312Content = criaElemento('div', {'class' : 'content', 'id' : 'fcontainer' + quantidade});
+	var input = criaElemento('input', {'type' : 'file', 'class' : 'form-control', 'id' : 'arquivo-' + quantidade, 'name' : 'arquivo' + quantidade});
+	divCol312Content.appendChild(input);
+	divCol312.appendChild(divCol312Content);
+	divGrid.appendChild(divCol312);
+	var divCol912 = criaElemento('div', {'class' : 'col-9-12'});
+	var divCol912Content = criaElemento('div', {'class' : 'content'});
+	var img = criaElemento('img', {'src' : 'imagens/ajax-loader-file.gif', 'class' : 'file-loader', 'id' : 'floader' + quantidade, 'alt' : ''});
+	divCol912Content.appendChild(img);
+	divCol912.appendChild(divCol912Content);
+	divGrid.appendChild(divCol912);
+	$(container).append(divGrid);
+	$('input[type=file]').on('change', prepareUpload);
 }
 
 function buscaAjax (url, dados) {
@@ -132,67 +145,84 @@ function buscaAjax (url, dados) {
 		dataType : "json",
 		url: url,
 		data: { dados : dados }
+	}).done(function() {
+		$(".ajax-loader").css("display", "none");
 	})
 }
 
-function montaTabela (dados, pagina, exibir) {
-
-	if (exibir === undefined) {
-		exibir = 10
-	}
-
-	var html = '';
+function pesquisaAjax(pagina, url) {
 	
-	var campos = dados[dados.length - 1].informacoes.campos;
-
-	for (i=0; i<dados.length-1; i++) {
+	$(".ajax-loader").css("display", "block");
+	var exibir = ($("#exibir").val()) ? $("#exibir").val() : 10;
 	
-		html += '<tr>';
-		html += '<td>';
-	    html += '<small>' + ( i + 1 + ((pagina - 1) * exibir)) + '</small>';
-	    html += '</td>';
-	    html += '<td>';
-	    html += '<input type="checkbox" name="objetos[]" value="' + dados[i].id + '" />';
-	    html += '</td>';
-		
-		for (c1 in campos) {
-			var c = campos[c1];
-			if (c.indexOf(",")) {
-				var itens = c.split(",");
-				c = itens[0];
-				var a = itens[1]; 
-			}
-			html += '<td';
-			if (c.indexOf(",")) {
-				html += ' class="' + a + '"';
-			}
-			html += '>' + dados[i][c] + '</td>';
-		}
-		
-		
-		//html += '<td><a href="?modulo=' + dados[dados.length - 1].informacoes.modulo + '&acao=cadastrar&id=' + dados[i].id + '">Editar</a></td>';
-		//html += '<td><a href=?modulo=' + dados[dados.length - 1].informacoes.modulo + '&acao=excluir&id=' + dados[i].id + '>Excluir</a></td>';
-		
-		html += '<td>';
-		html += '<a href="?modulo=' + dados[dados.length - 1].informacoes.modulo + '&acao=cadastrar&id=' + dados[i].id + '">';
-		//html += 'Editar'; 
-		html += '<img title="Editar" alt="Editar" src="imagens/edit-icon.gif" />';
-		html += '</a></td>';
-		html += '<td>';
-		html += '<a';
-		html += ' onclick="excluir(\'' + dados[dados.length - 1].informacoes.modulo + '\', {\'acao\' : \'excluir\', \'id\' : ' + dados[i].id +  '});return false;" '
-		html += ' href=?modulo=' + dados[dados.length - 1].informacoes.modulo + '&acao=excluir&id=' + dados[i].id + '>';
-		//html += 'Excluir';
-		html += '<img title="Excluir" alt="Excluir" src="imagens/delete-icon.gif" />';
-		html += '</a></td>';
+	var busca = {
+		pagina : pagina,
+		exibir : exibir
+	};
+	
+	var href = [];
+	
+	var opcoesPesquisa = $('#buscaAjax input:hidden');
+	$(opcoesPesquisa).each(function(){		
+		busca[$(this).attr('name')] = $(this).val();
+		href.push($(this).attr('name') + "=" + $(this).val());
+	});
+	
+	var opcoesPesquisa = $('#buscaAjax input:text');
+	$(opcoesPesquisa).each(function(){		
+		busca[$(this).attr('name')] = $(this).val();
+		href.push($(this).attr('name') + "=" + $(this).val());
+	});
+	
+	opcoesPesquisa = $('#buscaAjax select');
+	$(opcoesPesquisa).each(function(){
+		busca[$(this).attr('name')] = $(this).val();
+		href.push($(this).attr('name') + "=" + $(this).val());
+	});
+	
+	opcoesPesquisa = $('#buscaAjax input:checkbox:checked');
+	
+	$(opcoesPesquisa).each(function(){
+		var key = $(this).attr('name');
+		if (!busca[key]) {
+			busca[key] = [];
+		} 
+		busca[key].push($(this).val()); 
+	});
+	
+	buscaAjax(url, busca).success(function (data) {
 		
 		
-		html += '</tr>';
-	}
-	return html;
+		i = 0;		
+		var quantidade = data.quantidade;
+		var inicio = data.inicio;
+		var fim = data.fim;
+
+		$("#quantidade").html(quantidade);
+		$("#inicio").html(inicio);
+		$("#fim").html(fim);
+		
+		$("tbody tr#buscaAjax").nextAll("tr").remove();
+		$("tbody tr#buscaAjax").after(data.result);
+		
+		$(".pagination").html(paginacaoAjax(pagina, quantidade, inicio, fim, exibir));
+		
+		$(".pagination a").each(function(){
+			var id = $(this).attr("id");
+			var paginaArray = id.split("_");
+			$(this).on("click", function(){
+				pesquisaAjax (paginaArray[1], url);
+				return false;
+			});
+		});
+		
+		//$(".ajax-loader").css("display", "none");
+		
+	});
+		
 }
 
-function getPaginacao(pagina, quantidade, inicio, fim, exibir) {
+function paginacaoAjax(pagina, quantidade, inicio, fim, exibir) {
 
 	if (exibir === undefined) {
 		exibir = 10
@@ -204,7 +234,7 @@ function getPaginacao(pagina, quantidade, inicio, fim, exibir) {
 	
 	var quantidadePaginas = Math.ceil(quantidade / exibir);
 	
-	var html = "";
+	var html = '';
 	
 	inicio = 0;
 	fim = 0;
@@ -263,31 +293,6 @@ function getPaginacao(pagina, quantidade, inicio, fim, exibir) {
 	}
 	
 	return html;
-}
-
-function calculaImc() {
-	var altura = parseFloat($("#altura").val().replace(",", "."));
-	var peso = parseFloat($("#peso").val().replace(",", "."));
-	if (altura > 0 && peso > 0) {
-		var imc = peso / (altura * altura);
-		imc = String(Math.round(imc * 100) / 100);
-		$("#imc").val(imc.replace(".", ","));
-	}
-}
-
-function excluir (modulo, queryString) {
-	if (confirm("Tem certeza que deseja excluir?")) {
-		var url = "?modulo=" + modulo;
-		for (var qStr in queryString) {
-			url += "&" + qStr + "=" + queryString[qStr];
-		}
-		redirect(url);
-	}
-	return false;
-}
-
-function redirect(url){
-    location.href = url;
 }
 
 /*
@@ -641,17 +646,7 @@ function adicionaInputText(obj, name) {
     $(obj).before(input); 
 }
 
-function criaElemento(tipo, atributos) {
-	var elemento = document.createElement(tipo);
-	for (var att in atributos) {
-		elemento.setAttribute(att, atributos[att]);
-	}
-	return elemento;
-}
 
-function criaElementoTexto(texto) {
-	return document.createTextNode(texto);
-}
 
 function adicionarCidade() {
 	var form = document.getElementById("cadastro");

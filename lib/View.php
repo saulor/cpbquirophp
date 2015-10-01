@@ -27,6 +27,9 @@ class View {
         ob_start();
         if(isset($this->_view)) {
         	$viewPath = 'views' . SEPARADOR_DIRETORIO . $this->_modulo . SEPARADOR_DIRETORIO . $this->_view;
+        	if (!is_file(DIR_ROOT . SEPARADOR_DIRETORIO . $viewPath)) {
+        		throw new Exception('Layout não encontrado: ' . $viewPath);
+        	}
             require_once $viewPath;
        	}
         $contents = ob_get_contents();
@@ -47,9 +50,8 @@ class View {
     }
       
     public function showContents() {
+    	$layoutPath = 'views' . SEPARADOR_DIRETORIO . "layouts" . SEPARADOR_DIRETORIO . $this->_layout . '.phtml';
         $contents = $this->getContents();
-        //$menu = $this->getMenu();
-        $layoutPath = 'views' . SEPARADOR_DIRETORIO . "layouts" . SEPARADOR_DIRETORIO . $this->_layout . '.phtml';
         require_once($layoutPath);
     }
 }

@@ -1,10 +1,16 @@
 <?php
 
 class PacientesController extends Controller {
+
+	protected $info = array(
+		"tabela" => "pacientes",
+		"modulo" => "pacientes",
+		"labelSing" => "Paciente",
+		"labelPlur" => "Pacientes"
+	);
 	
 	public function PacientesController() {
 		parent::__construct();
-		$this->DAO = new DAOGenerico();
 	}
 	
     public function indexAction() {
@@ -29,8 +35,8 @@ class PacientesController extends Controller {
     		$quantidade = 0;
     		$objetos = array();
     		
-    		$quantidade = $this->DAO->count($conexao, "pacientes");
-    		$pacientes = $this->DAO->findAll($conexao, "pacientes", array(
+    		$quantidade = $this->dao->count($conexao, "pacientes");
+    		$pacientes = $this->dao->findAll($conexao, "pacientes", array(
     				"limit" => $limit,
     				"offset" => $offset,
     				"order" => $order
@@ -72,7 +78,7 @@ class PacientesController extends Controller {
     		$dados = inicializaDados(new Paciente());
     		
     		if (isset($_GET["id"])) {
-    			$dados = $this->DAO->findByPk($conexao, "pacientes", (int) $_GET["id"]);
+    			$dados = $this->dao->findByPk($conexao, "pacientes", (int) $_GET["id"]);
     			$breadcrumbs[] = array(
     				"Atualizar" => ""
     			);
@@ -88,7 +94,7 @@ class PacientesController extends Controller {
     		if (count($_POST) > 0) {
     	
     			$dados = $_POST["Paciente"];
-    			$dados["tratamentos"] = isset($dados["tratamentos"]) ? implode(",", $dados["tratamentos"]) : array();
+    			$dados["tratamentos"] = isset($dados["tratamentos"]) ? implode(",", $dados["tratamentos"]) : NULL;
     			
     			$obrigatorios = array(
     				"nome" => array(
@@ -104,31 +110,28 @@ class PacientesController extends Controller {
     			}
     			
     			if ($dados["id"] == 0) {
-    				$dados["status"] = 1;
     				$dados["timestamp"] = time();
-    				$dados["data"] = date('Y-m-d H:i:s', $dados["timestamp"]);
-					$id = $this->DAO->salva($conexao, "pacientes", trataDados($dados));
-    			}
-    			else {
-    				$this->DAO->salva($conexao, "pacientes", $dados);
+    				$dados["data"] = date('d/m/Y H:i:s', $dados["timestamp"]);
     			}
     			
-    			$conexao->commit();	
+    			$dados = $this->dao->salva($conexao, "pacientes", $dados);
     			
     			if ($acao == "novo") {					
     				setMensagem("info", "Paciente cadastrado [" . $dados["nome"] . "]");
-    				Application::redirect("?modulo=" . $_GET["modulo"] . "&acao=cadastrar&id=" . $dados["id"]);
-    				exit;
     			}
     			else {
     				setMensagem("info", "Paciente atualizado [" . $dados["nome"] . "]");
-    				$redirecionar = "?modulo=" . $_GET["modulo"];
-    				if (isset($_GET["r"])) {
-    					$redirecionar = urldecode($_GET["r"]);
-    				}
-    				Application::redirect($redirecionar);
-    				exit;
     			}
+    			
+    			$redirecionar = "?modulo=pacientes&acao=cadastrar&id=" . $dados["id"];
+    			if (isset($_GET["r"])) {
+    				$redirecionar = urldecode($_GET["r"]);
+    			}
+    			
+    			$conexao->commit();	
+    			$conexao->disconnect();
+    			Application::redirect($redirecionar);
+    			exit;
     			
     		}
     		
@@ -154,6 +157,77 @@ class PacientesController extends Controller {
     	
     }
     
+    public function observacoesAction() {
+        	
+    	try {
+    		$conexao = $this->conexao->getConexao();
+    		$redirecionar = "?modulo=pacientes";
+    		$breadcrumbs = array();
+    		$breadcrumbs[] = array(
+    			"Pacientes" => "?modulo=pacientes",
+    		);
+    		
+    		$dadosHistorico = $this->dao->findByPk($conexao, "atendimentos_historico", getVariavel("id"));
+			$dadosAtendimento = $this->dao->findByPk($conexao, "atendimentos", $dadosHistorico["atendimento"]);
+			$dadosPaciente = $this->dao->findByPk($conexao, "pacientes", $dadosAtendimento["paciente"]);
+			
+			$breadcrumbs[] = array(
+				$dadosPaciente["nome"] => "?modulo=pacientes&acao=atendimento&id=" . $dadosPaciente["id"],
+				"Observações sobre o atendimento" => ""
+			);
+
+    		if (count($_POST) > 0) {
+    	
+    			$dados = $_POST;
+    			
+    			$obrigatorios = array(
+    				"observacoes" => array(
+    					"tipo" => "textarea", 
+    					"nome" => "Observações sobre o atendimento"
+    				)	
+    			);
+    			
+    			$mensagem = validaPost($obrigatorios, $dados);
+    			if (!empty($mensagem)) {
+    				$redirecionar = NULL;
+    				throw new Exception($mensagem);
+    			}
+    			
+				$this->dao->salva($conexao, "atendimentos_historico", $dados);
+				setMensagem("info", "Observações atualizadas");
+    			
+    			$conexao->commit();	
+    			$conexao->disconnect();
+    			$redirecionar = "?modulo=pacientes&acao=atendimento&id=" . $dadosPaciente["id"];
+    			Application::redirect($redirecionar);
+    			exit;
+    			
+    		}
+    		
+    	}
+    	catch (Exception $e) {
+    		$conexao->rollback();
+    		setMensagem("error", $e->getMessage());
+    		if ($redirecionar != NULL) {
+    			Application::redirect($redirecionar);
+    			exit;
+    		}
+    	}
+    	
+    	$conexao->disconnect();					
+    	$view = new View($_GET["modulo"], "painel", "observacoes.phtml");
+    	$view->setParams(array(
+    			"title" => getTitulo($breadcrumbs), 
+    			"breadcrumbs" => $breadcrumbs,
+    			"paciente" => $dadosPaciente,
+    			"atendimento" => $dadosAtendimento,
+    			"historico" => $dadosHistorico
+    		)
+    	);
+    	$view->showContents();
+    	
+    }
+    
     public function fotoAction() {
         	
     	try {
@@ -169,7 +243,7 @@ class PacientesController extends Controller {
     		
     		if (isset($_GET["id"])) {
     			$id = (int) $_GET["id"]; 
-    			$dados = $this->DAO->findByPk($conexao, "pacientes", $id);
+    			$dados = $this->dao->findByPk($conexao, "pacientes", $id);
     		}
     		
     		$breadcrumbs[] = array(
@@ -205,35 +279,47 @@ class PacientesController extends Controller {
     		$conexao = $this->conexao->getConexao();
     		$redirecionar = "?modulo=" . $_GET["modulo"];
     		$breadcrumbs = array();
-    		$breadcrumbs[] = array("Pacientes" => "?modulo=".$_GET["modulo"]);
+    		$breadcrumbs[] = array("Pacientes" => "?modulo=" . $_GET["modulo"]);
     		
-    		$atendimento = inicializaDados(new Atendimento());
-    		$doresAtuais = array();
+    		// recupera o paciente e o atendimento.
+    		$paciente = $this->dao->findByPk($conexao, "pacientes", getVariavel("id"));
+    		$atendimento = $this->dao->find($conexao, "atendimentos", array(
+    				"where" => array(
+    					"paciente" => (int) $paciente["id"]
+    				)
+    			)
+    		);
     		
-    		if (isset($_GET["id"])) {
-    			
-    			$paciente = $this->DAO->findByPk($conexao, "pacientes", (int) $_GET["id"]);
-    			
-    			$atendimento = $this->DAO->find($conexao, "atendimentos", array(
-    					"where" => array(
-    						"paciente" => (int) $paciente["id"]
-    					)
+    		// se não existir nenhum atendimento, cria um.
+    		if (count($atendimento) == 0) {
+    			$this->dao->salva($conexao, "atendimentos", array(
+    					"id" => 0,
+    					"paciente" => $paciente["id"]
     				)
     			);
-    			
-    			if (count($atendimento) == 0) {
-    				$atendimento = inicializaDados(new Atendimento());
-    				$atendimento["dores"] = array();
-    			}
-    			else {
-	    			$doresAtuais = $atendimento["dores"] = $this->DAO->findAll($conexao, "atendimentos_dores", array(
-	    					"where" => array(
-	    						"atendimento" => (int) $atendimento["id"]
-	    					)
-	    				)
-	    			);
-	    		}
-    			
+    			$conexao->commit();
+    			Application::redirect('?modulo=pacientes&acao=atendimento&id=' . $paciente['id']);
+    			exit;
+    		}
+    		
+    		$doresAtuais = $atendimento["dores"] = $this->dao->findAll($conexao, "atendimentos_dores", array(
+    				"where" => array(
+    					"atendimento" => (int) $atendimento["id"]
+    				)
+    			)
+    		);
+    		
+    		$historico = $this->dao->findAll($conexao, "atendimentos_historico", array(
+    				"where" => array(
+    					"atendimento" => (int) $atendimento["id"]
+    				),
+    				"order" => array(
+    					"data" => "desc"
+    				)
+    			)
+    		);
+    		
+    		if (isset($_GET["id"])) {
     			$breadcrumbs[] = array(
     				"Atendimento" => ""
     			);
@@ -249,36 +335,30 @@ class PacientesController extends Controller {
     		if (count($_POST) > 0) {
     			
     			$redirecionar = NULL;
-    			$atendimentoIn = $_POST['Atendimento'];
+    			$atendimentoIn = $atendimento = $_POST['Atendimento'];
+    			$atendimento["hipertenso"] = $atendimentoIn["hipertenso"] = isset($atendimentoIn["hipertenso"]) ? 1 : 0;
+    			$atendimento["diabetico"] = $atendimentoIn["diabetico"] = isset($atendimentoIn["diabetico"]) ? 1 : 0;
+    			$atendimento["fuma"] = $atendimentoIn["fuma"] = isset($atendimentoIn["fuma"]) ? 1 : 0;
+    			$atendimento["bebe"] = $atendimentoIn["bebe"] = isset($atendimentoIn["bebe"]) ? 1 : 0;
+    			$atendimento["intestinos"] = $atendimentoIn["intestinos"] = isset($atendimentoIn["intestinos"]) ? $atendimentoIn["intestinos"] : 0;
+    			$atendimento["sono"] = $atendimentoIn["sono"] = isset($atendimentoIn["sono"]) ? $atendimentoIn["sono"] : 0;
+    			$atendimento["agua"] = $atendimentoIn["agua"] = isset($atendimentoIn["agua"]) ? $atendimentoIn["agua"] : 0;
+    			$atendimento["alimentacao"] = $atendimentoIn["alimentacao"] = isset($atendimentoIn["alimentacao"]) ? $atendimentoIn["alimentacao"] : 0;
+    			$atendimento["esportes"] = $atendimentoIn["esportes"] = isset($atendimentoIn["esportes"]) ? 1 : 0;
+    			$atendimento["suplementos"] = $atendimentoIn["suplementos"] = isset($atendimentoIn["suplementos"]) ? 1 : 0;
+    			$atendimento["medicamentos"] = $atendimentoIn["medicamentos"] = isset($atendimentoIn["medicamentos"]) ? 1 : 0;
+    			$atendimento["doencasFamilia"] = $atendimentoIn["doencasFamilia"] = isset($atendimentoIn["doencasFamilia"]) ? 1 : 0;
+    			$atendimento["gravidez"] = $atendimentoIn["gravidez"] = isset($atendimentoIn["gravidez"]) ? 1 : 0;
     			
-    			$dores = $_POST['Dores'];
+    			$atendimento["dores"] = $dores = $_POST['Dores'];
     			
     			$obrigatorios = array(
-    				"altura" => array(
-    					"tipo" => "decimal", 
-    					"nome" => "Altura"
-    				),
-    				"peso" => array(
-    					"tipo" => "decimal", 
-    					"nome" => "Peso"
-    				),
-    				"imc" => array(
-    					"tipo" => "decimal", 
-    					"nome" => "IMC"
+    				"observacoes" => array(
+    					"tipo" => "textarea", 
+    					"nome" => "Observações sobre o atendimento"
     				)		
     			);
     			
-    			$mensagem = validaPost($obrigatorios, $atendimentoIn);
-    			if (!empty($mensagem)) {
-    				throw new Exception($mensagem);
-    			}
-    			
-    			$id = $this->DAO->salva($conexao, "atendimentos", $atendimentoIn);
-    			
-    			if ($id > 0 && $atendimentoIn["id"] == 0) { 
-    				$atendimentoIn["id"] = $id;
-    			}
-				
 				$locaisAtuais = $locais = array();
 				
     			foreach ($doresAtuais as $dor) {
@@ -291,10 +371,34 @@ class PacientesController extends Controller {
     				}
     			}
     			
+    			$mensagens = array();
+    			$mensagem = validaPost($obrigatorios, $atendimentoIn);
+    			if (!empty($mensagem)) {
+    				$mensagens[] = $mensagem;
+    			}
+    			$mensagem = validaPost($obrigatorios, $_POST);
+    			if (!empty($mensagem)) {
+    				$mensagens[] = $mensagem;
+    			}
+    			if (count($mensagens) > 0) {
+    				throw new Exception(implode("<br />", $mensagens));
+    			}
+    			
+    			$atendimentoIn = $this->dao->salva($conexao, "atendimentos", $atendimentoIn);
+    			$time = time();
+    			$historico = $this->dao->salva($conexao, "atendimentos_historico", array(
+    					"id" => 0,
+    					"atendimento" => $atendimentoIn["id"],
+    					"timestamp" => $time,
+    					"data" => date('d/m/Y H:i:s', $time),
+    					"observacoes" => $_POST['observacoes']
+    				)
+    			);
+    			
     			$result = array_diff($locaisAtuais, $locais);
     			
     			foreach (array_diff($locaisAtuais, $locais) as $id => $value) {
-    				$this->DAO->excluiByPk($conexao, "atendimentos_dores", $id);
+    				$this->dao->excluiByPk($conexao, "atendimentos_dores", $id);
     			}
     			
     			foreach ($dores as $dor) {
@@ -308,7 +412,7 @@ class PacientesController extends Controller {
     					$d["caracteristica"] = $dor["caracteristica"];
     					$d["grau"] = $dor["grau"];
     					$d["intensidade"] = isset($dor["intensidade"]) ? implode(",", $dor["intensidade"]) : 0;	
-						$this->DAO->salva($conexao, "atendimentos_dores", $d);
+						$this->dao->salva($conexao, "atendimentos_dores", $d);
     				}	
     			}
     			
@@ -335,7 +439,8 @@ class PacientesController extends Controller {
     			"title" => getTitulo($breadcrumbs), 
     			"breadcrumbs" => $breadcrumbs,
     			"paciente" => $paciente,
-    			"atendimento" => $atendimento
+    			"atendimento" => $atendimento,
+    			"objetos" => $historico
     		)
     	);
     	$view->showContents();
@@ -346,26 +451,18 @@ class PacientesController extends Controller {
     
     	try {
     		$conexao = $this->conexao->getConexao();
-    		
-//    		if (!temPermissao(array('administrativos:manterAdministrativos'), $_SESSION[PREFIX . "permissoes"])) {
-//    			throw new Exception("Você não tem permissão para realizar esta ação.");
-//    		}
-    		
-    		$id = (int) $_GET["id"];
-    		
-    		$dados = $this->DAO->findByPk($conexao, "pacientes", $id);
-    		
-    		$affectedRows = $this->DAO->exclui($conexao, "pacientes", array(
+    		$dados = $this->dao->findByPk($conexao, "pacientes", getVariavel("id"));
+
+    		$affectedRows = $this->dao->exclui($conexao, "pacientes", array(
     				"where" => array(
-    					"id" => $id
+    					"id" => $dados["id"]
     				)
     			)
     		);
     		
-    		if ($affectedRows > 0) {
-    			$diretorio = DIR_UPLOADS . SEPARADOR_DIRETORIO . "pacientes" . SEPARADOR_DIRETORIO . $id;
+    		if ($affectedRows) {
+    			$diretorio = DIR_UPLOADS . SEPARADOR_DIRETORIO . "pacientes" . SEPARADOR_DIRETORIO . $dados["id"];
     			excluiDiretorio($diretorio);
-    			//$this->logDAO->adicionar ($conexao, "excluiu", "Profissional Administrativo", $_SESSION[PREFIX . "loginNome"], $dados["nome"], "Usuário excluiu um Profissional Administrativo.");
     			$conexao->commit();
     			setMensagem("info", "Paciente excluído [" . $dados["nome"] . "]");
     		}
@@ -380,108 +477,114 @@ class PacientesController extends Controller {
     	
     }
     
-    public function opcoesAction () {
+    public function removeraAction() {
+    	try {
+    		$conexao = $this->conexao->getConexao();
+    		$dados = $this->dao->findByPk ($conexao, "atendimentos", getVariavel("atendimento"));
+    		$diretorio = DIR_UPLOADS . SEPARADOR_DIRETORIO . 'atendimentos' . SEPARADOR_DIRETORIO . $dados['id'] . SEPARADOR_DIRETORIO . $_GET['arquivo'];
+    		if (excluiArquivo($diretorio)) {				
+    			setMensagem("info", "Arquivo excluído [" . $_GET['arquivo'] . "]");
+    		}
+    	}
+    	catch (Exception $e) {
+    		$conexao->rollback();
+    		setMensagem("error", $e->getMessage());
+    	}
     	
-    	if (count($_POST) > 0) {
+    	Application::redirect("?modulo=pacientes&acao=atendimento&id=" . $dados["id"]);
+    	exit;
+    	
+    }
+    
+    public function removerhAction() {
+    	try {
+    		$conexao = $this->conexao->getConexao();
+    		$dadosH = $this->dao->findByPk ($conexao, "atendimentos_historico", getVariavel("id"));
+    		$dadosA = $this->dao->findByPk ($conexao, "atendimentos", $dadosH["atendimento"]);
     		
-    		if (isset($_POST["acoes"])) {
+    		$affectedRows = $this->dao->excluiByPk($conexao, "atendimentos_historico", $dadosH["id"]);
     		
-    			$processados = 0;
-    			$naoProcessados = 0;
-    			$ids = isset($_POST["objetos"]) ? $_POST["objetos"] : array();
-    			
-    			// retira o elemento -1, caso exista
-    			if (count($ids) > 0 && $ids[0] == -1) {
-    				array_shift($ids);
-    			}
-    		
-    			try {
-    				
-    				$conexao = $this->conexao->getConexao();
-    				
-    				//if (!temPermissao(array('pacientes:manterCursos'), $_SESSION[PREFIX . "permissoes"]))
-    				//	throw new Exception("Você não tem permissão para realizar esta ação.");
-    					
-    				foreach ($ids as $id) {
-    					
-    					$dados = $this->DAO->findByPk($conexao, "pacientes", (int) $id);
-    			
-    					switch ($_POST["acoes"]) {
-    					
-    						case "excluir" :
-    							
-    							$opcao = "excluído(s)";
-    							try {
-    								$affectedRows = $this->DAO->exclui($conexao, "pacientes", array(
-	    									"where" => array(
-	    										"id" => $id
-	    									)
-	    								)
-	    							);
-    								if ($affectedRows > 0) {
-    									$processados+=1;
-    									$diretorio = DIR_UPLOADS . SEPARADOR_DIRETORIO . "pacientes" . SEPARADOR_DIRETORIO . $id;
-    									excluiDiretorio($diretorio);
-    									//$this->logDAO->adicionar ($conexao, "excluiu", "paciente", $_SESSION[PREFIX . "loginNome"], $dados["nome"], "Usuário excluiu o paciente.");
-    								}
-    							}
-    							catch (Exception $e) {
-    								$naoProcessados+=1;
-    							}
-    							
-    						break;
-    					
-    						case "ativar" :
-    							
-    							$opcao = "ativado(s)";
-    							$dados["status"] = 1;
-    							$affectedRows = $this->DAO->atualizar($conexao, "pacientes", $dados);
-    							if ($affectedRows > 0) {
-    								$processados += 1;
-    								//$this->logDAO->adicionar ($conexao, "ativou", "paciente", $_SESSION[PREFIX . "loginNome"], $dados["nome"], "Usuário ativou paciente."); 
-    							}
-    							
-    						break;
-    						
-    						case "desativar" :
-    							
-    							$opcao = "desativado(s)";
-    							$dados["status"] = 0;
-    							$affectedRows = $this->DAO->atualizar($conexao, "pacientes", $dados);
-    							if ($affectedRows > 0) {
-    								$processados += 1;
-    								//$this->logDAO->adicionar ($conexao, "desativou", "paciente", $_SESSION[PREFIX . "loginNome"], $dados["nome"], "Usuário desativou paciente."); 
-    							}
-    							
-    						break;
-    						
-    					}
-    				}
-    				
-    				if ($processados > 0) {
-    					$conexao->commit();
-    					setMensagem("info", $processados. " paciente(s) " . $opcao);
-    				}
-    				
-    				if ($naoProcessados > 0) {
-    					setMensagem("error", $naoProcessados. " paciente(s) não podem ser " . $opcao);
-    				}
-    				
-    				$conexao->disconnect();
-    			
-    			}
-    			catch (Exception $e) {
-    				setMensagem("error", $e->getMessage());
-    				$conexao->rollback();
-    			}
-    			
+    		if ($affectedRows) {
+    			$conexao->commit();
+    			setMensagem("info", "Registro excluído do histórico de atendimentos com sucesso");
     		}
     		
     	}
+    	catch (Exception $e) {
+    		$conexao->rollback();
+    		setMensagem("error", $e->getMessage());
+    	}
     	
-    	Application::redirect(WWW_ROOT . "/?modulo=pacientes");
+    	Application::redirect("?modulo=pacientes&acao=atendimento&id=" . $dadosA["id"]);
     	exit;
     	
+    }
+    
+    public function opcoesAction() {
+    	try {
+    		//$this->checaPermissao($this->info["modulo"], 'opcoes');
+    		//$redirecionar = montaRedirect($_SERVER["QUERY_STRING"], array("acao", "nome"));
+    		$redirecionar = "?modulo=pacientes";
+    		$processados = 0;
+    		$naoProcessados = 0;
+    		
+    		if (empty($_POST["acoes"])) {
+    			throw new Exception("É necessário escolher uma ação");
+    		}
+    		
+    		$conexao = $this->conexao->getConexao();
+    		$objetos = isset($_POST["objetos"]) ? $_POST["objetos"] : array();
+    		
+    		// retira o elemento -1, caso exista
+    		if (count($objetos) > 0 && $objetos[0] == -1) {
+    			array_shift($objetos);
+    		}
+    		
+    		foreach ($objetos as $id) {
+    			$dados = $this->dao->findByPk ($conexao, $this->info["tabela"], $id);
+    			switch ($_POST['acoes']) {
+    			
+    				case 'excluir' :
+    					$opcao = "excluído(a)(s)";	
+    					try {	
+    						$affectedRows = $this->dao->excluiByPk ($conexao, $this->info["tabela"], $dados["id"]);
+    						if ($affectedRows > 0) {
+    							$processados += 1;
+    							$diretorio = DIR_UPLOADS . SEPARADOR_DIRETORIO . $this->info["modulo"] . SEPARADOR_DIRETORIO . $dados["id"];
+    							excluiDiretorio($diretorio);
+    							//$this->logDAO->adicionar ($conexao, "excluiu", $this->info["labelSing"], $_SESSION[PREFIX . "loginNome"], $dados[$_GET['nome']], "Usuário excluiu " . $this->info["labelSing"] . " através do recurso de aplicar ações em massa.");
+    						}
+    					}
+    					catch (Exception $e) {
+    						$naoProcessados+=1;
+    					}
+    				break;
+    				
+    			}
+    		}
+    		
+    	}
+    	catch (Exception $e) {
+    		if (isset($conexao)) {
+    			$conexao->rollback();
+    		}
+    		setMensagem("error", $e->getMessage());
+    	}
+    	
+    	if ($processados > 0) {
+    		$conexao->commit();
+    		setMensagem("info", $processados . " " . $opcao);
+    	}
+    	
+    	if ($naoProcessados > 0) {
+    		setMensagem("error", $naoProcessados . " não pode(m) ser " . $opcao);
+    	}
+    	
+    	if (isset($conexao)) {
+    		$conexao->disconnect();
+    	}
+    	Application::redirect($redirecionar);
+    	exit;
     }
     
     public function removerAction() {
@@ -489,7 +592,7 @@ class PacientesController extends Controller {
     	try {
     		$conexao = $this->conexao->getConexao();
     		$redirecionar = "?modulo=pacientes";				
-    		$objeto = $this->DAO->findByPk ($conexao, "pacientes", (int) $_GET["id"]);	
+    		$objeto = $this->dao->findByPk ($conexao, "pacientes", (int) $_GET["id"]);	
     		$redirecionar .= "&acao=cadastrar&id=" . $objeto["id"];		
     		$diretorio = DIR_UPLOADS . SEPARADOR_DIRETORIO . "pacientes" . SEPARADOR_DIRETORIO . $objeto["id"];
     		$file = $diretorio . SEPARADOR_DIRETORIO . $objeto["foto"];
@@ -500,7 +603,7 @@ class PacientesController extends Controller {
     		
     		if (excluiArquivo($file)) {
     			$objeto["foto"] = NULL;
-    			$this->DAO->salva($conexao, "pacientes", $objeto);
+    			$this->dao->salva($conexao, "pacientes", $objeto);
     			$conexao->commit();
     			setMensagem("info", "Foto excluída");
     		}
@@ -524,8 +627,8 @@ class PacientesController extends Controller {
     	try {
     		$conexao = $this->conexao->getConexao();
     		$redirecionar = "?modulo=pacientes";
-    		$dados = $this->DAO->findByPk($conexao, "pacientes", getVariavel("id"));
-    		$atendimento = $this->DAO->find($conexao, "atendimentos", array(
+    		$dados = $this->dao->findByPk($conexao, "pacientes", getVariavel("id"));
+    		$atendimento = $this->dao->find($conexao, "atendimentos", array(
     				"where" => array(
     					"paciente" => $dados["id"]
     				)

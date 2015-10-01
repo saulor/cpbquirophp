@@ -3,7 +3,7 @@
 class DAOGenerico {
 
 	public function DAOGenerico () {
-
+	
 	}
 	
 	public function execute ($conexao, $sql) {
@@ -19,7 +19,7 @@ class DAOGenerico {
 		return $dados;
 	}
 	
-	public function mountQuery($conexao, $tabela, $params = array()) {
+	public function mountQuery($conexao, $tabela, $params) {
 	
 		if (!array_key_exists("dados", $params)) {
 			$params["dados"] = array("*");
@@ -88,7 +88,8 @@ class DAOGenerico {
 		if (array_key_exists("whereLike", $params)) {
 			foreach ($params["whereLike"] as $key => $value) {
 				if (!empty($value)) {
-					$sql .= " AND " . $key . " like '%" . $value . "%'";
+					$query = $query->where($key . " LIKE ?", '%'. $value . '%');
+					//$sql .= " AND " . $key . " like '%" . $value . "%'";
 				}
 			}
 		}
@@ -109,12 +110,13 @@ class DAOGenerico {
 				$query = $query->group($group);
 			}
 		}
-		
+
 		return $query;
 	}
 	
 	public function count ($conexao, $tabela, $params = array()) {
 		try {
+			$infoCampos = $this->_infoCampos($conexao, $tabela, $params);
 			$params = $this->_codificaWheres($conexao, $tabela, $params);
 			$query = $this->mountQuery($conexao, $tabela, $params);
 			return $query->count();
@@ -131,7 +133,7 @@ class DAOGenerico {
 			$query = $query->where($tabela . ".id = ?", (int) $id);
 			$dados = $query->first();
 			if (count($dados) == 0) {
-				throw new Exception ("[{$tabela}] Objeto não encontrado");
+				throw new Exception ("Objeto não encontrado");
 			}
 			return $this->_decodificaDados($conexao, $dados, $infoCampos);
 		}
@@ -158,304 +160,26 @@ class DAOGenerico {
 		}
 	}
 	
-	public function findAll($conexao, $tabela, $params = array()) {
+	public function findAll ($conexao, $tabela, $params = array()) {
 		try {
 			$infoCampos = $this->_infoCampos($conexao, $tabela, $params);
 			$params = $this->_codificaWheres($conexao, $tabela, $params);
 			$query = $this->mountQuery($conexao, $tabela, $params);
 			$dados = $query->all();
-			foreach ($dados as $key => $value) {
-				$dados[$key] = $this->_decodificaDados($conexao, $value, $infoCampos);
-			}
-			return $dados;
+			return $this->_decodificaDados($conexao, $dados, $infoCampos);
 		}
 		catch (Exception $e) {
 			throw $e;
 		}
 	}
-	
-	private function _decodificaDados ($conexao, $dados, $infoCampos) {
-		try {
-			$infosTabela = array();
-			//print_r($infoCampos);die;
-			foreach ($dados as $key => $value) {
-				list($tabela, $campo) = explode(",", $infoCampos[$key]);
-				//$infoTabela = $this->getInformacoesTabela($conexao, $tabela);
-				$infoTabela = $_SESSION[PREFIX . "infoTabelas"][$tabela];
-				if (strpos($infoTabela[$campo], 'int') !== false) {
-					$dados[$key] = (int) $value; 
-				}
-				if (strpos($infoTabela[$campo], 'int') !== false) {
-					$dados[$key] = (int) $value; 
-				}
-				else if (strpos($infoTabela[$campo], 'decimal') !== false) {
-					$dados[$key] = desconverteDecimal($value); 
-				}
-				else if ($infoTabela[$campo] == 'text' && !is_html($value)) {
-					$dados[$key] = htmlentities($value, ENT_NOQUOTES, 'utf-8');
-				}
-				else if ($infoTabela[$campo] == 'date') {
-					$dados[$key] = desconverteData($value);
-				}
-				else if ($infoTabela[$campo] == 'time') {
-					$dados[$key] = substr($value,0,5);
-				}
-				else if ($infoTabela[$campo] == 'datetime') {
-					$dados[$key] = desconverteDataTime($value);
-				}
-				else if ($infoTabela[$campo] == 'varchar(255)') {
-					$dados[$key] = html_entity_decode($value, ENT_NOQUOTES, 'utf-8');
-				}
-			}
-			return $dados;
-		}
-		catch (Exception $e) {
-			throw $e;
-		}
-	}
-	
-	private function _infoCampos ($conexao, $tabela, $params = array()) {
-		try {
-			$info = array();
-			$nomeTabela = $tabela;
-			
-			if (!array_key_exists("dados", $params)) {
-				//foreach($this->getInformacoesTabela($conexao, $tabela) as $nomeCampo => $tipo) {
-				foreach($_SESSION[PREFIX . "infoTabelas"][$tabela] as $nomeCampo => $tipo) {
-					$info[$nomeCampo] = $nomeTabela . "," . $nomeCampo;
-				}
-			}
-			else {
-				foreach ($params["dados"] as $campo) {
-					$alias = $nomeCampo = $campo;
-					if (preg_match("/(.*)\.(.*)/i", $campo)) {
-						preg_match("/([A-Z_]*)\.([A-Z_]*)/i", $campo, $results1);
-						$nomeTabela = $results1[1];
-						$alias = $nomeCampo = $results1[2];
-						if (preg_match("/as (.*)/i", $campo)) {
-							preg_match("/as ([A-Z_]*)/i", $campo, $results2);
-							$alias = $results2[1];
-						}
-						
-					}
-					$info[$alias] = $nomeTabela . ',' . $nomeCampo;
-				}
-			}
-			return $info;
-		}
-		catch (Exception $e) {
-			throw $e;
-		}
-	}
-	
-	private function _codificaWheres($conexao, $tabela, $params) {
-		try {
-			
-			//$info = $this->getInformacoesTabela($conexao, $tabela);
-			$info = $_SESSION[PREFIX . "infoTabelas"][$tabela];
-			$infos[$tabela] = $info;
-			
-			if (array_key_exists("where", $params)) {
-				foreach ($params["where"] as $key => $value) {
-					
-					if (preg_match("/(.*)\.(.*)/i", $key)) {
-						preg_match("/([A-Z_]*)\.([A-Z]*)/i", $key, $results);
-						$nomeTabela = $results[1];
-						$nomeCampo = $results[2];
-					}
-					else {
-						$nomeTabela = $tabela;
-						$nomeCampo = $key;
-					}
-					
-					if (!array_key_exists($nomeTabela, $infos)) {
-						//$info = $this->getInformacoesTabela($conexao, $nomeTabela);
-						$info = $_SESSION[PREFIX . "infoTabelas"][$nomeTabela];
-						$infos[$nomeTabela] = $info;
-					}
-					
-					if (!array_key_exists($nomeCampo, $infos[$nomeTabela])) {
-						throw new Exception('Campo ' . $nomeCampo . ' não existe na tabela ' . $tabela);
-					}
-					
-					if (strpos($infos[$nomeTabela][$nomeCampo], 'int') !== false) {
-						$params["where"][$key] = (int) $value; 
-					}
-					else if (strpos($infos[$nomeTabela][$nomeCampo], 'decimal') !== false) {
-						$params["where"][$key] = converteDecimal($value); 
-					}
-					else if ($infos[$nomeTabela][$nomeCampo] == 'text' && !is_html($value)) {
-						$params["where"][$key] = htmlentities($value, ENT_NOQUOTES, 'utf-8');
-					}
-					else if ($infos[$nomeTabela][$nomeCampo] == 'date') {
-						$params["where"][$key] = converteData($value);
-						//$params["where"][$key] = $value;
-					}
-					else if ($infos[$nomeTabela][$nomeCampo] == 'datetime') {
-						$params["where"][$key] = converteDataTime($value);
-					}
-					else if ($infos[$nomeTabela][$nomeCampo] == 'varchar(255)') {
-						$params["where"][$key] = htmlentities($value, ENT_NOQUOTES, 'utf-8');
-					}
-				}
-			}
-			return $params;
-		}
-		catch (Exception $e) {
-			throw $e;
-		}
-	}
-	
-	private function _codificaDados($conexao, $tabela, $dados) {
-		try {
-			//$info = $this->getInformacoesTabela($conexao, $tabela);
-			$info = $_SESSION[PREFIX . "infoTabelas"][$tabela];
-			foreach ($dados as $key => $value) {
-				if (strpos($info[$key], 'int') !== false) {
-					$dados[$key] = (int) $value; 
-				}
-				else if (strpos($info[$key], 'decimal') !== false) {
-					$dados[$key] = converteDecimal($value); 
-				}
-				else if ($info[$key] == 'text' && !is_html($value)) {
-					$dados[$key] = htmlentities($value, ENT_NOQUOTES, 'utf-8');
-				}
-				else if ($info[$key] == 'date') {
-					$dados[$key] = converteData($value);
-				}
-				else if ($info[$key] == 'datetime') {
-					$dados[$key] = converteDataTime($value);
-				}
-				else if ($info[$key] == 'varchar(255)') {
-					$dados[$key] = htmlentities($value, ENT_NOQUOTES, 'utf-8');
-				}
-			}
-			return $dados;
-		}
-		catch (Exception $e) {
-			throw $e;
-		}
-	}
-	
-	/*
-	private function _decodificaDados ($info, $tabela, $params, $dados) {
-		try {
-			/*foreach ($dados as $indice => $value) {
-				if (strpos($info[$indice], 'int') !== false) {
-					$dados[$indice] = (int) $value; 
-				}
-				else if (strpos($info[$indice], 'decimal') !== false) {
-					$dados[$indice] = desconverteDecimal($value); 
-				}
-				else if ($info[$indice] == 'text' && !is_html($value)) {
-					$dados[$indice] = htmlentities($value, ENT_NOQUOTES, 'utf-8');
-				}
-				else if ($info[$indice] == 'date') {
-					$dados[$indice] = desconverteData($value);
-				}
-				else if ($info[$indice] == 'time') {
-					$dados[$indice] = substr($value,0,5);
-				}
-				else if ($info[$indice] == 'datetime') {
-					$dados[$indice] = desconverteDataTime($value);
-				}
-				else if ($info[$indice] == 'varchar(255)') {
-					$dados[$indice] = html_entity_decode($value, ENT_NOQUOTES, 'utf-8');
-				}
-			}
-			
-			return $dados;
-		}
-		catch (Exception $e) {
-			throw $e;
-		}
-	}
-	
-	public function findAll ($conexao, $tabela, $params = array()) {
-		try {
-
-			$info = $dadosAux = $whereAux = array();
-			$infoTabela = $this->getInformacoesTabela($conexao, $tabela);
-
-			if (array_key_exists("dados", $params)) {
-				foreach ($params["dados"] as $dado) {
-					if (preg_match("/(.*)\.(.*)/i", $dado)) {
-						preg_match("/\.([A-Z]*)/i", $dado, $results);
-						$d = $results[1];
-					}
-					else {
-						$d = $dado;
-					}
-					if (!in_array($d, $dadosAux)) {
-						$dadosAux[] = $d;
-					}
-				}
-				foreach ($infoTabela as $key => $value) {
-					if (in_array($key, $dadosAux)) {
-						$info[$key] = $value;
-					}
-					$info[$key] = $value;
-					
-				}
-			}
-			else {
-				foreach ($infoTabela as $key => $value) {
-					$info[$key] = $value;
-				}
-			}
-			
-			if (array_key_exists("where", $params)) {
-				foreach ($params["where"] as $key => $value) {
-					if (preg_match("/(.*)\.(.*)/i", $key)) {
-						preg_match("/\.([A-Z]*)/i", $key, $results);
-						$key = $results[1];
-					}
-					else {
-						$key = $dado;
-					}
-					if (!in_array($w, $whereAux)) {
-						$whereAux[$key] = $value;
-					}
-				}
-			}
-			
-			//print_r($whereAux);die;
-			
-			$params["where"] = $this->_codificaDados($whereAux, $info);
-			
-			print_r($params["where"]);die;
-
-			if (array_key_exists("join", $params)) {
-				foreach ($params["join"] as $join => $on) {
-					$infoTabela = $this->getInformacoesTabela($conexao, $join);
-					foreach ($infoTabela as $key => $value) {
-						if (!in_array($key, $dadosAux)) {
-							$info[$key] = $value;
-						}
-					}
-				}
-			}
-			
-			$query = $this->mountQuery($conexao, $tabela, $params);
-			$dados = $query->all();
-			foreach ($dados as $key => $value) {
-				$dados[$key] = $this->_decodificaDados($value, $info);
-			}
-			return $dados;
-		}
-		catch (Exception $e) {
-			throw $e;
-		}
-	}*/
 
 	public function salva ($conexao, $tabela, $dados = array()) {
 		try {
 			$retorno = array();
-			//$info = $this->getInformacoesTabela($conexao, $tabela);
-			$info = $_SESSION[PREFIX . "infoTabelas"][$tabela];
 			$dados = $this->_codificaDados($conexao, $tabela, $dados);
 			$query = $conexao->query()->from($tabela);
 			$id = array_shift($dados);
+			$dadosRaw = $dados;
 			if ($id != 0) {
 				$query->where("id = ?", (int) $id);
 			}
@@ -464,8 +188,20 @@ class DAOGenerico {
 				$id = $newId;
 			}
 			$retorno["id"] = $id;
-			$retorno = array_merge($retorno, $dados);
+			$retorno = array_merge($retorno, $dadosRaw);
 			return $retorno;
+		}
+		catch (Exception $e) {
+			throw $e;
+		}
+	}
+	
+	// função criada para 
+	public function salva2 ($conexao, $tabela, $dados, $params = array()) {
+		try {
+			$dados = $this->_codificaDados($conexao, $tabela, $dados);
+			$query = $this->mountQuery($conexao, $tabela, $params);
+			return $query->save($dados);
 		}
 		catch (Exception $e) {
 			throw $e;
@@ -527,6 +263,192 @@ class DAOGenerico {
 		}
 	}
 	
+	private function _getInformacoesTabela($conexao, $tabela) {
+		try {
+			$sql = "SHOW COLUMNS FROM " . $tabela;
+			$result = $conexao->execute($sql);
+			$fields = array();
+			for ($i=0; $i<$result->num_rows; $i++) {
+				$r = $result->fetch_array(MYSQLI_ASSOC);
+				$f[$r['Field']] = $r['Type'];
+				$fields = $f;
+			}
+			return $fields;
+		}
+		catch (Exception $e) {
+			throw $e;
+		}
+	}
+	
+	private function _infoCampos ($conexao, $tabela, $params = array()) {
+		try {
+			$info = array();
+			$nomeTabela = $tabela;
+			if (!array_key_exists("dados", $params)) {
+				foreach($this->getInformacoesTabela($conexao, $tabela) as $nomeCampo => $tipo) {
+					$info[$nomeCampo] = $nomeTabela . "," . $nomeCampo;
+				}
+			}
+			else {
+				foreach ($params["dados"] as $campo) {
+					$alias = $nomeCampo = $campo;
+					if (preg_match("/(.*)\.(.*)/i", $campo)) {
+						preg_match("/([A-Z_]*)\.([A-Z_*]*)/i", $campo, $results1);
+						$nomeTabela = $results1[1];
+						$alias = $nomeCampo = $results1[2];
+						if (preg_match("/as (.*)/i", $campo)) {
+							preg_match("/as ([A-Z_]*)/i", $campo, $results2);
+							$alias = $results2[1];
+						}
+					}
+					$info[$alias] = $nomeTabela . ',' . $nomeCampo;
+				}
+			}
+			return $info;
+		}
+		catch (Exception $e) {
+			throw $e;
+		}
+	}
+	
+	private function _decodificaDados ($conexao, $dados, $infoCampos) {
+		try {
+			$infosTabela = array();
+			foreach ($infoCampos as $key => $value) {
+				list($tabela, $campo) = explode(",", $infoCampos[$key]);
+				if (!array_key_exists($tabela, $infosTabela)) {
+					$infosTabela[$tabela] = $this->getInformacoesTabela($conexao, $tabela);
+				}
+			}
+			if (isset($dados[0]) && is_array($dados[0])) {
+				foreach ($dados as $indice => $dado) {
+					$dados[$indice] = $this->_applyDecodes($conexao, $dado, $infoCampos, $infosTabela);
+				}
+			}
+			else {
+				$dados = $this->_applyDecodes($conexao, $dados, $infoCampos, $infosTabela);
+			}
+			return $dados;
+		}
+		catch (Exception $e) {
+			throw $e;
+		}
+	}
+	
+	private function _applyDecodes($conexao, $dados, $infoCampos, $infosTabela) {
+		foreach ($dados as $key => $value) {
+			list($tabela, $campo) = explode(",", $infoCampos[$key]);
+			if (strpos($infosTabela[$tabela][$campo], 'int') !== false) {
+				$dados[$key] = (int) $value;
+			}
+			else if (strpos($infosTabela[$tabela][$campo], 'decimal') !== false) {
+				$dados[$key] = desconverteDecimal($value);
+			}
+			else if ($infosTabela[$tabela][$campo] == 'text' && !is_html($value)) {
+				$dados[$key] = html_entity_decode($value, ENT_NOQUOTES, 'utf-8');
+			}
+			else if ($infosTabela[$tabela][$campo] == 'date') {
+				$dados[$key] = desconverteData($value);
+			}
+			else if ($infosTabela[$tabela][$campo] == 'time') {
+				$dados[$key] = substr($value,0,5);
+			}
+			else if ($infosTabela[$tabela][$campo] == 'datetime') {
+				$dados[$key] = desconverteDataTime($value);
+			}
+			else if ($infosTabela[$tabela][$campo] == 'varchar(255)') {
+				$dados[$key] = html_entity_decode($value, ENT_NOQUOTES, 'utf-8');
+			}
+		}
+		return $dados;
+	}
+	
+			
+	private function _codificaWheres($conexao, $tabela, $params) {
+		try {
+
+			$info = $this->getInformacoesTabela($conexao, $tabela);
+			$infos[$tabela] = $info;
+			
+			if (array_key_exists("where", $params)) {
+				foreach ($params["where"] as $key => $value) {
+					
+					if (preg_match("/(.*)\.(.*)/i", $key)) {
+						preg_match("/([A-Z_]*)\.([A-Z]*)/i", $key, $results);
+						$nomeTabela = $results[1];
+						$nomeCampo = $results[2];
+					}
+					else {
+						$nomeTabela = $tabela;
+						$nomeCampo = $key;
+					}
+
+					if (!array_key_exists($nomeTabela, $infos)) {
+						$info = $this->getInformacoesTabela($conexao, $nomeTabela);
+						$infos[$nomeTabela] = $info;
+					}
+					
+					if (!array_key_exists($nomeCampo, $infos[$nomeTabela])) {
+						throw new Exception('Campo ' . $nomeCampo . ' não existe na tabela ' . $tabela);
+					}
+					
+					if (strpos($infos[$nomeTabela][$nomeCampo], 'int') !== false) {
+						$params["where"][$key] = (int) $value; 
+					}
+					else if (strpos($infos[$nomeTabela][$nomeCampo], 'decimal') !== false) {
+						$params["where"][$key] = converteDecimal($value); 
+					}
+					else if ($infos[$nomeTabela][$nomeCampo] == 'text' && !is_html($value)) {
+						$params["where"][$key] = htmlentities($value, ENT_NOQUOTES, 'utf-8');
+					}
+					else if ($infos[$nomeTabela][$nomeCampo] == 'date') {
+						$params["where"][$key] = converteData($value);
+					}
+					else if ($infos[$nomeTabela][$nomeCampo] == 'datetime') {
+						$params["where"][$key] = converteDataTime($value);
+					}
+					else if ($infos[$nomeTabela][$nomeCampo] == 'varchar(255)') {
+						$params["where"][$key] = htmlentities($value, ENT_NOQUOTES, 'utf-8');
+					}
+				}
+			}
+			return $params;
+		}
+		catch (Exception $e) {
+			throw $e;
+		}
+	}
+	
+	private function _codificaDados($conexao, $tabela, $dados) {
+		try {
+			$info = $this->getInformacoesTabela($conexao, $tabela);
+			foreach ($dados as $key => $value) {
+				if (strpos($info[$key], 'int') !== false) {
+					$dados[$key] = (int) $value; 
+				}
+				else if (strpos($info[$key], 'decimal') !== false) {
+					$dados[$key] = converteDecimal($value); 
+				}
+				else if ($info[$key] == 'text' && !is_html($value)) {
+					$dados[$key] = htmlentities($value, ENT_NOQUOTES, 'utf-8');
+				}
+				else if ($info[$key] == 'date') {
+					$dados[$key] = converteData($value);
+				}
+				else if ($info[$key] == 'datetime') {
+					$dados[$key] = converteDataTime($value);
+				}
+				else if ($info[$key] == 'varchar(255)') {
+					$dados[$key] = htmlentities($value, ENT_NOQUOTES, 'utf-8');
+				}
+			}
+			return $dados;
+		}
+		catch (Exception $e) {
+			throw $e;
+		}
+	}
+	
 	public function getInformacoesTabela($conexao, $tabela) {
 		try {
 			$sql = "SHOW COLUMNS FROM " . $tabela;
@@ -545,57 +467,6 @@ class DAOGenerico {
 			throw $e;
 		}
 	}
-	
-//	private function _decodificaDados($dados, $informacoesTabela) {
-//		print_r($dados);echo '<br /><br />';
-//		print_r($informacoesTabela);
-//		foreach ($dados as $key => $value) {
-//			if (strpos($informacoesTabela[$key], 'decimal') !== false) {
-//				$dados[$key] = desconverteDecimal($value); 
-//			}
-//			else if ($informacoesTabela[$key] == 'varchar(255)') {
-//				$dados[$key] = html_entity_decode($value, ENT_NOQUOTES, 'utf-8');
-//			}
-//			else if ($informacoesTabela[$key] == 'date') {
-//				$dados[$key] = desconverteData($value);
-//			}
-//			else if ($informacoesTabela[$key] == 'datetime') {
-//				$dados[$key] = desconverteDataTime($value);
-//			}
-//		}
-//		return $dados;
-//	}
-	
-//	private function _codificaDados($dados, $informacoesTabela) {
-//		print_r($dados);echo '<br /><br />';
-//		print_r($informacoesTabela);
-//		foreach ($dados as $key => $value) {
-//			if (strpos($informacoesTabela[$key], 'int') !== false) {
-//				$dados[$key] = (int) $value; 
-//			}
-//			else if (strpos($informacoesTabela[$key], 'decimal') !== false) {
-//				$dados[$key] = converteDecimal($value); 
-//			}
-//			else if ($informacoesTabela[$key] == 'text') {
-//				if (!is_html($value)) {
-//					$dados[$key] = htmlentities($value, ENT_NOQUOTES, 'utf-8');
-//				}
-//			}
-//			else if ($informacoesTabela[$key] == 'date') {
-//				$dados[$key] = converteData($value);
-//			}
-//			else if ($informacoesTabela[$key] == 'decimal') {
-				//$dados[$key] = (decimal); converter decimal
-//			}
-//			else if ($informacoesTabela[$key] == 'datetime') {
-//				$dados[$key] = converteDataTime($value);
-//			}
-//			else if ($informacoesTabela[$key] == 'varchar(255)') {
-//				$dados[$key] = htmlentities($value, ENT_NOQUOTES, 'utf-8');
-//			}
-//		}
-//		return $dados;
-//	}
 }
 
 ?>

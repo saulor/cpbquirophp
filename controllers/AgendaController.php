@@ -4,7 +4,6 @@ class AgendaController extends Controller {
 	
 	public function AgendaController() {
 		parent::__construct();
-		$this->DAO = new DAOGenerico();
 	}
 	
     public function indexAction() {
@@ -29,41 +28,41 @@ class AgendaController extends Controller {
     		$quantidade = 0;
     		$objetos = array();
     		$compromissos = array();
+    		$mes = date('m');
+    		$ano = date('Y');
+    		$dia = date('d');
 
-    		$objetos = $this->DAO->findAll($conexao, "agenda", array(
+    		$objetos = $this->dao->findAll($conexao, "agenda", array(
     				"dados" => array(
-    					"DISTINCT agenda.id",
+    					"agenda.id",
     					"agenda.tipo",
-    					//"agenda.telefoneResidencial",
-    					//"agenda.telefoneCelular",
     					"agenda.data",
     					"agenda.hora",
     					"agenda.dia",
     					"agenda.mes",
     					"agenda.ano",
-    					//"DATE_FORMAT(agenda.data, '%d/%m/%Y') as dataFormatada",
-    					"SUBSTR(agenda.hora, 1, 5) as horaFormatada",
-    					//"agenda.dataC",
-    					//"agenda.timestampC",
-    					//"DATE_FORMAT(agenda.dataC, '%d/%m/%Y') as dataCFormatada",
-    					//"pacientes.id as idPaciente",
-    					"pacientes.nome as nomePaciente "
+    					"agenda.telefoneResidencial",
+    					"agenda.telefoneCelular",
+    					"agenda.lembrete",
+    					"agenda.observacoes",
+    					"agenda.ano",
+    					"agenda.nomePaciente",
+    					"CONCAT_WS('T', data, hora) as timestamp"
     				),
     				"where" => array(
-    					"agenda.mes" => date('m'),
-    					"agenda.ano" => date('Y')
+    					"agenda.mes" => $mes,
+    					"agenda.ano" => $ano
     				),
-    				"join" => array(
-    					"pacientes" => "pacientes.id = agenda.paciente",
+    				"leftJoin" => array(
     					"agenda_fisioterapeutas" => "agenda.id = agenda_fisioterapeutas.compromisso"
     				),
     				"order" => array(
     					"agenda.hora" => "asc"
-    				)
+    				),
     			)
     		);
-
-    		$fisioterapeutas = $this->DAO->findAll($conexao, "vw_usuarios", array(
+    		    		    	
+    		$fisioterapeutas = $this->dao->findAll($conexao, "vw_usuarios", array(
     				"where" => array(
     					"permissao" => Permissao::PERMISSAO_FISIOTERAPEUTA
     				),
@@ -73,7 +72,14 @@ class AgendaController extends Controller {
     			)
     		);
     		
-    		$mesAtual = rangeMonth(date('Y') . '-' . date('m') . '-'.date('d'));
+    		// recupera os pacientes para o autocomplete
+    		$pacientes = $this->dao->findAll($conexao, "pacientes");
+    		$pacientesArr = array();
+    		foreach ($pacientes as $paciente) {
+    			$pacientesArr[] = '"' . $paciente["nome"] . '"';	
+    		}
+    		
+    		$mesAtual = rangeMonth($ano . '-' . $mes . '-' . $dia);
     		
     		for ($i=$mesAtual["start"];$i<=$mesAtual["end"];$i++) {
     			foreach ($objetos as $objeto) {
@@ -93,10 +99,14 @@ class AgendaController extends Controller {
     			"title" => getTitulo($breadcrumbs), 
     			"compromissos" => $compromissos,
     			"fisioterapeutas" => $fisioterapeutas,
+    			"pacientes" => implode(",", $pacientesArr),
     			"quantidade" => $quantidade,
     			"quantidadePorPagina" => $quantidadePorPagina,
     			"pagina" => $pagina,
-    			"breadcrumbs" => $breadcrumbs
+    			"breadcrumbs" => $breadcrumbs,
+    			"dia" => $dia,
+    			"mes" => $mes,
+    			"ano" => $ano
     		)
     	);
     	$view->showContents();
@@ -109,112 +119,46 @@ class AgendaController extends Controller {
     		$redirecionar = "?modulo=agenda";
     		$tipos = Agenda::getTipos();
     		$breadcrumbs = array();
-    		$breadcrumbs[] = array("Agenda" => "?modulo=" . $_GET["modulo"]);
+    		$breadcrumbs[] = array(
+    			"Agenda" => "?modulo=" . $_GET["modulo"],
+    			"Novo compromisso" => ""
+    		);
 
     		$dados = inicializaDados(new Agenda());
     		$dados["data"] = isset($_GET['data']) ? $_GET['data'] : date('d/m/Y');
     		$dados["hora"] = isset($_GET['hora']) ? $_GET['hora'] : '';
     		$dados["tipo"] = isset($_GET['tipo']) ? $_GET['tipo'] : '0';
-    		$fisioterapeutasAtuais = array(
-    			"fisioterapeutas" => NULL,
-    			"ids" => ""
+    		
+    		$fisioterapeutas = $this->dao->findAll($conexao, "vw_usuarios", array(
+    				"where" => array(
+    					"permissao" => Permissao::PERMISSAO_FISIOTERAPEUTA
+    				),
+    				"order" => array(
+    					"nome" => "asc"
+    				)
+    			)
     		);
-    		$arrFis = array();
-    		$arrIds = array();
     		
     		// recupera os pacientes para o autocomplete
-    		$pacientes = $this->DAO->findAll($conexao, "pacientes");
+    		$pacientes = $this->dao->findAll($conexao, "pacientes");
     		$pacientesArr = array();
     		foreach ($pacientes as $paciente) {
     			$pacientesArr[] = '"' . $paciente["nome"] . '"';	
     		}
-    		
-    		if (isset($_GET["compromisso"])) {
-    		
-    			$arrFis = array();
-    			$arrIds = array();
-    			
-    			// recupera o compromisso
-    			$dados = $this->DAO->findByPk($conexao, "agenda", (int) $_GET["compromisso"]);
-    			
-    			$dadosFisioterapeutas = $this->DAO->findAll($conexao, "agenda_fisioterapeutas", array(
-    					"where" => array(
-    						"compromisso" => (int) $dados["id"]
-    					)
-    				)
-    			);
-    			
-    			// recupera o paciente e os fisioterapeutas do compromisso	
-    			$paciente = $conexao->query()
-    				->from("pacientes")
-    				->where("id = ?", (int) $dados["paciente"])
-    				->first();
-
-    			foreach ($dadosFisioterapeutas as $f) {
-    				$fisioterapeuta = $conexao->query()
-	    				->from("usuarios")
-	    				->where("id = ?", (int) $f["fisioterapeuta"])
-	    				->first();
-    				$arrIds[] = $fisioterapeuta["id"];
-    				$arrFis[] = array(
-    					"id" => $fisioterapeuta["id"],
-    					"name" => $fisioterapeuta["nome"]
-    				);
-    			} 
-    				
-    			$dados["paciente"] = $paciente["nome"];
-    			$fisioterapeutasAtuais = $dados["fisioterapeutas"] = array(
-					"fisioterapeutas" => json_encode($arrFis),
-					"ids" => implode(",", $arrIds)
-				);
-    			$dados["hora"] = substr($dados["hora"],0,5);
-    			$breadcrumbs[] = array(
-    				"Atualizar" => ""
-    			);
-    			$acao = "editar";
-    			
-    		}
-    		else {
-    			$breadcrumbs[] = array(
-    					"Novo compromisso" => ""
-    				);
-    			$acao = "novo";
-    		}
 			
     		if (count($_POST) > 0) {
     			
+    			$redirecionar = NULL;
     			$dados = $dadosIn = $_POST;
-    			$ids = $dadosIn["fisioterapeutas"];
-    			$arrFis = array();
-    			$arrIds = array();
-    			$arrNomes = array();
-    			
-    			if (!empty($dadosIn["fisioterapeutas"])) {
-    				$fisioterapeutas = $conexao->query()
-    					->from("usuarios")
-    					->where("id in (" . $dadosIn["fisioterapeutas"] . ")")
-    					->all();
-    				foreach ($fisioterapeutas as $f) {
-    					$arrIds[] = $f["id"];
-    					$arrNomes[$f["id"]] = $f["nome"];
-    					$arrFis[] = array(
-    						"id" => $f["id"],
-    						"name" => $f["nome"]
-    					);
-    				} 
-    			}
-    				
-    			$dados["fisioterapeutas"] = $dadosIn["fisioterapeutas"] = array(
-    				"fisioterapeutas" => json_encode($arrFis),
-    				"ids" => implode(",", $arrIds)
-    			);
+    			$idsFisioterapeutas = array();
+    			$dados["fisioterapeutas"] = $dadosIn["fisioterapeutas"] = isset($dadosIn["fisioterapeutas"]) ? $dadosIn["fisioterapeutas"] : array();
     			
     			$obrigatorios = array(
     				"tipo" => array(
     					"tipo" => "select", 
     					"nome" => "Tipo"
     				),
-    				"paciente" => array(
+    				"nomePaciente" => array(
     					"tipo" => "input", 
     					"nome" => "Paciente"
     				),
@@ -226,38 +170,28 @@ class AgendaController extends Controller {
     					"tipo" => "input", 
     					"nome" => "Hora"
     				),
-    				"idsFisioterapeutas" => array(
-    					"tipo" => "input", 
+    				"fisioterapeutas" => array(
+    					"tipo" => "array", 
     					"nome" => "Fisioterapeutas"
     				)	
     			);
-    			    			
+    			
+    			$mensagens = array();		    			
+    			
     			$mensagem = validaPost($obrigatorios, $dadosIn);
     			if (!empty($mensagem)) {
-    				$redirecionar = NULL;
-    				throw new Exception($mensagem);
+    				$mensagens[] = $mensagem;
     			}
     			
-    			if (!validaHora($dadosIn["hora"])) {
-    				throw new Exception("Informe uma hora válida");
+    			if (!empty($dadosIn["hora"]) && !validaHora($dadosIn["hora"])) {
+    				$mensagens[] = "Informe uma hora válida.";
     			}
 	    		
-	    		// recupera o paciente
-	    		$paciente = $this->DAO->find($conexao, "pacientes", array(
-	    				"where" => array(
-	    					"nome" => $dadosIn["paciente"]
-	    				)
-	    			)
-	    		);
-	    		
-	    		if (count($paciente) == 0) {
-	    			throw new Exception("Paciente não encontrado [" . $dadosIn["paciente"] . "]");
-	    		}
-	    		
-				foreach ($arrIds as $id) {
-					// verifica se já existe um compromisso para aquela data e horário   					
-					$compromissos = $this->DAO->count($conexao, "agenda", array(
-							"join" => array(
+				foreach ($dadosIn["fisioterapeutas"] as $f) {
+					list($nome, $id) = explode("-", $f);
+					$idsFisioterapeutas[] = $id;
+					$quantidadeCompromissos = $this->dao->count($conexao, "agenda", array(
+							"leftJoin" => array(
 								"agenda_fisioterapeutas" => "agenda_fisioterapeutas.compromisso = agenda.id"
 							),
 							"where" => array(
@@ -270,9 +204,13 @@ class AgendaController extends Controller {
 							)
 						)
 					);
-					if ($compromissos > 0) {
-						throw new Exception("Já existe um compromisso para " . $arrNomes[$id] . " nesta mesma data e horário");
+					if ($quantidadeCompromissos > 0) {
+						$mensagens[] = "Já existe um compromisso para " . $nome . " nesta mesma data e horário";
 					}
+				}
+				
+				if (count($mensagens) > 0) {
+					throw new Exception(implode('<br />', $mensagens));
 				}
 				
 				if ($dadosIn["id"] == 0) {
@@ -280,46 +218,26 @@ class AgendaController extends Controller {
 					$dadosIn["dataC"] = date('d/m/Y H:i:s', $dadosIn["timestampC"]);
 				}
 
-				$dadosIn = retiraDoArray(array("fisioterapeutas", "idsFisioterapeutas"), $dadosIn);
-				$dadosIn["paciente"] = $paciente["id"];
+				$dadosIn = retiraDoArray(array("fisioterapeutas"), $dadosIn);
 				list($dadosIn["dia"],$dadosIn["mes"],$dadosIn["ano"]) = explode("/", $dadosIn["data"]);
 				
-				$dadosIn = $this->DAO->salva($conexao, "agenda", $dadosIn);
-
-				$excluidos = array_diff(explode(",", $fisioterapeutasAtuais["ids"]), $arrIds);
-				$incluidos = array_diff($arrIds, explode(",", $fisioterapeutasAtuais["ids"]));
-
-				foreach ($incluidos as $id) {
-					$this->DAO->salva($conexao, "agenda_fisioterapeutas", array(
-							"id" => 0,
-							"fisioterapeuta" => $id,
-							"compromisso" => $dadosIn["id"] 
-						)
-					);
-				}
+				$dadosIn = $this->dao->salva($conexao, "agenda", $dadosIn);
 				
-				foreach ($excluidos as $id) {
-					$this->DAO->exclui($conexao, "agenda_fisioterapeutas", array(
-							"where" => array(
-								"compromisso" => $dadosIn["id"],
-								"fisioterapeuta" => $id
-							)
+				foreach ($idsFisioterapeutas as $id) {
+					$this->dao->salva($conexao, "agenda_fisioterapeutas", array(
+							"id" => 0,
+							"compromisso" => $dadosIn["id"],
+							"fisioterapeuta" => $id
 						)
 					);
 				}
 
 				$conexao->commit();
     			
-    			if ($acao == "novo") {					
-    				setMensagem("info", "Compromisso do dia " . desconverteData($dadosIn["data"]) . " às " . $dadosIn["hora"] . " cadastrado [" . $paciente["nome"] . "]");
-    				Application::redirect("?modulo=agenda&acao=cadastrar");
-    				exit;
-    			}
-    			else {
-    				setMensagem("info", "Compromisso do dia " . desconverteData($dadosIn["data"]) . " às " . $dadosIn["hora"] . " atualizado [" . $paciente["nome"] . "]");
-    				Application::redirect("?modulo=agenda");
-    				exit;
-    			}	
+    			setMensagem("info", "Compromisso do dia " . desconverteData($dadosIn["data"]) . " às " . $dadosIn["hora"] . " cadastrado [" . $paciente["nome"] . "]");
+    			Application::redirect("?modulo=agenda&acao=cadastrar");
+    			exit;
+    			
     		}
     	}
     	catch (Exception $e) {
@@ -337,7 +255,8 @@ class AgendaController extends Controller {
     			"title" => getTitulo($breadcrumbs), 
     			"breadcrumbs" => $breadcrumbs,
     			"compromisso" => $dados,
-    			"pacientes" => implode(",", $pacientesArr)
+    			"pacientes" => implode(",", $pacientesArr),
+    			"fisioterapeutas" => $fisioterapeutas
     		)
     	);
     	$view->showContents();
@@ -351,9 +270,9 @@ class AgendaController extends Controller {
     		$conexao = $this->conexao->getConexao();
     		$redirect = WWW_ROOT . "/?modulo=agenda";
     		
-    		$dados = $this->DAO->findByPk($conexao, "vw_agenda", getVariavel("id"));
+    		$dados = $this->dao->findByPk($conexao, "vw_agenda", getVariavel("id"));
     		
-    		$affectedRows = $this->DAO->excluiByPk($conexao, "agenda", $dados["id"]);
+    		$affectedRows = $this->dao->excluiByPk($conexao, "agenda", $dados["id"]);
     		
     		if ($affectedRows > 0) {
     			$conexao->commit();
@@ -396,7 +315,7 @@ class AgendaController extends Controller {
     					
     				foreach ($ids as $id) {
     					
-    					$dados = $this->DAO->getById($conexao, "agenda", $id);
+    					$dados = $this->dao->getById($conexao, "agenda", $id);
     			
     					switch ($_POST["opcoes"]) {
     					
@@ -404,7 +323,7 @@ class AgendaController extends Controller {
     							
     							$opcao = "excluído(s)";
     							try {
-    								$affectedRows = $this->DAO->excluir($conexao, "agenda", $id);
+    								$affectedRows = $this->dao->excluir($conexao, "agenda", $id);
     								if ($affectedRows > 0) {
     									$processados+=1;
     									$diretorio = DIR_UPLOADS . SEPARADOR_DIRETORIO . "agenda" . SEPARADOR_DIRETORIO . $id;
@@ -422,7 +341,7 @@ class AgendaController extends Controller {
     							
     							$opcao = "ativado(s)";
     							$dados["status"] = 1;
-    							$affectedRows = $this->DAO->atualizar($conexao, "agenda", $dados);
+    							$affectedRows = $this->dao->atualizar($conexao, "agenda", $dados);
     							if ($affectedRows > 0) {
     								$processados += 1;
     								//$this->logDAO->adicionar ($conexao, "ativou", "paciente", $_SESSION[PREFIX . "loginNome"], $dados["nome"], "Usuário ativou paciente."); 
@@ -434,7 +353,7 @@ class AgendaController extends Controller {
     							
     							$opcao = "desativado(s)";
     							$dados["status"] = 0;
-    							$affectedRows = $this->DAO->atualizar($conexao, "agenda", $dados);
+    							$affectedRows = $this->dao->atualizar($conexao, "agenda", $dados);
     							if ($affectedRows > 0) {
     								$processados += 1;
     								//$this->logDAO->adicionar ($conexao, "desativou", "paciente", $_SESSION[PREFIX . "loginNome"], $dados["nome"], "Usuário desativou paciente."); 

@@ -1,0 +1,25 @@
+<?php
+	$params = $this->getParams();
+	$paciente = $params["paciente"];
+	$atendimento = $params["atendimento"];
+	$historico = $params["historico"];
+?>
+
+<form method="post">
+
+	<input type="hidden" name="id" value="<?php echo $historico["id"]; ?>" />
+	
+	<fieldset>
+		<legend>Observações sobre o atendimento realizado em <?php echo date('d/m/Y', $historico["timestamp"]); ?> às <?php echo date('H:i:s', $historico["timestamp"]);?></legend>
+		<div class="col-1-1">
+			<div class="content">
+				<textarea class="form-control" name="observacoes"><?php echo $historico["observacoes"]; ?></textarea>
+			</div>
+		</div>
+	</fieldset>
+	
+	<br />
+
+	<input class="btn btn-default" type="submit" value="Salvar" /> 
+
+</form>

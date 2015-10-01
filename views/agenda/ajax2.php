@@ -6,6 +6,7 @@
 	
 	$compromissos = array();
 	$dao = new DAOGenerico();
+	$dia = 1;
 	$mes = $_POST["mes"];
 	$ano = $_POST["ano"];
 	$fisioterapeuta = $_POST["fisioterapeuta"];
@@ -14,8 +15,8 @@
 	$nextData = date('Y-m-d', mktime(0, 0, 0, $mes+1, 1, $ano));
 	
 	$where = array(
-		"mes" => (int) $mes,
-		"ano" => (int) $ano
+		"agenda.mes" => (int) $mes,
+		"agenda.ano" => (int) $ano
 	);
 	
 	if (!empty($fisioterapeuta)) {
@@ -24,26 +25,22 @@
 	
 	$objetos = $dao->findAll($conexao->getConexao(), "agenda", array(
 			"dados" => array(
-				"DISTINCT agenda.id",
+				"agenda.id",
 				"agenda.tipo",
-				"agenda.telefoneResidencial",
-				"agenda.telefoneCelular",
 				"agenda.data",
 				"agenda.hora",
-				"agenda.dia AS diaCompromisso",
-				"agenda.mes AS mesCompromisso",
-				"agenda.ano AS anoCompromisso",
-				//"DATE_FORMAT(agenda.data, '%d/%m/%Y') as dataFormatada",
-				"SUBSTR(agenda.hora, 1, 5) as horaFormatada",
-				"agenda.dataC",
-				"agenda.timestampC",
-				//"DATE_FORMAT(agenda.dataC, '%d/%m/%Y') as dataCFormatada",
-				"pacientes.id as idPaciente",
-				"pacientes.nome as nomePaciente "
+				"agenda.dia",
+				"agenda.mes",
+				"agenda.ano",
+				"agenda.telefoneResidencial",
+				"agenda.telefoneCelular",
+				"agenda.lembrete",
+				"agenda.observacoes",
+				"agenda.nomePaciente",
+				"CONCAT_WS('T', data, hora) as timestamp"
 			),
 			"where" => $where,
-			"join" => array(
-				"pacientes" => "pacientes.id = agenda.paciente",
+			"leftJoin" => array(
 				"agenda_fisioterapeutas" => "agenda.id = agenda_fisioterapeutas.compromisso"
 			),
 			"order" => array(
@@ -56,28 +53,34 @@
 	
 	for ($i=$mesRange["start"];$i<=$mesRange["end"];$i++) {
 		foreach ($objetos as $objeto) {
-			if ($objeto["diaCompromisso"] == $i) {
+			if ($objeto["dia"] == $i) {
 				$compromissos[(int) $i][$objeto["hora"]] = $objeto;
 			}
 		}
 	}
-	
+		
 	// Create array containing abbreviations of days of week.
-    $daysOfWeek = array('Dom','Seg','Ter','Qua','Qui','Sex','Sáb');
+    $daysOfWeek = array('Seg', 'Ter', 'Qua', 'Qui', 'Sex');
     // What is the first day of the month in question?
-    $firstDayOfMonth = mktime(0, 0, 0, $mes, 1, $ano);
+   	$firstDayOfMonth = mktime(0, 0, 0, $mes, $dia, $ano);
+   	// Retrieve some information about the first day of the month in question.
+   	$dateComponents = getdate($firstDayOfMonth);
+   	// What is the index value (0-6) of the first day of the month in question.
+   	$dayOfWeek = $dateComponents['wday'];
+   	
+   	while(in_array($dayOfWeek, array(0,6))) {
+		$firstDayOfMonth = mktime(0, 0, 0, $mes, ++$dia, $ano);
+		$dateComponents = getdate($firstDayOfMonth);
+		$dayOfWeek = $dateComponents['wday'];
+   	}
+
     // How many days does this month contain?
     $numberDays = date('t', $firstDayOfMonth);
-    // Retrieve some information about the first day of the
-    // month in question.
-    $dateComponents = getdate($firstDayOfMonth);
     // What is the name of the month in question?
-    $monthName = $dateComponents['month'];
-    // What is the index value (0-6) of the first day of the
-    // month in question.
-    $dayOfWeek = $dateComponents['wday'];
+    $mesName = $dateComponents['month'];
      
-	$currentDay = 1;
+	// primeiro dia útil do mês
+	$currentDay = (int) date('d', $firstDayOfMonth);
 	
 	$result = '<tr>';
 	
@@ -85,23 +88,38 @@
 	// ensure that the calendar
 	// display consists of exactly 7 columns.
 	
-	if ($dayOfWeek > 0) { 
-		$result .= '<td colspan=' . $dayOfWeek . '>&nbsp;</td>'; 
+	if ($dayOfWeek > 1) { 
+		$result .= '<td colspan=' . ($dayOfWeek-1) . '>&nbsp;</td>'; 
 	}
 	
 	$mes = str_pad($mes, 2, "0", STR_PAD_LEFT);
 	
 	while ($currentDay <= $numberDays) {
+		
 		// Seventh column (Saturday) reached. Start a new row.
-		if ($dayOfWeek == 7) {
-			$dayOfWeek = 0;
+		if ($dayOfWeek == 6) {
+			$dayOfWeek = 1;
+			$result .= '</tr>';
+			
+			if (($currentDay+2) > $numberDays) {
+				$dayOfWeek=6;
+				break;
+			}
+			
+			$result .= '<tr>';
+			foreach($daysOfWeek as $day) {
+				$result .= '<th class="header">' . $day . '</th>';
+			} 
 			$result .= '</tr><tr>';
+			$currentDay+=2;
 		}
+		
 		$currentDayRel = str_pad($currentDay, 2, "0", STR_PAD_LEFT);
 		$date = "$ano-$mes-$currentDayRel";
+		$data = "$currentDayRel/$mes/$ano";
 		$result .= '<td rel="' . $date . '"';
 		if (date('d') == $currentDay && date('m') == $mes && date('Y') == $ano) {
-			$result .= ' class="today"';
+			$result .= ' id="today" class="today"';
 		}
 		$result .= '>';
 		$result .= '<div class="day';
@@ -126,45 +144,62 @@
 			$result .= '<div id="compromisso" style="clear:both;">';
 			$result .= '<div class="circle circle';
 			
+			$tipoCompromisso = 3; // livre
 			$temCompromissoNesseDia = array_key_exists($currentDay, $compromissos);
 			
 			if ($temCompromissoNesseDia) {
+				$id = $compromissos[$currentDay][$hora]["id"];
+				$dateTime = $data . 'T' . $hora;
+				$timestamp = $compromissos[$currentDay][$hora]["timestamp"];
+				$nomePaciente = $compromissos[$currentDay][$hora]["nomePaciente"];
 				$temCompromissoNessHora = array_key_exists($hora, $compromissos[$currentDay]);
 				if ($temCompromissoNessHora) {
-					$result .= $compromissos[$currentDay][$hora]["tipo"];
-				}
-				else {
-					$result .= "3";
+					$tipoCompromisso = $compromissos[$currentDay][$hora]["tipo"];
 				}
 			}
-			else {
-				$result .= "3";
-			}
+			
+			$result .= $tipoCompromisso;
 			$result .= '"></div>';
+			
+			$conteudo = '<a data-id="0" data-dh="' . $dateTime . '" rel="modal">';
+			$conteudo .= '<time datetime="' . $hora . '">';
+			$conteudo .= $hora;
+			$conteudo .= '</time>';
+			$conteudo .= '</a>';
 			
 			if ($temCompromissoNesseDia) {
 				if ($temCompromissoNessHora) {
-					$result .= '<a href="?modulo=agenda&acao=cadastrar&compromisso=';
-					$result .= $compromissos[$currentDay][$hora]["id"] . '">';
-					$result .= '<small>';
-					$result .= $hora;
-					$result .= ' ' . compactaTexto(html_entity_decode($compromissos[$currentDay][$hora]["nomePaciente"], ENT_NOQUOTES, 'utf-8'), 15);
-					$result .= '</small></a>';
+					$conteudo = '<a class="ver_conteudo" ';
+					$conteudo .= 'data-id="' . $id . '" data-dh="' . $dateTime . '" rel="modal">';
+					$conteudo .= '<time datetime="' . $timestamp . '">' . $hora . '</time>';
+					$conteudo .= ' <span>';
+					$conteudo .= compactaTexto($nomePaciente, 25);
+					$conteudo .= '</span>';
+					$conteudo .= '<div class="info">';
+					$conteudo .= '<small><time datetime="">' . $compromissos[$currentDay][$hora]["hora"] . '</time>';
+					$conteudo .= '<p>' . Agenda::getTipo($compromissos[$currentDay][$hora]["tipo"]) . '</small></p>';
+					$conteudo .= '<p>' . $compromissos[$currentDay][$hora]["nomePaciente"] . '</p>';
+					if (!empty($compromissos[$currentDay][$hora]["telefoneResidencial"])) {
+						$conteudo .= '<p><small>';
+						$conteudo .= $compromissos[$currentDay][$hora]["telefoneResidencial"];
+						if (!empty($compromissos[$currentDay][$hora]["telefoneCelular"])) {
+							$conteudo .= ' | ' . $compromissos[$currentDay][$hora]["telefoneCelular"];
+						}
+						$conteudo .= '</p></small>';
+					}
+					if (!empty($compromissos[$currentDay][$hora]["lembrete"])) {
+						$conteudo .= '<br /><p><strong>Lembrete:</strong> ' . $compromissos[$currentDay][$hora]["lembrete"] . '</p>';
+					}
+					if (!empty($compromissos[$currentDay][$hora]["observacoes"])) {
+						$conteudo .= '<br /><p><strong>Observações:</strong> ' . $compromissos[$currentDay][$hora]["observacoes"] . '</p>';
+					}
+					$conteudo .= '</div>';
+					$conteudo .= '<span class="seta-cima"></span>';
+					$conteudo .= '</a>';
 				}
-				else {
-					$result .= '<a href="?modulo=agenda&acao=cadastrar&data=' . str_pad($currentDay, 2, "0", STR_PAD_LEFT) . '/' . $mes . '/' . $ano . '&hora=' . $hora  .'">';
-					$result .= '<small>';
-					$result .= $hora;
-					$result .= '</small></a>';
-				}
-			}
-			else {
-				$result .= '<a href="?modulo=agenda&acao=cadastrar&data=' . str_pad($currentDay, 2, "0", STR_PAD_LEFT) . '/' . $mes . '/' . $ano . '&hora=' . $hora  .'">';
-				$result .= '<small>';
-				$result .= $hora;
-				$result .= '</small></a>';
 			}
 
+			$result .= $conteudo;
 			$result .= '</div>';
 
 		}
@@ -178,8 +213,8 @@
 		
 	// Complete the row of the last week in month, if necessary
 	
-	if ($dayOfWeek != 7) { 
-		$remainingDays = 7 - $dayOfWeek;
+	if ($dayOfWeek != 6) { 
+		$remainingDays = 6 - $dayOfWeek;
 		$result .= '<td colspan="' . $remainingDays . '">&nbsp;</td>'; 
 	}
 	

@@ -223,7 +223,7 @@ class Query extends Base {
         if ($result === false) {
             $error = $this->_connector->getLastError();
             //throw new Exception ("There was an error with your SQL query: {$error}");
-            echo $sql;die;
+            //echo $sql;die;
             throw new Exception("Erro ao tentar executar comando [1]");
         }
         $rows = array();
@@ -242,11 +242,15 @@ class Query extends Base {
             $sql = $this->_buildUpdate($data);
         }
         //echo htmlspecialchars($sql);die;
+        //echo $sql;
+        //echo ';<br /><br />';
         $result = $this->_connector->execute($sql);
         if ($result === false) {
+        	echo $sql;
+        	echo ';<br /><br />';
             //throw new Exception ("There was an error with your SQL query: {$sql}");
-			echo $sql;die;
-            throw new Exception("Erro ao tentar executar comando [2]");
+			//echo $sql;die;
+            //throw new Exception("Erro ao tentar executar comando [2]");
         }
         if ($isInsert) {
             return $this->_connector->getLastInsertId();

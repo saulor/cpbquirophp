@@ -4,7 +4,6 @@ class UsuariosController extends Controller {
 	
 	public function UsuariosController() {
 		parent::__construct();
-		$this->DAO = new DAOGenerico();
 	}
 	
     public function indexAction() {
@@ -12,7 +11,7 @@ class UsuariosController extends Controller {
     	try {
     		$conexao = $this->conexao->getConexao();
     		$breadcrumbs = array();
-    		$breadcrumbs[] = array("Usuarios" => "");
+    		$breadcrumbs[] = array("Usuários" => "");
     		$quantidadePorPagina = (isset($_REQUEST["exibir"]) && $_REQUEST["exibir"] != "")  ? (int) $_REQUEST["exibir"] : QUANTIDADE_POR_PAGINA;
     		$pagina = (isset($_REQUEST["p"])) ? $_REQUEST["p"] : 1;
     		$pagina = ($pagina <= 0) ? 1 : $pagina;
@@ -29,12 +28,8 @@ class UsuariosController extends Controller {
     		$quantidade = 0;
     		$objetos = array();
     		
-    		//if (!temPermissao(array('representantes:visualizarListagem'), $_SESSION[PREFIX . "permissoes"])) {
-    		//	throw new Exception("Você não tem permissão para visualizar representantes");
-    		//}
-    		
-    		$quantidade = $this->DAO->count($conexao, "vw_usuarios");
-    		$objetos = $this->DAO->findAll($conexao, "vw_usuarios", array(
+    		$quantidade = $this->dao->count($conexao, "vw_usuarios");
+    		$objetos = $this->dao->findAll($conexao, "vw_usuarios", array(
     				"limit" => $limit,
     				"offset" => $offset,
     				"order" => $order
@@ -69,10 +64,10 @@ class UsuariosController extends Controller {
     		$conexao = $this->conexao->getConexao();
     		$redirecionar = NULL;
     		$breadcrumbs = array();
-    		$breadcrumbs[] = array("Usuarios" => "?modulo=".$_GET["modulo"]);
+    		$breadcrumbs[] = array("Usuários" => "?modulo=".$_GET["modulo"]);
     		
     		$dados = inicializaDados(new Usuario());
-			$permissoes = $this->DAO->findAll ($conexao, "permissoes");	
+			$permissoes = $this->dao->findAll ($conexao, "permissoes");	
     		
     		if (isset($_GET["id"])) {
     		
@@ -81,7 +76,7 @@ class UsuariosController extends Controller {
     			//}
     			
     			$id = (int) $_GET["id"]; 
-    			$dados = $this->DAO->findByPk($conexao, "usuarios", $id);
+    			$dados = $this->dao->findByPk($conexao, "usuarios", $id);
 				$senha = $dados["senha"];
     			// desconverte as datas
     			$breadcrumbs[] = array(
@@ -134,7 +129,7 @@ class UsuariosController extends Controller {
     				$dados["timestamp"] = time();
     				$dados["data"] = date('Y-m-d H:i:s', $dados["timestamp"]);
     				// realiza casts se necessário
-					$id = $this->DAO->salva($conexao, "usuarios", trataDados($dados));
+					$id = $this->dao->salva($conexao, "usuarios", trataDados($dados));
     			}
     			else {
 					if ($dados["senha"] == "") {
@@ -143,7 +138,7 @@ class UsuariosController extends Controller {
 					else {
 						$dados["senha"] = md5($dados["senha"]);
 					}
-    				$this->DAO->salva($conexao, "usuarios", $dados);
+    				$this->dao->salva($conexao, "usuarios", $dados);
     			}	
     			
     			$conexao->commit();
@@ -195,13 +190,13 @@ class UsuariosController extends Controller {
     		
     		$id = isset($_GET["id"]) ? (int) $_GET["id"] : 0;
     		
-    		$dados = $this->DAO->findByPk($conexao, "usuarios", $id);
+    		$dados = $this->dao->findByPk($conexao, "usuarios", $id);
 				
 			if (in_array((int) $dados["id"], array(1,2))) {
 				throw new Exception ("Este usuário não pode ser excluído");
 			}
     		
-    		$affectedRows = $this->DAO->exclui($conexao, "usuarios", array(
+    		$affectedRows = $this->dao->exclui($conexao, "usuarios", array(
     				"where" => array(
     					"id" => $id
     				)
@@ -234,7 +229,7 @@ class UsuariosController extends Controller {
 			$breadcrumbs = array();
 			
 			$id = isset($_GET["id"]) ? (int) $_GET["id"] : 0;
-			$dadosUsuario = $this->DAO->getById($conexao, "usuarios", $id);
+			$dadosUsuario = $this->dao->getById($conexao, "usuarios", $id);
 			if (count($dadosUsuario) == 0) {
 				throw new Exception ("Usuário não encontrado");
 			}
@@ -311,7 +306,7 @@ class UsuariosController extends Controller {
 				
 				// atualiza o usuário
 				$dadosUsuario = trataDados($dadosUsuario);
-				$this->DAO->atualizar($conexao, "usuarios", $dadosUsuario);
+				$this->dao->atualizar($conexao, "usuarios", $dadosUsuario);
 				// adiciona nos logs
 				//$this->logDAO->adicionar ($conexao, "alterou", "dados", $_SESSION[PREFIX . "loginNome"], $dadosUsuario["nome"], "Usuário atualizou seus dados.");
 				$conexao->commit();
@@ -363,7 +358,7 @@ class UsuariosController extends Controller {
 						
 					foreach ($ids as $id) {
 						
-						$dados = $this->DAO->findByPk($conexao, "usuarios", $id);
+						$dados = $this->dao->findByPk($conexao, "usuarios", $id);
 				
 						switch ($_POST["acoes"]) {
 						
@@ -377,7 +372,7 @@ class UsuariosController extends Controller {
 									else if (true) {
 									}
 									else {
-										$affectedRows = $this->DAO->exclui($conexao, "usuarios", array(
+										$affectedRows = $this->dao->exclui($conexao, "usuarios", array(
 												"where" => array(
 													"id" => (int) $id
 												)

@@ -1,152 +1,239 @@
-<form class="form-inline" method="post" action="?modulo=<?php echo $_GET['modulo']; ?>&acao=opcoes<?php if (isset($pagina)) echo "&p=" . $pagina; if(isset($order)) echo "&order=" . $order; ?>">
-	
-	<div id="resume-info">
-		<small>
-			<strong id="inicio">
-				<?php echo $inicio; ?>
-			</strong> &rsaquo; 
-			<strong id="fim">
-				<?php echo $fim; ?>
-			</strong> de 
-			<strong id="quantidade">
-				<?php echo $quantidade; ?>
-			</strong> registros
-		</small>
+<?php if (isset($inicio) && isset($fim) && isset($quantidade)) { ?>
+<div class="grid">
+	<div class="col-2-12">
+		<div class="content">
+			<small>
+				<strong id="inicio">
+					<?php echo $inicio; ?>
+				</strong> &rsaquo; 
+				<strong id="fim">
+					<?php echo $fim; ?>
+				</strong> de 
+				<strong id="quantidade">
+					<?php echo $quantidade; ?>
+				</strong> registro(s)
+			</small>
+		</div>
 	</div>
+</div>
+<?php } ?>
+
+<?php if (isset($quantidade) && $quantidade > QUANTIDADE_POR_PAGINA) { ?>
+<form method="GET">
+	<div class="grid">
+		<div class="col-1-12">
+			<div class="content">
+				<label for="Exibir">Exibir:</label>
+			</div>
+		</div>
+		<div class="col-1-12">
+			<div class="content">
+				<?php
+					foreach ($_GET as $key => $value) {
+						if (!in_array($key, array("exibir", "p"))) {
+					    	echo '<input type="hidden" name="' . $key . '" value="' . $value . '"/>';
+					    }
+					}
+				?>
+				<input id="exibir" class="form-control" size="10" type="text" name="exibir" value="<?php if (isset($_GET["exibir"])) echo $_GET["exibir"]; ?>" />
+			</div>
+		</div>
+		<div class="col-2-12">
+			<div class="content">
+				<input class="btn btn-default" type="submit" value="Ok" />
+			</div>
+		</div>
+	</div>
+</form>
+<?php } ?>
+
+<?php if (isset($table['planilha']) && count($table["planilha"]) > 0) { ?>
+<form id="planilha" method="POST" action="?modulo=<?php echo $modulo; ?>&acao=planilha">
+	<div class="grid">
+		<div class="col-1-12">
+			<div class="content">
+				<label for="Planilha">Planilha:</label>
+			</div>
+		</div>
+		<div class="col-10-12">
+			<div class="content">
+				<?php
+					foreach ($_GET as $key => $value) {
+						if (!in_array($key, array("modulo", "acao"))) {
+					    	echo '<input type="hidden" name="' . $key . '" value="' . $value . '"/>';
+					    }
+					}
+				?>
+				<fieldset id="planilha">
+					<label class="checkbox-inline">
+						<input name="colunas[]" type="checkbox" id="tudo" onclick="marcarDesmarcar(this, 'planilha')" value="-1" /> <small>Tudo</small>
+					</label>
+					<?php
+						foreach ($table['planilha'] as $key => $value) {
+							echo '<label class="checkbox-inline">';
+							echo '<input name="colunas[]" type="checkbox" value="' . $key . '" /> <small>' . $value;
+							echo '</small></label>';
+						} 
+					
+					?>
+				</fieldset>
+			</div>
+		</div>
+		<div class="col-1-12">
+			<div class="content">
+				<input class="btn btn-default" type="submit" value="Ok" />
+			</div>
+		</div>
+	</div>
+</form>
+<?php } ?>
+
+<form method="POST" action="?modulo=<?php echo $_GET['modulo']; ?>&acao=opcoes<?php if(isset($_GET['p'])) echo '&p=' . $_GET['p']; if(isset($_GET['order'])) echo '&order=' . $_GET['order']; if(isset($_GET['exibir'])) echo '&exibir=' . $_GET['exibir']; //if(isset($table['fields'])) echo '&nome=' . key($table['fields']); ?>">
 	
-    <div id="acoes">
-        <select class="form-control" name="acoes">
-            <option value="0">--Ações em massa--</option>
-            <?php
-            	foreach ($table["acoesMassa"] as $key => $value) {
-            		echo '<option value="' . $key . '">' . $value . '</option>';
-            	}
-            ?>
-        </select>
-        <input class="btn btn-default" type="submit" value="Aplicar" /> 
+	<?php if (isset($table["acoesMassa"]) && count($table["acoesMassa"]) > 0) { ?>
+	<div class="grid">
+		<div class="col-1-12">
+			<div class="content">
+				<label for="Ações">Ações:</label>
+			</div>
+		</div>
+		<div class="col-5-12">
+			<div class="content">
+				<select class="form-control" name="acoes">
+				    <option value="">--Selecione a ação--</option>
+				    <?php
+				    	foreach ($table["acoesMassa"] as $key => $value) {
+				    		echo '<option value="' . $key . '">' . $value . '</option>';
+				    	}
+				    ?>
+				</select>
+			</div>
+		</div>
+		<div class="col-2-12">
+			<div class="content">
+				<input class="btn btn-default" type="submit" value="Aplicar" />
+			</div>
+		</div>
     </div>
-		
+    <?php } ?>
+    
     <?php
-	    $qString = array();
-	    foreach (explode("&", $_SERVER['QUERY_STRING']) as $queryString) {
-	    	$chave = explode("=", $queryString);
-	    	if ($chave[0] != 'p') {
-	    		$qString[] = $queryString;
-	    	}
-	    }
-	    if ($quantidade > $quantidadePorPagina) {
-	    	echo paginacao($quantidade, $quantidadePorPagina, $pagina, implode("&", $qString));
-	    }
+        $qString = array();
+        foreach (explode("&", $_SERVER['QUERY_STRING']) as $queryString) {
+        	$chave = explode("=", $queryString);
+        	if ($chave[0] != 'p') {
+        		$qString[] = $queryString;
+        	}
+        }
+        if (isset($quantidade) && isset($quantidadePorPagina) && $quantidade > $quantidadePorPagina) {
+        	echo paginacao($quantidade, $quantidadePorPagina, $pagina, implode("&", $qString));
+        }
     ?>
     
-    <table class="table lista">
-    <thead>
-        <tr>
-			<th>&nbsp;</th>
-            <th>
-                <input type="checkbox" name="objetos[0]" value="-1" onClick="selecionarTodos(this)"/>
-            </th>
-            <?php
-            	foreach ($table['fields'] as $key => $f) {
-            		echo '<th';
-            		if (isset($f['align'])) {
-            			echo ' class="' . $f['align'] . '"';
-            		}
-            		echo '><a href="?' . $_SERVER['QUERY_STRING'] . '&order=' . $key . '">' . $f["label"] . '</a></th>';
-            	}
-            
-            ?>
-            <th class="acoes" colspan="2">Ações</th>
-        </tr>
-    </thead>
-    <tbody>
-	    <tr id="buscaAjax">
-	    	<td>&nbsp;</td>
-	    	<td>
-	    		<img class="loader" src="imagens/ajax-loader2.gif">
-	    	</td>
-	    	<?php
-	    		foreach ($table["fields"] as $key => $f) {
-	    			echo '<td>';
-	    			if (isset($f["ajax"]) && $f["ajax"]) {
-		    			echo '<input class="form-control';
-		    			if (isset($f['class'])) {
-		    				echo ' ' . $f['class'];
-		    			}
-		    			echo '" type="text" placeholder="' . $f["label"] . '" name="' . $key . '" onkeyup="pesquisa(1, \'views/' . $_GET["modulo"] . '/ajax.php\')" />';
-		    			echo '</td>';
-		    		}
-	    		}
-	    	?>
-	    </tr>
-	    <?php	
-	    	foreach ($params["objetos"] as $objeto) {
-	    		echo '<tr>';
-	    		echo '<th scope="row">';
-				echo '<small>' . $inicio++ . '</small>';
-				echo '</th>';
-				echo '<td>';
-	            echo '<input type="checkbox" name="objetos[]" value="' . $objeto["id"] . '" />';
-	            echo '</td>';
-				foreach ($table['fields'] as $key => $f) {
-					if (array_key_exists($key, $objeto)) {
-						echo '<td';
-						if (isset($f['align'])) {
-							echo ' class="' . $f['align'] . '"';
-						}
-						echo '>';
-						if (isset($f["editField"])) {
-							echo '<a href="?modulo=' . $_GET['modulo'] . '&acao=cadastrar&id=' . $objeto["id"] . '"';
-							echo '>';
-						}
-						echo $objeto[$key];
-						if (isset($f["editField"])) {
-							echo '</a>';
-						}
-						if (isset($f["info"])) {
-							echo '<br /><small>';
-							echo eval($f["info"]);
-							echo '</small>';
-						}
-						if (isset($f["acoes"])) {
-							echo '<div>';
-							$as = array();
-							foreach ($f["acoes"] as $key => $value) {
-								$a = '<a href="?modulo=' . $_GET['modulo'] . '&acao=' . $key;
-								$a .= '&id=' . $objeto["id"] . '">';
-								$a .= $value;
-								$a .= '</a>';
-								$as[] = $a; 	
-							}
-							echo implode(" | ", $as);
-							echo '</div>';
-						}
-						echo '</td>';
-					}
-				}
-				
-				echo '<td>';
-				echo '<a href="?modulo=' . $_GET['modulo'] . '&acao=cadastrar&id=' . $objeto["id"] . '">';
-				echo '<img title="Editar" alt="Editar" src="imagens/edit-icon.gif" />';
-				echo '</a>';
-				echo '</td>';
-				echo '<td>';
-				echo '<a ';
-				echo ' onclick="excluir(\'' . $_GET['modulo'] . '\', {\'acao\' : \'excluir\', \'id\' : ' . $objeto["id"] . '});return false;"';
-				echo 'href="?modulo=' . $_GET['modulo'] . '&acao=excluir&id=' . $objeto["id"] . '">';
-				echo '<img title="Excluir" alt="Excluir" src="imagens/delete-icon.gif" />';
-				echo '</a>';
-				echo '</td>';
-				
-				echo '</tr>';
-	    	}
-	    ?>
-    </tbody>
-    </table>
+    <div<?php if (isset($table["id"])) echo ' id="' . $table["id"] . '"'; if (isset($table["class"])) echo ' class="' . $table["class"] . '"'; ?> style="width: 100%;">
+	    <table class="table">
+		    <thead>
+		        <tr>
+					<th>&nbsp;</th>
+					<?php if (isset($table["acoesMassa"])) { ?>
+		            <th class="checkboxes">
+		                <input type="checkbox" name="objetos[]" value="-1" onClick="selecionarTodos(this)"/>
+		            </th>
+		            <?php
+		            }
+	            	foreach ($table['fields'] as $nomeCampo => $f) {
+	            		echo '<th';
+	            		if (isset($f['align'])) {
+	            			echo ' class="' . $f['align'] . '"';
+	            		}
+	            		echo '>';
+	            		if (isset($f['order'])) {
+	            			echo '<a href="?';
+	            			$gets = array();
+	            			foreach ($_GET as $key => $value) {
+	            				if (!in_array($key, array('order'))) {
+	            					$gets[] = $key . '=' . $value;
+	            				}
+	            			}
+	            			echo implode('&', $gets);
+	            			echo '&order=' . $nomeCampo . '">';
+	            		}
+	            		
+	            		echo '<strong>';
+	            		echo $f["label"];
+	            		echo '</strong>';
+	            		
+	            		if (isset($f['order'])) {
+	            			echo '</a>';
+	            		}
+	            		echo '</th>';
+	            	}
+	            
+	            	if (isset($table["acoes"])) {
+		            ?>
+		            <th class="acoes" colspan="<?php echo count($table['acoes']); ?>"><strong>Ações</strong></th>
+		            <?php } ?>
+		        </tr>
+		    </thead>
+		    <tbody>
+			    <tr id="buscaAjax">
+			    	
+			    	<?php
+			    		foreach ($_GET as $key => $value) {
+			    			if (!in_array($key, array('acao'))) {
+			    				echo '<input type="hidden" name="' . $key . '" value="' . $value . '" />';
+			    			}
+			    		}
+			    	?>
+			    	
+			    	<td>
+			    		<img class="loader" src="imagens/ajax-loader2.gif">
+			    	</td>
+			    	
+			    	<?php if (isset($table["acoesMassa"])) { ?>
+			    	<td>&nbsp;</td>
+			    	<?php } ?>
+			    	
+			    	<?php
+			    		foreach ($table["fields"] as $key => $f) {
+			    			echo '<td>';
+			    			if (isset($f["ajax"])) {
+			    				echo '<input autocomplete="off" class="form-control';
+			    				if(isset($f["class"])) {
+			    					echo ' ' . $f['class'];
+			    				}
+			    				echo '" type="text" placeholder="Pesquisar por ' . $f["label"] . '" name="' . $key . '" onkeyup="pesquisaAjax(1, \'views/' . $_GET["modulo"] . '/' . $f["ajax"] . '\')" />';
+			    			}
+			    			echo '</td>';
+			    		}
+			    		if (isset($table["acoes"])) {
+			    			echo '<td>&nbsp;</td>';
+			    		}
+			    	?>
+			    </tr>
+			    <?php
+			    	include('rows-listagem.phtml');
+			    	echo $rows;
+			    ?>
+		    </tbody>
+	    </table>
+    </div>
 </form>
 
+<link rel="stylesheet" href="styles/jquery.jscrollpane.css" />
+<script src="scripts/jquery.mousewheel.js"></script>
+<script src="scripts/jquery.jscrollpane.min.js"></script>
+
+<script>
+	$(function(){
+		$('.scroll-pane').jScrollPane();
+	});
+</script>
+
+<br />
+
 <?php
-    if ($quantidade > $quantidadePorPagina) {
+    if (isset($quantidade) && isset($quantidadePorPagina) && $quantidade > $quantidadePorPagina) {
     	echo paginacao($quantidade, $quantidadePorPagina, $pagina, implode("&", $qString));
     }
 ?>

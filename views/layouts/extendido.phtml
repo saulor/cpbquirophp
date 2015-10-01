@@ -12,66 +12,13 @@
 <meta charset="UTF-8" />
 <title><?php echo $configuracoes->configuracao->sigla; echo " &rsaquo; Sistema de gerenciamento"; if (!empty($params["title"])) echo " &rsaquo; " . $params["title"]; ?></title>
 <link rel="icon" href="favicon.ico" type="image/gif"> 
-
-<link rel="stylesheet" href="<?php echo WWW_ROOT; ?>/styles/bootstrap.css">
-<link rel="stylesheet" href="<?php echo WWW_ROOT; ?>/styles/lavish-bootstrap.css">
-<link rel="stylesheet" href="<?php echo WWW_ROOT; ?>/styles/simplegrid.css">
-<link rel="stylesheet" href="<?php echo WWW_ROOT; ?>/styles/main.css">
-<link rel="stylesheet" href="<?php echo WWW_ROOT; ?>/styles/datepicker.css">
-<link rel="stylesheet" href="<?php echo WWW_ROOT; ?>/styles/cores.css">
-<link rel="stylesheet" href="<?php echo WWW_ROOT; ?>/styles/hint.css">
-<link rel="stylesheet" href="<?php echo WWW_ROOT; ?>/scripts/jquery-ui-1.11.1/jquery-ui.min.css">
-
-<script src="<?php echo WWW_ROOT; ?>/scripts/jquery-2.1.1.min.js"></script>
-<script src="<?php echo WWW_ROOT; ?>/scripts/jquery-ui-1.11.1/jquery-ui.min.js"></script>
-<script src="<?php echo WWW_ROOT; ?>/webtools/ckeditor/ckeditor.js"></script>
-<script src="<?php echo WWW_ROOT; ?>/scripts/jquery.maskedinput.min_1.3.1.js"></script>
-<script src="<?php echo WWW_ROOT; ?>/scripts/numeric.js"></script>
-<script src="<?php echo WWW_ROOT; ?>/scripts/funcoes.js"></script>
-<script src="<?php echo WWW_ROOT; ?>/scripts/webcamjs/webcam.js"></script>
-<script src="<?php echo WWW_ROOT; ?>/scripts/jquery.ui.datepicker-pt-BR.js"></script>
-
-<script type="text/javascript">
-    
-    $(document).ready(function(){
-    
-    	var expandir = $(".left ul li span.item");
-    	
-    	expandir.each(function(){
-    		$(this).click(function(){
-    			$(".left ul li ul").each(function(){
-    				if ($(this).css('display') == 'block')
-    					$(this).slideUp(500);
-    			});
-    			if($(this).parent().parent().find('ul:eq(0)').css('display') == 'none'){
-    				$(this).parent().parent().find('ul:eq(0)').slideDown(500);
-    			}
-    			else{
-    				$(this).parent().parent().find('ul:eq(0)').slideUp(500);
-    			}
-    		});
-    	});
-    	
-    	if ($(".telefoneCelular").val() == "") {
-        	$(".telefoneCelular").mask("(99)99999-9999");
-        }
-        $(".cpf").mask("999.999.999-99");
-		$(".data").attr("maxlength", 11);
-		$(".data").mask("99/99/9999");
-        $(".cep").mask("99999-999");
-        $(".numeric").numeric();
-        $(".decimal").numeric(",");
-        $(".datepicker").datepicker({ 
-        	dateFormat: 'dd/mm/yy' 
-        });
-    });
-
-</script>
-
+<?php 
+	include (DIR_ROOT.'/views/includes/css.html');
+	include (DIR_ROOT.'/views/includes/javascript.html');	  
+?>
 </head>
 <body>
-
-<div id="page">
+	
 	<header role="logo">
 		<div class="inner">
 			<a href="index.php">
@@ -151,12 +98,10 @@
 		</div>
 	</div>
 	<footer>
-	<?php if (isset($_SESSION[PREFIX . "loginId"])) { ?>
-	<p>Você acessou como <a href="?modulo=usuarios&acao=alterar&id=<?php echo $_SESSION[PREFIX . "loginId"]; ?>"><?php echo $_SESSION[PREFIX . "loginNome"]; ?></a> (<a href="sair.php">Sair</a>)</p>
-	<?php } ?>
-	<?php echo $configuracoes->configuracao->sigla . " - " . $configuracoes->configuracao->nome . " © " . date('Y'); ?></footer>
-</div>
+		<?php if (isset($_SESSION[PREFIX . "loginId"])) { ?>
+		<p>Você acessou como <a href="?modulo=index&acao=alterar&id=<?php echo $_SESSION[PREFIX . "loginId"]; ?>"><?php echo $_SESSION[PREFIX . "loginNome"]; ?></a> (<a href="sair.php">Sair</a>)</p>
+		<?php } ?>
+		<?php echo $configuracoes->configuracao->sigla . " - " . $configuracoes->configuracao->nome . " © " . date('Y'); ?>
+	</footer>
 </body>
 </html>
-	
-	

@@ -184,6 +184,21 @@ function rangeWeek ($datestr) {
 	return $res;
 }
 
+/**
+*	Função recebe data e hora e retorna no formato yyyy-mm-ddTHH:ii:ss
+*/
+function converteDatetime ($data, $hora) {
+	if (!preg_match('/\d{2}\/\d{2}\/\d{4}/', $data)) {
+		
+	}
+	if (!preg_match('/\d{2}:\d{2}:\d{2}/', $hora)) {
+		
+	}
+	list($dia, $mes, $ano) = explode("/", $data);
+	list($hora, $min, $seg) = explode(":", $hora);
+	return $ano . "-" . $mes . "-" . $dia . "T" . $hora . ":" . $min . ":" . $seg;
+}
+
 function inicializaDados ($obj) {
 
 	$dados = array();
@@ -245,9 +260,13 @@ function validaPost ($obrigatorios, $campos) {
             // se existir verifica se está vazio
 			
 			if($obrigatorios[$key]["tipo"] == "array") {
-				if(count($value) > 0) {
-					if (is_string($value[0]) && trim($value[0]) == '')
+				if(count($value) == 0) {
+					$camposVazios[] = $obrigatorios[$key]["nome"];
+				}
+				else {
+					if (is_string($value[0]) && trim($value[0]) == '') {
 						$camposVazios[] = $obrigatorios[$key]["nome"];
+					}
 				}
             }
             
@@ -257,8 +276,9 @@ function validaPost ($obrigatorios, $campos) {
             }
             
             if($obrigatorios[$key]["tipo"] == "decimal") {
-                if($value == "0,00")
+                if((int) $value == "0") {
                     $camposVazios[] = $obrigatorios[$key]["nome"];
+               	}
             }
 			
 			if($obrigatorios[$key]['tipo'] == "radio") {
@@ -377,6 +397,31 @@ function excluiDiretorio ($diretorio){
     }
 }
 
+function excluiConteudo ($diretorio){
+    if(!estaVazia($diretorio)){
+        if($dir = opendir($diretorio)){
+            while(false !== $arq = readdir($dir)) {
+                if ($arq != '.' && $arq != '..') {
+                    if( is_dir($diretorio.'/'.$arq) ) {
+                        if(estaVazia($diretorio.'/'.$arq)) {
+                            @rmdir($diretorio.'/'.$arq);
+                        }
+                        else {
+                            excluiConteudo($diretorio.'/'.$arq);
+                            rmdir($diretorio.'/'.$arq);
+                        }
+                    }
+                    else{
+                        unlink($diretorio.'/'.$arq);
+                    }
+                   
+                }
+            }
+            closedir($dir);
+        }
+    }
+}
+
 function cleanPath ($word){
     return str_replace('amp;', '', $word); 
 }
@@ -445,6 +490,17 @@ function existeDiretorio($diretorio) {
 	return false;
 }
 
+function estaVazia ($pasta){		
+    if(file_exists($pasta.'/Thumbs.db'))
+        @unlink($pasta.'/Thumbs.db');
+    $files = scandir($pasta);
+            
+    if(count($files) > 2)
+        return false;
+    else
+        return true;
+}
+
 function criaDiretorio ($diretorio) {
     if (is_dir($diretorio)) 
         return true;
@@ -459,6 +515,40 @@ function excluiArquivo ($diretorio){
 			return true;
 		return false;
     }
+}
+
+function getArquivos($diretorio){
+
+    $extensions = 'pdf|PDF|jpg|JPG|png|PNG|gif|GIF|bmp|BMP|jpeg|JPEG|ico|ICO';
+    $files = array();
+
+    if(is_dir($diretorio)){
+        if ($dir = opendir($diretorio)) {
+            while(false !== ($arq = readdir($dir))) {
+                if ((!is_dir($diretorio . '/' . $arq) ) && (preg_match("/$extensions/",$arq))) {
+                    $files[] = $diretorio . $arq;
+                }
+            }
+        }
+    }
+    
+    return $files;
+}
+
+function getIconByFiletype($diretorio) {
+	$iconPath = 'imagens/';
+	$finfo = finfo_open(FILEINFO_MIME_TYPE);
+	$mime = finfo_file($finfo, $diretorio);
+	
+	switch ($mime) {
+		
+		case 'application/pdf' :
+			return $iconPath . 'pdf-icon.gif';
+		break;
+		
+		default :
+		break;
+	}
 }
 
 /*
@@ -791,16 +881,7 @@ function excluiConteudo ($diretorio){
     }
 }
 
-function estaVazia ($pasta){		
-    if(file_exists($pasta.'/Thumbs.db'))
-        @unlink($pasta.'/Thumbs.db');
-    $files = scandir($pasta);
-            
-    if(count($files) > 2)
-        return false;
-    else
-        return true;
-}
+
 
 
 
@@ -1124,23 +1205,7 @@ function redimensionaImagem ($imagem, $diretorio, $largura = 200) {
     return true;
 }
 
-function getArquivos($diretorio){
 
-    $extensions = 'jpg|JPG|png|PNG|gif|GIF|bmp|BMP|jpeg|JPEG|ico|ICO';
-    $files = array();
-
-    if(is_dir($diretorio)){
-        if ($dir = opendir($diretorio)) {
-            while(false !== ($arq = readdir($dir))) {
-                if ((!is_dir($diretorio.'/'.$arq) ) && (preg_match("/$extensions/",$arq))) {
-                    $files[] = $arq;
-                }
-            }
-        }
-    }
-    
-    return $files;
-}
 
 function getImagens($diretorio){
 

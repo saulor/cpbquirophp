@@ -17,7 +17,7 @@ class AgendaFisioterapeuta extends Model {
 	* @index
 	* @foreign
 	* @references usuarios (id)
-	* @delete cascade
+	* @delete restrict
 	* @update cascade
 	*/
 	protected $_fisioterapeuta;
@@ -25,8 +25,12 @@ class AgendaFisioterapeuta extends Model {
 	/**
 	* @column
 	* @readwrite
-	* @type text
-	* @length 15
+	* @type integer
+	* @index
+	* @foreign
+	* @references agenda (id)
+	* @delete cascade
+	* @update cascade
 	*/
 	protected $_compromisso;
 

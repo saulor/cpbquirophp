@@ -1,0 +1,62 @@
+<script src="<?php echo WWW_ROOT; ?>/scripts/jquery-2.1.1.min.js"></script>
+<script src="<?php echo WWW_ROOT; ?>/scripts/jquery-ui-1.11.1/jquery-ui.min.js"></script>
+<script src="<?php echo WWW_ROOT; ?>/webtools/ckeditor/ckeditor.js"></script>
+<script src="<?php echo WWW_ROOT; ?>/scripts/jquery.maskedinput.min_1.3.1.js"></script>
+<script src="<?php echo WWW_ROOT; ?>/scripts/numeric.js"></script>
+<script src="<?php echo WWW_ROOT; ?>/scripts/funcoes.js"></script>
+<script src="<?php echo WWW_ROOT; ?>/scripts/webcamjs/webcam.js"></script>
+<script src="<?php echo WWW_ROOT; ?>/scripts/jquery.ui.datepicker-pt-BR.js"></script>
+
+<script>
+    
+    $(document).ready(function(){
+    
+    	var expandir = $(".left ul li span.item");
+    	
+    	expandir.each(function(){
+    		$(this).click(function(){
+    			$(".left ul li ul").each(function(){
+    				if ($(this).css('display') == 'block')
+    					$(this).slideUp(500);
+    			});
+    			if($(this).parent().parent().find('ul:eq(0)').css('display') == 'none'){
+    				$(this).parent().parent().find('ul:eq(0)').slideDown(500);
+    			}
+    			else{
+    				$(this).parent().parent().find('ul:eq(0)').slideUp(500);
+    			}
+    		});
+    	});
+    	
+	    $('input[required], input[required="required"]').each(function(i, e) {
+	        e.oninput = function(el){
+                el.target.setCustomValidity("");
+                if (el.target.type == "email") {
+                    if (el.target.validity.patternMismatch) {
+                        el.target.setCustomValidity("E-mail format invalid.");
+                        if (el.target.validity.typeMismatch) {
+                             el.target.setCustomValidity("An e-mail address must be given.");
+                        }
+                    }
+                }
+            };
+            e.oninvalid = function(el) {
+                el.target.setCustomValidity(!el.target.validity.valid ? e.attributes.requiredmessage.value : "");
+            };
+	    });
+    	
+    	$(".telefoneCelular").mask("(99)99999-9999");
+    	$(".telefoneResidencial").mask("(99)9999-9999");
+    	$(".hora").mask("99:99");
+        $(".cpf").mask("999.999.999-99");
+		$(".data").attr("maxlength", 11);
+		$(".data").mask("99/99/9999");
+        $(".cep").mask("99999-999");
+        $(".numeric").numeric();
+        $(".decimal").numeric(",");
+        $(".datepicker").datepicker({ 
+        	dateFormat: 'dd/mm/yy' 
+        });
+    });
+
+</script>

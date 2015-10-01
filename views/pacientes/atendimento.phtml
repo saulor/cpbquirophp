@@ -4,102 +4,567 @@
 	$atendimento = $params["atendimento"];
 ?>
 
-<form id="formulario" enctype="multipart/form-data" method="post">
+<style>
+	
+	.file-loader {
+		display: none;
+		padding-top: 6px;
+	}
+	
+	div#arquivos div {
+		margin: 4px 0 4px 0;
+	}
+	
+	div#enviar {
+		margin-top: 8px;
+	}
+	
+</style>
+
+<script>
+
+	// Grab the files and set them to our variable
+	/*function prepareUpload(event) {
+		var files = event.target.files;
+		event.stopPropagation(); // Stop stuff happening
+        event.preventDefault(); // Totally stop stuff happening
+        
+        // START A LOADING SPINNER HERE
+        var idLoader = $(this).attr('id').split('-')[1];
+        var container = '#fcontainer' + idLoader;
+        var loader = '#floader' + idLoader;
+		$(loader).css('display', 'block');
+        
+        // Create a formdata object and add the files
+		var data = new FormData();
+		$.each(files, function(key, value) {
+			data.append(key, value);
+		});
+        
+        $.ajax({
+            url: 'views/pacientes/submit.php?id=<?php echo $atendimento["id"] ?>&files',
+            type: 'POST',
+            data: data,
+            cache: false,
+            dataType: 'json',
+            processData: false, // Don't process the files
+            contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+            success: function(data, textStatus, jqXHR) {
+            	if(typeof data.error === 'undefined') {
+            		// Success so call function to process the form
+            		submitForm(event, data, loader, container);
+            	}
+            	else {
+            		// Handle errors here
+            		console.log('ERRORS: ' + data.error);
+            		$(loader).css('display', 'none');
+            		$(container).empty();
+            		$(container).html(data.error);
+            		
+            	}
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+            	alert(textStatus);
+            	// Handle errors here
+            	console.log('ERRORS: ' + textStatus);
+            	// STOP LOADING SPINNER
+            	$(loader).css('display', 'none');
+            	$(container).empty();
+            	$(container).html(textStatus);
+            }
+        });
+	}
+
+    function submitForm(event, data, loader, container) {
+		// Create a jQuery object from the form
+		$form = $(event.target);
+
+		// Serialize the form data
+		var formData = $form.serialize();
+		
+		// You should sterilise the file names
+		$.each(data.files, function(key, value) {
+			formData = formData + '&filenames[]=' + value;
+		});
+
+		$.ajax({
+			url: 'views/pacientes/submit.php',
+            type: 'POST',
+            data: formData,
+            cache: false,
+            dataType: 'json',
+            success: function(data, textStatus, jqXHR) {
+            	if(typeof data.error === 'undefined') {
+            		// Success so call function to process the form
+            		console.log('SUCCESS: ' + data.success);
+            	}
+            	else {
+            		// Handle errors here
+            		console.log('ERRORS: ' + data.error);
+            	}
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+            	// Handle errors here
+            	console.log('ERRORS: ' + textStatus);
+            },
+            complete: function() {
+            	// STOP LOADING SPINNER
+            	$(loader).css('display', 'none');
+            	$(container).empty();
+            	$(container).html('Enviado com sucesso');
+            }
+		});
+	}
+	
+	$(function() {
+		// Add events
+		$('input[type=file]').on('change', prepareUpload);
+	});*/
+	
+</script>
+
+<fieldset>
+	<legend><strong>Dados do paciente</strong> <a href="?modulo=pacientes&acao=cadastrar&id=<?php echo $paciente["id"]; ?>&r=<?php echo urlencode('?' . $_SERVER['QUERY_STRING']); ?>"><small>(Atualizar)</small></a> <a target="_blank" href="?modulo=pacientes&acao=ficha&id=<?php echo $paciente["id"]; ?>&r=<?php echo urlencode('?' . $_SERVER['QUERY_STRING']); ?>"><small>(Imprimir Ficha)</small></a></legend>
+	
+	<div class="grid">
+		<div class="col-6-12">
+			<div class="content">
+				<p><strong>Nome:</strong> <?php echo $paciente["nome"]; ?>, <?php echo $paciente["idade"]?> ano(s)</p>
+			</div>
+		</div>
+		<div class="col-3-12">
+			<div class="content">
+				<p><strong>Sexo:</strong> <?php echo $paciente["sexo"]; ?></p>
+			</div>
+		</div>
+		<div class="col-3-12">
+			<div class="content">
+				<p><strong>Data de Nasc.:</strong> <?php echo $paciente["dataNascimento"]; ?></p>
+			</div>
+		</div>
+	</div>
+	
+	<div class="grid">
+		<div class="col-6-12">
+			<div class="content">
+				<p><strong>Profissão:</strong> <?php echo $paciente["profissao"]; ?></p>
+			</div>
+		</div>
+		<div class="col-3-12">
+			<div class="content">
+				<p><strong>Tel.. Resid.:</strong> <?php echo $paciente["telefoneResidencial"]; ?></p>
+			</div>
+		</div>
+		<div class="col-3-12">
+			<div class="content">
+				<p><strong>Tel. Cel.:</strong> <?php echo $paciente["telefoneCelular"]; ?></p>
+			</div>
+		</div>
+	</div>
+	
+	<div class="grid">
+		<div class="col-6-12">
+			<div class="content">
+				<p><strong>E-mail:</strong> <?php echo $paciente["email"]; ?></p>
+			</div>
+		</div>
+		<div class="col-2-12">
+			<div class="content">
+				<p><strong>CPF:</strong> <?php echo $paciente["cpf"]; ?></p>
+			</div>
+		</div>
+	</div>
+	
+	<div class="grid">
+		<div class="col-6-12">
+			<div class="content">
+				<p><strong>CEP:</strong> <?php echo $paciente["cep"]; ?></p>
+			</div>
+		</div>
+	</div>
+	
+	<div class="grid">
+		<div class="col-6-12">
+			<div class="content">
+				<p><strong>Endereço:</strong> <?php echo $paciente["endereco"]; ?><?php if (!empty($paciente["numero"])) echo ', ' . $paciente["numero"]?></p>
+			</div>
+		</div>
+		<div class="col-6-12">
+			<div class="content">
+				<p><strong>Complemento:</strong> <?php echo $paciente["complemento"]; ?></p>
+			</div>
+		</div>
+		
+	</div>
+	
+	<div class="grid">
+		<div class="col-6-12">
+			<div class="content">
+				<p><strong>Bairro:</strong> <?php echo $paciente["bairro"]; ?></p>
+			</div>
+		</div>
+		<div class="col-6-12">
+			<div class="content">
+				<p><strong>Cidade:</strong> <?php echo $paciente["cidade"]; ?> <?php if (!empty($paciente["cidade"])) echo "(" . $paciente["uf"] . ")"; ?></p>
+			</div>
+		</div>
+	</div>
+	
+</fieldset>
+
+<fieldset>
+	<legend>Histórico de atendimentos</legend>
+	<?php
+		$modulo = "pacientes";
+		$iniCount = 1;
+		$table = array(
+			'fields' => array(
+	  		'data' => array(
+	  			'label' => 'Data do atendimento',
+	  			'link' => array(
+	  				'condition' => 'return true;',
+	  				'link' => 'return "?modulo=' . $modulo . '&acao=observacoes&id=" . $objeto["id"];'
+	  			),
+	  		),
+	  		'observacoes' => array(
+	  			'label' => 'Observações sobre o atendimento',
+	  		)
+	  	),
+	  	'acoes' => array(
+	  		'Excluir' => array(
+	  			'condition' => 'return true;',
+	  			'acao' => 'return "removerh";',
+	  			'id' => 'return $objeto["id"];',
+	  			'atendimento' => 'return $atendimento["id"];'
+	  		)
+	  	)
+		);
+	    
+		include('views/includes/listagem.phtml');
+	?>
+</fieldset>
+	
+<form enctype="multipart/form-data" method="post">
 
 	<input name="Atendimento[id]" type="hidden" value="<?php echo $atendimento["id"]; ?>" />
 	<input name="Atendimento[paciente]" type="hidden" value="<?php echo $paciente["id"]; ?>" />
-
-	<fieldset>
-		<legend><strong>Dados do paciente</strong> <a href="?modulo=pacientes&acao=cadastrar&id=<?php echo $paciente["id"]; ?>&r=<?php echo urlencode('?' . $_SERVER['QUERY_STRING']); ?>"><small>(Atualizar)</small></a> <a target="_blank" href="?modulo=pacientes&acao=ficha&id=<?php echo $paciente["id"]; ?>&r=<?php echo urlencode('?' . $_SERVER['QUERY_STRING']); ?>"><small>(Imprimir Ficha)</small></a></legend>
-		
-		<div class="grid">
-			<div class="col-6-12">
-				<div class="content">
-					<p><strong>Nome:</strong> <?php echo $paciente["nome"]; ?> (<?php echo $paciente["idade"]?> ano(s))</p>
-				</div>
-			</div>
-			<div class="col-3-12">
-				<div class="content">
-					<p><strong>Sexo:</strong> <?php echo $paciente["sexo"]; ?></p>
-				</div>
-			</div>
-			<div class="col-3-12">
-				<div class="content">
-					<p><strong>Data de Nasc.:</strong> <?php echo $paciente["dataNascimento"]; ?></p>
-				</div>
-			</div>
-		</div>
-		
-		<div class="grid">
-			<div class="col-6-12">
-				<div class="content">
-					<p><strong>Profissão:</strong> <?php echo $paciente["profissao"]; ?></p>
-				</div>
-			</div>
-			<div class="col-3-12">
-				<div class="content">
-					<p><strong>Tel.. Resid.:</strong> <?php echo $paciente["telefoneResidencial"]; ?></p>
-				</div>
-			</div>
-			<div class="col-3-12">
-				<div class="content">
-					<p><strong>Tel. Cel.:</strong> <?php echo $paciente["telefoneCelular"]; ?></p>
-				</div>
-			</div>
-		</div>
-		
-		<div class="grid">
-			<div class="col-6-12">
-				<div class="content">
-					<p><strong>E-mail:</strong> <?php echo $paciente["email"]; ?></p>
-				</div>
-			</div>
-			<div class="col-2-12">
-				<div class="content">
-					<p><strong>CPF:</strong> <?php echo $paciente["cpf"]; ?></p>
-				</div>
-			</div>
-		</div>
-		
-		<div class="grid">
-			<div class="col-6-12">
-				<div class="content">
-					<p><strong>CEP:</strong> <?php echo $paciente["cep"]; ?></p>
-				</div>
-			</div>
-		</div>
-		
-		<div class="grid">
-			<div class="col-6-12">
-				<div class="content">
-					<p><strong>Endereço:</strong> <?php echo $paciente["endereco"]; ?><?php if (!empty($paciente["numero"])) echo ', ' . $paciente["numero"]?></p>
-				</div>
-			</div>
-			<div class="col-6-12">
-				<div class="content">
-					<p><strong>Complemento:</strong> <?php echo $paciente["complemento"]; ?></p>
-				</div>
-			</div>
-			
-		</div>
-		
-		<div class="grid">
-			<div class="col-6-12">
-				<div class="content">
-					<p><strong>Bairro:</strong> <?php echo $paciente["bairro"]; ?></p>
-				</div>
-			</div>
-			<div class="col-6-12">
-				<div class="content">
-					<p><strong>Cidade:</strong> <?php echo $paciente["cidade"]; ?> <?php if (!empty($paciente["cidade"])) echo "(" . $paciente["uf"] . ")"; ?></p>
-				</div>
-			</div>
-		</div>
-		
-	</fieldset>
 	
 	<fieldset>
 		<legend><strong>Avaliação do paciente</strong></legend>
+		
+		<p class="help-block">Hipertensão.</p>
+		
+		<div class="grid">
+			<div class="col-2-12">
+				<div class="content checkbox">
+					<label>
+					  <input type="checkbox" name="Atendimento[hipertenso]"<?php if ($atendimento["hipertenso"] == 1) echo ' checked="checked"'; ?>>
+					  <strong>É hipertenso?</strong>
+					</label>
+				</div>
+			</div>
+			<div class="col-10-12">
+				<input class="form-control" type="text" name="Atendimento[hipertensoObservacoes]" value="<?php echo $atendimento["hipertensoObservacoes"]; ?>" placeholder="Medicamentos ou outras observações acerca da hipertensão do paciente." />
+			</div>
+		</div>
+		
+		<p class="help-block">Diabetes.</p>
+		
+		<div class="grid">
+			<div class="col-2-12">
+				<div class="content checkbox">
+					<label>
+					  <input type="checkbox" name="Atendimento[diabetico]"<?php if ($atendimento["diabetico"] == 1) echo ' checked="checked"'; ?>>
+					 <strong>É diabético?</strong>
+					</label>
+				</div>
+			</div>
+			<div class="col-10-12">
+				<input class="form-control" type="text" name="Atendimento[diabeticoObservacoes]" value="<?php echo $atendimento["diabeticoObservacoes"]; ?>" placeholder="Medicamentos ou outras observações acerca do diabetes do paciente." />
+			</div>
+		</div>
+		
+		<p class="help-block">Consumo de cigarros.</p>
+		
+		<div class="grid">
+			<div class="col-2-12">
+				<div class="content checkbox">
+					<label>
+					  <input type="checkbox" name="Atendimento[fuma]"<?php if ($atendimento["fuma"] == 1) echo ' checked="checked"'; ?>>
+					  <strong>Fuma?</strong>
+					</label>
+				</div>
+			</div>
+			<div class="col-10-12">
+				<input class="form-control" name="Atendimento[fumaFrequencia]" value="<?php echo $atendimento["fumaFrequencia"]; ?>" placeholder="Frequência de consumo de cigarros" type="text" />
+			</div>
+		</div>
+		
+		<p class="help-block">Consumo de bebidas alcóolicas.</p>
+		
+		<div class="grid">
+			<div class="col-2-12">
+				<div class="content checkbox">
+					<label>
+					  <input type="checkbox" name="Atendimento[bebe]"<?php if ($atendimento["bebe"] == 1) echo ' checked="checked"'; ?>>
+					  <strong>Bebe?</strong>
+					</label>
+				</div>
+			</div>
+			<div class="col-10-12">
+				<input class="form-control" name="Atendimento[bebeFrequencia]" value="<?php echo $atendimento["bebeFrequencia"]; ?>" placeholder="Frequência de consumo de bebidas alcóolicas" type="text" />
+			</div>
+		</div>
+		
+		<p class="help-block">Funcionamento dos intestinos.</p>
+		
+		<div class="grid">
+			<div class="col-2-12">
+				<div class="content">
+					<label for="Intestinos?">Intestinos</label>
+				</div>
+			</div>
+			<div class="col-10-12">
+				<div class="content">
+					<label class="radio-inline">
+						<input type="radio" value="1" name="Atendimento[intestinos]"<?php if ($atendimento["intestinos"] == 1) echo ' checked="checked"'; ?>>
+						Ótimo
+					</label>
+					<label class="radio-inline">
+						<input type="radio" value="2" name="Atendimento[intestinos]"<?php if ($atendimento["intestinos"] == 2) echo ' checked="checked"'; ?>>
+						Bom
+					</label>
+					<label class="radio-inline">
+						<input type="radio" value="3" name="Atendimento[intestinos]"<?php if ($atendimento["intestinos"] == 3) echo ' checked="checked"'; ?>>
+						Ruim
+					</label>
+					<label class="radio-inline">
+						<input type="radio" value="4" name="Atendimento[intestinos]"<?php if ($atendimento["intestinos"] == 4) echo ' checked="checked"'; ?>>
+						Péssimo
+					</label>
+				</div>
+			</div>
+		</div>
+		
+		<div class="grid">
+			<div class="col-2-12">
+				<div class="content">
+					&nbsp;
+				</div>
+			</div>
+			<div class="col-10-12">
+				<div class="content">
+					<input class="form-control" type="text" name="Atendimento[intestinosFrequencia]" value="<?php echo $atendimento["intestinosFrequencia"]; ?>" placeholder="Frequência de funcionamento dos intestinos" />
+				</div>
+			</div>
+		</div>
+		
+		<p class="help-block">Qualidade do sono.</p>
+		
+		<div class="grid">
+			<div class="col-2-12">
+				<div class="content">
+					<label for="Sono?">Sono</label>
+				</div>
+			</div>
+			<div class="col-10-12">
+				<div class="content">
+					<label class="radio-inline">
+						<input type="radio" value="1" name="Atendimento[sono]"<?php if ($atendimento["sono"] == 1) echo ' checked="checked"'; ?>>
+						Ótimo
+					</label>
+					<label class="radio-inline">
+						<input type="radio" value="2" name="Atendimento[sono]"<?php if ($atendimento["sono"] == 2) echo ' checked="checked"'; ?>>
+						Bom
+					</label>
+					<label class="radio-inline">
+						<input type="radio" value="3" name="Atendimento[sono]"<?php if ($atendimento["sono"] == 3) echo ' checked="checked"'; ?>>
+						Ruim
+					</label>
+					<label class="radio-inline">
+						<input type="radio" value="4" name="Atendimento[sono]"<?php if ($atendimento["sono"] == 4) echo ' checked="checked"'; ?>>
+						Péssimo
+					</label>
+				</div>
+			</div>
+		</div>
+		
+		<div class="grid">
+			<div class="col-2-12">
+				<div class="content">
+					&nbsp;
+				</div>
+			</div>
+			<div class="col-10-12">
+				<div class="content">
+					<input class="form-control" type="text" name="Atendimento[sonoObservacoes]" value="<?php echo $atendimento["sonoObservacoes"]; ?>" placeholder="Observações sobre a qualidade do sono" />
+				</div>
+			</div>
+		</div>
+		
+		<p class="help-block">Consumo de água.</p>
+		
+		<div class="grid">
+			<div class="col-2-12">
+				<div class="content">
+					<label for="Sono?">Água</label>
+					
+				</div>
+			</div>
+			<div class="col-10-12">
+				<div class="content">
+					<label class="radio-inline">
+						<input type="radio" value="1" name="Atendimento[agua]"<?php if ($atendimento["agua"] == 1) echo ' checked="checked"'; ?>>
+						Ótimo
+					</label>
+					<label class="radio-inline">
+						<input type="radio" value="2" name="Atendimento[agua]"<?php if ($atendimento["agua"] == 2) echo ' checked="checked"'; ?>>
+						Bom
+					</label>
+					<label class="radio-inline">
+						<input type="radio" value="3" name="Atendimento[agua]"<?php if ($atendimento["agua"] == 3) echo ' checked="checked"'; ?>>
+						Ruim
+					</label>
+					<label class="radio-inline">
+						<input type="radio" value="4" name="Atendimento[agua]"<?php if ($atendimento["agua"] == 4) echo ' checked="checked"'; ?>>
+						Péssimo
+					</label>
+				</div>
+			</div>
+		</div>
+		
+		<div class="grid">
+			<div class="col-2-12">
+				<div class="content">
+					&nbsp;
+				</div>
+			</div>
+			<div class="col-10-12">
+				<div class="content">
+					<input class="form-control" type="text" name="Atendimento[aguaObservacoes]" value="<?php echo $atendimento["aguaObservacoes"]; ?>" placeholder="Observaçõe sobre o consumo de diário de água (qualidade da água, quantidade de litros, etc.)" />
+				</div>
+			</div>
+		</div>
+		
+		<p class="help-block">Informações sobre a alimentação.</p>
+		
+		<div class="grid">
+			<div class="col-2-12">
+				<div class="content">
+					<label for="Sono?">Alimentação</label>
+				</div>
+			</div>
+			<div class="col-10-12">
+				<div class="content">
+					<label class="radio-inline">
+						<input type="radio" value="1" name="Atendimento[alimentacao]"<?php if ($atendimento["alimentacao"] == 1) echo ' checked="checked"'; ?>>
+						Ótimo
+					</label>
+					<label class="radio-inline">
+						<input type="radio" value="2" name="Atendimento[alimentacao]"<?php if ($atendimento["alimentacao"] == 2) echo ' checked="checked"'; ?>>
+						Bom
+					</label>
+					<label class="radio-inline">
+						<input type="radio" value="3" name="Atendimento[alimentacao]"<?php if ($atendimento["alimentacao"] == 3) echo ' checked="checked"'; ?>>
+						Ruim
+					</label>
+					<label class="radio-inline">
+						<input type="radio" value="4" name="Atendimento[alimentacao]"<?php if ($atendimento["alimentacao"] == 4) echo ' checked="checked"'; ?>>
+						Péssimo
+					</label>
+				</div>
+			</div>
+		</div>
+		
+		<div class="grid">
+			<div class="col-2-12">
+				<div class="content">
+					&nbsp;
+				</div>
+			</div>
+			<div class="col-10-12">
+				<div class="content">
+					<input class="form-control" type="text" name="Atendimento[alimentacaoObservacoes]" value="<?php echo $atendimento["alimentacaoObservacoes"]; ?>" placeholder="Observaçõe sobre a alimentação diária (grupos de alimentos preferidos)." />
+				</div>
+			</div>
+		</div>
+		
+		<p class="help-block">Prática de esportes.</p>
+		
+		<div class="grid">
+			<div class="col-2-12">
+				<div class="content checkbox">
+					<label>
+					  <input type="checkbox" name="Atendimento[esportes]"<?php if ($atendimento["esportes"] == 1) echo ' checked="checked"'; ?>>
+					  <strong>Pratica?</strong>
+					</label>
+				</div>
+			</div>
+			<div class="col-10-12">
+				<input class="form-control" type="text" name="Atendimento[esportesObservacoes]" value="<?php echo $atendimento["esportesObservacoes"]; ?>" placeholder="Observações sobre os hábitos esportivos (modalidades, frequência, etc.)" />
+			</div>
+		</div>
+		
+		<p class="help-block">Suplementação nutricional.</p>
+		
+		<div class="grid">
+			<div class="col-2-12">
+				<div class="content checkbox">
+					<label>
+					  <input type="checkbox" name="Atendimento[suplementos]"<?php if ($atendimento["suplementos"] == 1) echo ' checked="checked"'; ?>>
+					  <strong>Faz uso?</strong>
+					</label>
+				</div>
+			</div>
+			<div class="col-10-12">
+				<input class="form-control" type="text" name="Atendimento[suplementosObservacoes]" value="<?php echo $atendimento["suplementosObservacoes"]; ?>" placeholder="Observações sobre a suplementação nutricional do paciente." />
+			</div>
+		</div>
+		
+		<p class="help-block">Consumo de medicamentos.</p>
+		
+		<div class="grid">
+			<div class="col-2-12">
+				<div class="content checkbox">
+					<label>
+					  <input type="checkbox" name="Atendimento[medicamentos]"<?php if ($atendimento["medicamentos"] == 1) echo ' checked="checked"'; ?>>
+					  <strong>Consome?</strong>
+					</label>
+				</div>
+			</div>
+			<div class="col-10-12">
+				<input class="form-control" type="text" name="Atendimento[medicamentosObservacoes]" value="<?php echo $atendimento["medicamentosObservacoes"]; ?>" placeholder="Observações sobre o consumo diário de medicamentos (nomes dos medicamentos, frequência, etc)." />
+			</div>
+		</div>
+		
+		<p class="help-block">Histórico familiar de aneurismas, acidente vascular cerebral (AVC), trombose, infarto ou outras complicações cardiovasculares.</p>
+		
+		<div class="grid">
+			<div class="col-2-12">
+				<div class="content checkbox">
+					<label>
+					  <input type="checkbox" name="Atendimento[doencasFamilia]"<?php if ($atendimento["doencasFamilia"] == 1) echo ' checked="checked"'; ?>>
+					  <strong>Possui?</strong>
+					</label>
+				</div>
+			</div>
+			<div class="col-10-12">
+				<input class="form-control" type="text" name="Atendimento[doencasFamiliaObservacoes]" value="<?php echo $atendimento["doencasFamiliaObservacoes"]; ?>" placeholder="Observações sobre o histórico familiar relacionado as doenças citadas." />
+			</div>
+		</div>
+		
+		<p class="help-block">Possibilidade de gravidez.</p>
+		
+		<div class="grid">
+			<div class="col-2-12">
+				<div class="content checkbox">
+					<label>
+					  <input type="checkbox" name="Atendimento[gravidez]"<?php if ($atendimento["gravidez"] == 1) echo ' checked="checked"'; ?>>
+					  <strong>Existe?</strong>
+					</label>
+				</div>
+			</div>
+		</div>
 		
 		<div class="grid">
 			<div class="col-1-12">
@@ -139,6 +604,21 @@
 		<div class="grid">
 			<div class="col-1-1">
 				<div class="content">
+					<label for="Histórico de cirurgias"><strong>Histórico de cirurgias:</strong></label>
+				</div>
+			</div>
+			<div class="col-1-1">
+				<div class="content">
+					<textarea class="ckeditor" name="Atendimento[hda]"><?php echo $atendimento["hda"]; ?></textarea>
+				</div>
+			</div>
+		</div>
+		
+		<br />
+		
+		<div class="grid">
+			<div class="col-1-1">
+				<div class="content">
 					<label for="História da doença atual (HDA)"><strong>História da doença atual (HDA):</strong></label>
 				</div>
 			</div>
@@ -158,98 +638,95 @@
 				</div>
 			</div>
 		</div>
-		
-		
-			<?php 
-				$count = 0;
-				
-				$getDor = function($dores, $local) {
-					foreach ($dores as $dor) {
-						if ($dor["local"] == $local) {
-							return $dor;
-						}
-					}
-					return NULL;
-				};
-				
-				foreach (Atendimento::getLocalizacaoDores() as $key => $value) {
-					$dor = $getDor($atendimento["dores"], $key);
-					$id = $dor ? $dor["id"] : 0;
-					echo '<div class="grid">';
-					
-					echo '<div class="col-2-12">';
-					echo '<div class="content">';
-					echo '<input type="hidden" name="Dores[' . $count . '][id]" value="' . $id . '" />';
-					echo '<input type="checkbox" name="Dores[' . $count . '][local]" value="' . $key . '"';
-					if ($dor) {
-						echo ' checked="checked"';
-					}
-					echo ' /> ' . $value;
-					echo '</div>';
-					echo '</div>';
-					
-					echo '<div class="col-5-12">';
-					echo '<div class="content">';
-					echo '<input class="form-control" type="text" placeholder="Característica da dor" name="Dores[' . $count . '][caracteristica]"';
-					if ($dor) {
-						echo ' value="' . $dor["caracteristica"] . '"';
-					}
-					echo ' />';
-					echo '</div>';
-					echo '</div>';
-					
-					echo '<div class="col-1-12">';
-					echo '<div class="content">';
-					echo ' <input class="decimal form-control" type="text" placeholder="Grau" name="Dores[' . $count . '][grau]"';
-					if ($dor && $dor["grau"] > 0) {
-						echo ' value="' . $dor["grau"] . '"';
-					}
-					echo ' /> ';
-					echo '</div>';
-					echo '</div>';
-					
-					$intensidades = array();
-					
-					if ($dor) {
-						$intensidades = explode(",", $dor["intensidade"]);
-					}
-					
-					echo '<div class="col-1-12">';
-					echo '<div class="content">';
-					echo ' <input type="checkbox" name="Dores[' . $count . '][intensidade][]" value="' . Atendimento::ATENDIMENTO_DOR_GRAU_LEVE . '"';
-					if (in_array(Atendimento::ATENDIMENTO_DOR_GRAU_LEVE, $intensidades)) {
-						echo ' checked="checked"';
-					}
-					echo ' /> Leve';
-					echo '</div>';
-					echo '</div>';
-					
-					echo '<div class="col-2-12" style="text-align:center;">';
-					echo '<div class="content">';
-					echo ' <input type="checkbox" name="Dores[' . $count . '][intensidade][]" value="' . Atendimento::ATENDIMENTO_DOR_GRAU_MODERADO . '"';
-					if (in_array(Atendimento::ATENDIMENTO_DOR_GRAU_MODERADO, $intensidades)) {
-						echo ' checked="checked"';
-					}
-					echo ' /> Moderado';
-					echo '</div>';
-					echo '</div>';
-					
-					echo '<div class="col-1-12">';
-					echo '<div class="content">';
-					echo ' <input type="checkbox" name="Dores[' . $count . '][intensidade][]" value="' . Atendimento::ATENDIMENTO_DOR_GRAU_GRAVE . '" ';
-					if (in_array(Atendimento::ATENDIMENTO_DOR_GRAU_GRAVE, $intensidades)) {
-						echo ' checked="checked"';
-					}
-					echo '/> Grave';
-					$count++;
-					echo '</div>';
-					echo '</div>';
-					 
-					echo '</div><p></p>';
-				}
-			?>	
-		
+		<?php 
+			$count = 0;
 			
+			$getDor = function($dores, $local) {
+				foreach ($dores as $dor) {
+					if (isset($dor["local"]) && $dor["local"] == $local) {
+						return $dor;
+					}
+				}
+				return NULL;
+			};
+			
+			foreach (Atendimento::getLocalizacaoDores() as $key => $value) {
+				$dor = $getDor($atendimento["dores"], $key);
+				//print_r($dor);die;
+				$id = $dor ? $dor["id"] : 0;
+				echo '<div class="grid">';
+				
+				echo '<div class="col-2-12">';
+				echo '<div class="content">';
+				echo '<input type="hidden" name="Dores[' . $count . '][id]" value="' . $id . '" />';
+				echo '<input type="checkbox" name="Dores[' . $count . '][local]" value="' . $key . '"';
+				if ($dor) {
+					echo ' checked="checked"';
+				}
+				echo ' /> ' . $value;
+				echo '</div>';
+				echo '</div>';
+				
+				echo '<div class="col-5-12">';
+				echo '<div class="content">';
+				echo '<input class="form-control" type="text" placeholder="Característica da dor" name="Dores[' . $count . '][caracteristica]"';
+				if ($dor) {
+					echo ' value="' . $dor["caracteristica"] . '"';
+				}
+				echo ' />';
+				echo '</div>';
+				echo '</div>';
+				
+				echo '<div class="col-1-12">';
+				echo '<div class="content">';
+				echo ' <input class="form-control" type="text" placeholder="Grau" name="Dores[' . $count . '][grau]"';
+				if ($dor) {
+					echo ' value="' . $dor["grau"] . '"';
+				}
+				echo ' /> ';
+				echo '</div>';
+				echo '</div>';
+				
+				$intensidades = array();
+				
+				if ($dor && isset($dor["intensidade"])) {
+					$intensidades = is_array($dor["intensidade"]) ? $dor["intensidade"] : explode(",", $dor["intensidade"]);
+				}
+				
+				echo '<div class="col-1-12">';
+				echo '<div class="content">';
+				echo ' <input type="checkbox" name="Dores[' . $count . '][intensidade][]" value="' . Atendimento::ATENDIMENTO_DOR_GRAU_LEVE . '"';
+				if (in_array(Atendimento::ATENDIMENTO_DOR_GRAU_LEVE, $intensidades)) {
+					echo ' checked="checked"';
+				}
+				echo ' /> Leve';
+				echo '</div>';
+				echo '</div>';
+				
+				echo '<div class="col-2-12" style="text-align:center;">';
+				echo '<div class="content">';
+				echo ' <input type="checkbox" name="Dores[' . $count . '][intensidade][]" value="' . Atendimento::ATENDIMENTO_DOR_GRAU_MODERADO . '"';
+				if (in_array(Atendimento::ATENDIMENTO_DOR_GRAU_MODERADO, $intensidades)) {
+					echo ' checked="checked"';
+				}
+				echo ' /> Moderado';
+				echo '</div>';
+				echo '</div>';
+				
+				echo '<div class="col-1-12">';
+				echo '<div class="content">';
+				echo ' <input type="checkbox" name="Dores[' . $count . '][intensidade][]" value="' . Atendimento::ATENDIMENTO_DOR_GRAU_GRAVE . '" ';
+				if (in_array(Atendimento::ATENDIMENTO_DOR_GRAU_GRAVE, $intensidades)) {
+					echo ' checked="checked"';
+				}
+				echo '/> Grave';
+				$count++;
+				echo '</div>';
+				echo '</div>';
+				 
+				echo '</div><p></p>';
+			}
+		?>
 		<div class="grid">
 			<div class="col-1-1">
 				<div class="content">
@@ -277,7 +754,60 @@
 				</div>
 			</div>
 		</div>
+		
+		<!--div class="grid">
+			<div class="col-1-1">
+				<div class="content">
+					<label for="Arquivo(s)"><strong>Arquivo(s):</strong></label>
+				</div>
+			</div>
+			<div class="col-1-1">
+				<div class="content" id="arquivos">
+				<?php 
+					$diretorio = DIR_UPLOADS . SEPARADOR_DIRETORIO . 'atendimentos' . SEPARADOR_DIRETORIO . $atendimento['id'] . SEPARADOR_DIRETORIO;
+					foreach(getArquivos($diretorio) as $arquivo){
+						echo '<div class=""><a href="">';
+						echo '<img src="' . getIconByFiletype($arquivo) . '" /> ';
+						echo basename($arquivo);
+						echo '</a> ';
+						echo '<small>(<a onclick="excluir(\'pacientes\', {\'acao\' : \'removera\', \'atendimento\' : \'' . $atendimento["id"] . '\', \'arquivo\' : \'' . basename($arquivo) . '\'});return false;" href="?modulo=pacientes&acao=removera&atendimento=1&arquivo=' . basename($arquivo) . '">Excluir</a>)</small></div>';
+					}
+						
+				?>
+				</div>
+			</div>
+			<div class="col-1-1">
+				<div class="content" id="enviar">
+					<div class="grid arquivo">
+						<div class="col-4-12">
+							<div class="content" id="fcontainer1">
+								<input class="form-control" type="file" id="arquivo-1" name="arquivo1" />
+							</div>
+						</div>
+						<div class="col-8-12">
+							<div class="content">
+								<img id="floader1" class="file-loader" src="imagens/ajax-loader-file.gif" alt="" />
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-1-1">
+				<div class="content">
+					<a style="cursor: pointer;" onclick="maisArquivos()"><small>Mais arquivos</small></a>
+				</div>
+			</div>
+		</div-->
 			
+	</fieldset>
+	
+	<fieldset>
+		<legend>Observações sobre o atendimento</legend>
+		<div class="col-1-1">
+			<div class="content">
+				<textarea class="form-control" name="observacoes"><?php if (isset($_POST["observacoes"])) echo $_POST["observacoes"]; ?></textarea>
+			</div>
+		</div>
 	</fieldset>
 	
 	<br />
@@ -285,7 +815,3 @@
 	<input class="btn btn-default" type="submit" value="Salvar" /> 
 
 </form>
-
-<script type="text/javascript">
-
-</script>

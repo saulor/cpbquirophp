@@ -21,7 +21,6 @@ class LogsController extends Controller {
 			
 			//if (!temPermissao(array('logs:visualizarLogs'), $_SESSION['permissoes']))
 			//	throw new Exception("Você não tem permissão para visualizar logs");			
-			
 			$quantidade = $this->logDAO->getQuantidade($conexao, "logs");
 			$logs = $this->logDAO->getDados ($conexao, "logs", array(
 					"limit" => $limit,

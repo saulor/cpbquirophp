@@ -7,13 +7,11 @@
 	// buscas de logs
 	
 	if (count($_POST) > 0) { 
-	
 		require_once("../../config.php");
-	
 		$conexao = new Conexao();
-		
-		$modulo = "usuarios";
-		$quantidadePorPagina = QUANTIDADE_POR_PAGINA;
+		$modulo = $_POST['dados']['modulo'];
+		$order = isset($_POST['dados']['order']) ? $_POST['dados']['order'] : NULL;
+		$exibir = $quantidadePorPagina = (isset($_POST["dados"]["exibir"]) && !empty($_POST["dados"]["exibir"]))  ? (int) $_POST["dados"]["exibir"] : QUANTIDADE_POR_PAGINA;
 		$pagina = isset($_POST["dados"]["pagina"]) ? $_POST["dados"]["pagina"] : 1;
 		$pagina = $pagina <= 0 ? 1 : $pagina;
 		$limit = $pagina == 1 ? $quantidadePorPagina : $quantidadePorPagina * ($pagina - 1);
@@ -30,7 +28,7 @@
 		}
 		
 		if (!empty($_POST["dados"]["nomePermissao"])) {
-			$query = $query->where("vw_usuarios.nomePermissao like ?", codificaDado($_POST["dados"]["nomePermissao"]) . "%");
+			$query = $query->where("vw_usuarios.nomePermissao like ?", abscodificaDado($_POST["dados"]["nomePermissao"]) . "%");
 			$query = $query->order("vw_usuarios.nomePermissao", "asc");
 		}
 		
@@ -42,29 +40,55 @@
 			}
 		}
 		
-		$quantidade = count($query->all());
+		$quantidade = $query->count();
 				
-		$query = $query->limitIn($limit, $offset);
+		$query->limitIn($limit, $offset);
 		
-		$dados = $query->all();
+		$params["objetos"] = $query->all();
+		
+		if ($quantidade == 0) {
+			$iniCount = $inicio = 0;
+		}
+		else {
+			$iniCount = $inicio = ($quantidadePorPagina * $pagina) - ($quantidadePorPagina - 1);
+		}
+		
+		if ($inicio + ($quantidadePorPagina - 1) > $quantidade) {
+			$fim = $quantidade;
+		}
+		else {
+			$fim = $inicio + ($quantidadePorPagina - 1);
+		}
+		
+		$acoesMassa = array();
 		
 		$table = array(
 			'fields' => array(
 				'nome' => array(
-					'ajax' => true,
-					'editField' => true,
+					'link' => array(
+						'condition' => 'return true;',
+						'link' => 'return "?modulo=' . $modulo . '&acao=cadastrar&id=" . $objeto["id"];'
+					),
+					'ajax' => 'ajax.php',
 					'label' => 'Nome'
 				),
 				'nomePermissao' => array(
-					'ajax' => true,
+					'ajax' => 'ajax.php',
 					'align' => 'center',
 					'label' => 'Permissão'
 				),
 				'dataFormatada' => array(
-					'ajax' => true,
+					'ajax' => 'ajax.php',
 					'class' => 'data',
 					'align' => 'center',
 					'label' => 'Data'
+				)
+			),
+			'acoes' => array(
+				'Excluir' => array(
+					'condition' => 'return true;',
+					'acao' => 'return "excluir";',
+					'id' => 'return $objeto["id"];'
 				)
 			),
 			'acoesMassa' => array(
@@ -72,75 +96,16 @@
 			)
 		);
 		
-		$result = '';
-		$inicio = 1;
+		include('../includes/rows-listagem.phtml');
 		
-		foreach ($dados as $objeto) {
-			$result .= '<tr>';
-			$result .= '<th scope="row">';
-			$result .= '<small>' . $inicio++ . '</small>';
-			$result .= '</th>';
-			$result .= '<td>';
-	        $result .= '<input type="checkbox" name="objetos[]" value="' . $objeto["id"] . '" />';
-	        $result .= '</td>';
-			foreach ($table['fields'] as $key => $f) {
-				if (array_key_exists($key, $objeto)) {
-					$result .= '<td';
-					if (isset($f['align'])) {
-						$result .= ' class="' . $f['align'] . '"';
-					}
-					$result .= '>';
-					if (isset($f["editField"])) {
-						$result .= '<a href="?modulo=usuarios&acao=cadastrar&id=' . $objeto["id"] . '"';
-						$result .= '>';
-					}
-					$result .= $objeto[$key];
-					if (isset($f["editField"])) {
-						$result .= '</a>';
-					}
-					if (isset($f["info"])) {
-						$result .= '<br /><small>';
-						$result .= eval($f["info"]);
-						$result .= '</small>';
-					}
-					if (isset($f["acoes"])) {
-						$result .= '<div>';
-						$as = array();
-						foreach ($f["acoes"] as $key => $value) {
-							$a = '<a href="?modulo=usuarios&acao=' . $key;
-							$a .= '&id=' . $objeto["id"] . '">';
-							$a .= $value;
-							$a .= '</a>';
-							$as[] = $a; 	
-						}
-						$result .= implode(" | ", $as);
-						$result .= '</div>';
-					}
-					$result .= '</td>';
-				}
-			}
-			
-			$result .= '<td>';
-			$result .= '<a href="?modulo=usuarios&acao=cadastrar&id=' . $objeto["id"] . '">';
-			$result .= '<img title="Editar" alt="Editar" src="imagens/edit-icon.gif" />';
-			$result .= '</a>';
-			$result .= '</td>';
-			$result .= '<td>';
-			$result .= '<a href="?modulo=usuarios&acao=excluir&id=' . $objeto["id"] . '">';
-			$result .= '<img title="Excluir" alt="Excluir" src="imagens/delete-icon.gif" />';
-			$result .= '</a>';
-			$result .= '</td>';
-			
-			$result .= '</tr>';
-		}
-		
-		$jsonRetorno = array(
-			"quantidade" => $quantidade,
-			"result" => $result
+		echo json_encode(array(
+				"quantidade" => $quantidade,
+				"inicio" => $inicio,
+				"fim" => $fim,
+				"modulo" => $modulo,
+				"result" => $rows
+			)
 		);
-		
-		$conexao->getConexao()->disconnect();
-		echo json_encode($jsonRetorno);
 			
 	}
 ?>

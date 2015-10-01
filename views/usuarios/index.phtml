@@ -1,15 +1,18 @@
 <?php
 	$params = $this->getParams();
-    $quantidade = $params["quantidade"];
-    $quantidadePorPagina = $params["quantidadePorPagina"];
-    $pagina = $params["pagina"];
+	$modulo = $_GET["modulo"];
+	$exibir = isset($_GET["exibir"]) ? $_GET["exibir"] : NULL;
+	$order = isset($_GET["order"]) ? $_GET["order"] : NULL;
+	$quantidade = $params["quantidade"];
+	$quantidadePorPagina = $params["quantidadePorPagina"];
+	$pagina = $params["pagina"];
     $objetos = $params["objetos"];
     
     if ($quantidade == 0) {
-        $inicio = 0;
+        $iniCount = $inicio = 0;
    	}
     else {
-        $inicio = ($quantidadePorPagina * $pagina) - ($quantidadePorPagina - 1);
+        $iniCount = $inicio = ($quantidadePorPagina * $pagina) - ($quantidadePorPagina - 1);
    	}
     
     if ($inicio + ($quantidadePorPagina - 1) > $quantidade) {
@@ -22,25 +25,35 @@
   	$table = array(
   		'fields' => array(
 	  		'nome' => array(
-	  			'ajax' => true,
-	  			'editField' => true,
+	  			'link' => array(
+	  				'condition' => 'return true;',
+	  				'link' => 'return "?modulo=' . $modulo . '&acao=cadastrar&id=" . $objeto["id"];'
+	  			),
+	  			'ajax' => 'ajax.php',
 	  			'label' => 'Nome'
 	  		),
 	  		'nomePermissao' => array(
-	  			'ajax' => true,
+	  			'ajax' => 'ajax.php',
 	  			'align' => 'center',
 	  			'label' => 'Permissão'
 	  		),
 	  		'dataFormatada' => array(
-	  			'ajax' => true,
+	  			'ajax' => 'ajax.php',
 	  			'class' => 'data',
 	  			'align' => 'center',
 	  			'label' => 'Data'
 	  		)
 	  	),
-  		'acoesMassa' => array(
-  			'excluir' => 'Excluir'
-  		)
+	  	'acoes' => array(
+	  		'Excluir' => array(
+	  			'condition' => 'return true;',
+	  			'acao' => 'return "excluir";',
+	  			'id' => 'return $objeto["id"];'
+	  		)
+	  	),
+	  	'acoesMassa' => array(
+	  		'excluir' => 'Excluir'
+	  	)
   	);
         
 	include('views/includes/listagem.phtml'); 

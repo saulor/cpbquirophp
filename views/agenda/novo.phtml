@@ -2,6 +2,7 @@
 	$params = $this->getParams();
 	$compromisso = $params["compromisso"];
 	$pacientes = $params["pacientes"];
+	$fisioterapeutas = $params["fisioterapeutas"];
 ?>
 
 <style>
@@ -17,41 +18,9 @@
 	    $(".autocomplete1").autocomplete({
 	      source: objetos1
     	});
-    	
-    	$("#fisioterapeutas").tokenInput("views/agenda/search.php", {
-    		theme: "facebook",
-    		preventDuplicates: true,
-    		hintText: "Digite para iniciar a pesquisa",
-    		noResultsText: "Nenhum registro encontrado",
-    		searchingText: "Pesquisando...",
-    		<?php if (isset($compromisso["fisioterapeutas"]["fisioterapeutas"])) {?>
-    		prePopulate: <?php echo $compromisso["fisioterapeutas"]["fisioterapeutas"]; ?>,
-    		<?php } ?>
-            onAdd: function (item) {
-				var fisioterapeutasInput = $("#idsFisioterapeutas");
-				var fisioterapeutas = ($(fisioterapeutasInput).val()) ? $(fisioterapeutasInput).val().split(",") : [];
-				fisioterapeutas.push(item.id);
-				fisioterapeutasInput.val(fisioterapeutas.join(","));
-            },
-            onDelete: function (item) {
-                var fisioterapeutasInput = $("#idsFisioterapeutas");
-                var fisioterapeutas = ($(fisioterapeutasInput).val()) ? $(fisioterapeutasInput).val().split(",") : [];
-                var newFisioterapeutas = [];
-                for (f in fisioterapeutas) {
-                	if (fisioterapeutas[f] != item.id) {
-                		newFisioterapeutas.push(fisioterapeutas[f]);
-                	}
-                }
-                fisioterapeutasInput.val(newFisioterapeutas.join(","));
-            }
-    	});
   	});
  
-	
 </script>
-
-<script type="text/javascript" src="<?php echo WWW_ROOT; ?>/scripts/loopj-jquery-tokeninput-201d2d1/src/jquery.tokeninput.js"></script>
-<link rel="stylesheet" type="text/css" href="<?php echo WWW_ROOT; ?>/scripts/loopj-jquery-tokeninput-201d2d1/styles/token-input-facebook.css" />
 
 <form method="post">
 
@@ -68,7 +37,6 @@
 				<select class="form-control" name="tipo">
 					<?php
 						$tipos = Agenda::getTipos();
-						//array_shift($tipos);
 						foreach ($tipos as $key => $value) {
 							echo '<option';
 							if ($compromisso["tipo"] == $key) {
@@ -85,52 +53,36 @@
 	<div class="grid">
 		<div class="col-3-12">
 			<div class="content">
-				<label for="Paciente">Paciente:</label>
-			</div>
-		</div>
-		<div class="col-7-12">
-			<div class="content">
-				<input class="form-control autocomplete1" id="paciente" name="paciente" size="60" type="text" value="<?php echo $compromisso["paciente"]; ?>" />
-			</div>
-		</div>
-	</div>
-	
-	<div class="grid">
-		<div class="col-3-12">
-			<div class="content">
-				<label for="Telefone">Telefone Residencial:</label>
-			</div>
-		</div>
-		<div class="col-3-12">
-			<div class="content">
-				<input class="form-control telefoneResidencial" name="telefoneResidencial" size="40" type="text" value="<?php echo $compromisso["telefoneResidencial"]; ?>" />
-			</div>
-		</div>
-	</div>
-	
-	<div class="grid">
-		<div class="col-3-12">
-			<div class="content">
-				<label for="Telefone">Telefone Celular:</label>
-			</div>
-		</div>
-		<div class="col-3-12">
-			<div class="content">
-				<input class="form-control telefoneCelular" name="telefoneCelular" size="40" type="text" value="<?php echo $compromisso["telefoneCelular"]; ?>" />
-			</div>
-		</div>
-	</div>
-	
-	<div class="grid">
-		<div class="col-3-12">
-			<div class="content">
 				<label for="Fisioterapeuta">Fisioterapeutas:</label>
 			</div>
 		</div>
 		<div class="col-7-12">
 			<div class="content">
-				<input id="fisioterapeutas" size="60" name="fisioterapeutas" type="text" maxlength="255" />
-				<input type="hidden" name="idsFisioterapeutas" id="idsFisioterapeutas" value="<?php echo isset($compromisso["fisioterapeutas"]["ids"]) ? $compromisso["fisioterapeutas"]["ids"] : ""; ?>" />
+				<?php
+					foreach ($fisioterapeutas as $f) {
+						echo '<label class="checkbox-inline">';
+						echo '<input name="fisioterapeutas[]" id="f' . $f["id"] . '" ';
+						if (in_array($f["nome"] . "-" . $f["id"], $compromisso["fisioterapeutas"])) {
+							echo 'checked="checked" ';
+						}
+						echo 'type="checkbox" value="' . $f["nome"] . '-' . $f["id"] . '" />';
+						echo $f["nome"];
+						echo '</label>';
+					}
+				?>
+			</div>
+		</div>
+	</div>
+	
+	<div class="grid">
+		<div class="col-3-12">
+			<div class="content">
+				<label for="Paciente">Paciente:</label>
+			</div>
+		</div>
+		<div class="col-7-12">
+			<div class="content">
+				<input class="form-control autocomplete1" id="paciente" placeholder="Nome do paciente" name="nomePaciente" size="60" type="text" value="<?php echo $compromisso["nomePaciente"]; ?>" autocomplete="off" />
 			</div>
 		</div>
 	</div>
@@ -143,7 +95,7 @@
 		</div>
 		<div class="col-3-12">
 			<div class="content">
-				<input id="data" class="form-control datepicker" name="data" type="text" value="<?php echo $compromisso["data"]; ?>" />
+				<input id="data" class="form-control datepicker" placeholder="Data do compromisso" name="data" type="text" value="<?php echo $compromisso["data"]; ?>" autocomplete="off" />
 			</div>
 		</div>
 	</div>
@@ -156,7 +108,34 @@
 		</div>
 		<div class="col-3-12">
 			<div class="content">
-				<input class="form-control hora" id="hora" name="hora" type="text" maxlength="5" value="<?php echo $compromisso["hora"]; ?>" />
+				<input class="form-control hora" id="hora" name="hora" placeholder="Hora do compromisso" type="text" maxlength="5" value="<?php echo $compromisso["hora"]; ?>" autocomplete="off" />
+			</div>
+		</div>
+	</div>
+	
+	
+	<div class="grid">
+		<div class="col-3-12">
+			<div class="content">
+				<label for="Telefone">Telefone Residencial:</label>
+			</div>
+		</div>
+		<div class="col-3-12">
+			<div class="content">
+				<input class="form-control telefoneResidencial" placeholder="Telefone Residencial" name="telefoneResidencial" size="40" type="text" value="<?php echo $compromisso["telefoneResidencial"]; ?>" autocomplete="off" />
+			</div>
+		</div>
+	</div>
+	
+	<div class="grid">
+		<div class="col-3-12">
+			<div class="content">
+				<label for="Telefone">Telefone Celular:</label>
+			</div>
+		</div>
+		<div class="col-3-12">
+			<div class="content">
+				<input class="form-control telefoneCelular" placeholder="Telefone Celular" name="telefoneCelular" size="40" type="text" value="<?php echo $compromisso["telefoneCelular"]; ?>" autocomplete="off" />
 			</div>
 		</div>
 	</div>
@@ -169,25 +148,23 @@
 		</div>
 		<div class="col-7-12">
 			<div class="content">
-				<textarea class="form-control" id="lembrete" name="lembrete" cols="90" rows="2" maxlength="255"><?php echo $compromisso["lembrete"]; ?></textarea>
+				<textarea class="form-control" id="lembrete" placeholder="Lembrete" name="lembrete" cols="90" rows="2" maxlength="255"><?php echo $compromisso["lembrete"]; ?></textarea>
 			</div>
 		</div>
 	</div>
 	
-	<?php if ($compromisso["id"] != 0) { ?>
 	<div class="grid">
 		<div class="col-3-12">
 			<div class="content">
-				<label>&nbsp;</label>
+				<label for="Observações">Observações:</label>
 			</div>
 		</div>
 		<div class="col-7-12">
 			<div class="content">
-				<a onclick="return excluir('agenda', {'acao' : 'excluir', 'id' : <?php echo $compromisso["id"]; ?>})" href="?modulo=agenda&acao=excluir&id=<?php echo $compromisso["id"]; ?>">Excluir compromisso</a>
+				<textarea class="form-control" id="observacoes" placeholder="Observações" name="observacoes" cols="90" rows="2" maxlength="255"><?php echo $compromisso["observacoes"]; ?></textarea>
 			</div>
 		</div>
 	</div>
-	<?php } ?>
 
 	<input class="btn btn-default" type="submit" value="Salvar" /> 
 

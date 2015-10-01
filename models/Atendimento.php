@@ -49,6 +49,199 @@ class Atendimento extends Model {
     /**
     * @column
     * @readwrite
+    * @type integer
+    */
+    protected $_hipertenso;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type text
+    * @length 255
+    */
+    protected $_hipertensoObservacoes;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type integer
+    */
+    protected $_diabetico;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type text
+    * @length 255
+    */
+    protected $_diabeticoObservacoes;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type integer
+    */
+    protected $_fuma;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type text
+    * @length 255
+    */
+    protected $_fumaFrequencia;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type integer
+    */
+    protected $_bebe;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type text
+    * @length 255
+    */
+    protected $_bebeFrequencia;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type integer
+    */
+    protected $_intestinos;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type text
+    * @length 255
+    */
+    protected $_intestinosFrequencia;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type integer
+    */
+    protected $_sono;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type text
+    * @length 255
+    */
+    protected $_sonoObservacoes;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type integer
+    */
+    protected $_agua;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type text
+    * @length 255
+    */
+    protected $_aguaObservacoes;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type integer
+    */
+    protected $_alimentacao;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type text
+    * @length 255
+    */
+    protected $_alimentacaoObservacoes;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type integer
+    */
+    protected $_esportes;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type text
+    * @length 255
+    */
+    protected $_esportesObservacoes;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type integer
+    */
+    protected $_suplementos;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type text
+    * @length 255
+    */
+    protected $_suplementosObservacoes;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type integer
+    */
+    protected $_medicamentos;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type text
+    * @length 255
+    */
+    protected $_medicamentosObservacoes;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type longtext
+    */
+    protected $_historicoCirurgias;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type integer
+    */
+    protected $_doencasFamilia;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type longtext
+    */
+    protected $_doencasFamiliaObservacoes;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type integer
+    */
+    protected $_gravidez;
+    
+    /**
+    * @column
+    * @readwrite
     * @type longtext
     */
     protected $_hda;
@@ -71,6 +264,11 @@ class Atendimento extends Model {
     * @array
     */
     protected $_dores;
+    
+    /**
+    * @array
+    */
+    protected $_arquivos;
     
     /**
     * @column

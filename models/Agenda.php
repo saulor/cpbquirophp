@@ -36,17 +36,25 @@ class Agenda extends Model {
 	/**
 	* @column
 	* @readwrite
-	* @type text
-	* @length 255
+	* @type integer
 	*/
-	protected $_fisioterapeutas;
+	protected $_paciente;
 	
 	/**
 	* @column
 	* @readwrite
-	* @type integer
+	* @type text
+	* @length 255
 	*/
-	protected $_paciente;
+	protected $_nomePaciente;
+	
+	/**
+	* @column
+	* @readwrite
+	* @type text
+	* @length 255
+	*/
+	protected $_fisioterapeutas;
 	
 	/**
 	* @column
@@ -81,7 +89,14 @@ class Agenda extends Model {
 	* @readwrite
 	* @type time
 	*/
-	protected $_hora;
+	protected $_horaInicio;
+	
+	/**
+	* @column
+	* @readwrite
+	* @type time
+	*/
+	protected $_horaFim;
 	
 	/**
 	* @column
