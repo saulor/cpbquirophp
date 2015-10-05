@@ -10,21 +10,21 @@
 
 <style>
 	
-	footer {
-		z-index: 0 !important;
+	/*footer {
+		z-index: -1 !important;
 	}
 	
 	.primary {
-		z-index: 0 !important;	
+		z-index: -2 !important;	
 	}
 	
 	.inner {
-		z-index: 0 !important;	
+		z-index: -2 !important;	
 	}
 	
 	table {
 		z-index: 0;
-	}
+	}*/
 	
 	a[rel=modal] {
 		cursor: pointer;
@@ -97,7 +97,7 @@
 	    top:0;
 	    width: 100%;
 	    height: 100%;
-	    z-index:9000;
+	    /*z-index:9000;*/
 	    background-color:#f1f0f0;
 	}
 	 
@@ -110,13 +110,14 @@
 		z-index: 9999;
 	}
 	
-	div.compromissos-wrapper {
+	table.agenda tbody td {
 		text-align: left;
 		text-decoration: none;
 		font-size: 0.9em;
 	}
 	
 	div.info {
+		z-index: 1;
 		font-family: Tahoma, Arial;
 		border: 0 !important;
 		color: #fff;
@@ -138,8 +139,17 @@
 		margin-right: 10px;
 	}
 	
+	.day a {
+		color: #333;	
+	}
+	
+	.today a:first-child {
+		color: #fff !important;
+	}
+	
 	table#f2 thead,
-	table#f2 div.info {
+	table#f2 div.info,
+	table#f2 .day.today {
 		background: #6898d0;
 	}
 	
@@ -153,7 +163,8 @@
 	}
 	
 	table#f4 thead ,
-	table#f4 div.info {
+	table#f4 div.info,
+	table#f4 .day.today {
 		background: #d06898;
 	}
 	
@@ -167,7 +178,8 @@
 	}
 	
 	table#f5 thead,
-	table#f5 div.info {
+	table#f5 div.info,
+	table#f5 .day.today {
 		background: #98d068;
 	}
 	
@@ -181,7 +193,8 @@
 	}
 	
 	table#f6 thead,
-	table#f6 div.info {
+	table#f6 div.info,
+	table#f6 .day.today {
 		background: #d0a068;
 	}
 	
@@ -492,7 +505,7 @@
 	<div class="clear">&nbsp;</div>
 </div>
 
-<table width="100%" border="0" class="calendar agenda">
+<table width="100%" border="0" class="calendar agenda" id="f2">
 	<thead>
 		<th colspan="7">
 			<?php
@@ -610,13 +623,11 @@
 				if (date('d') == $currentDay) {
 					echo ' today';
 				}
-				echo '">' . $currentDay . '</div>';
-				
-				echo '<div class="compromissos-wrapper';
-				if (date('d') == $currentDay) {
-					echo ' today';
-				}
 				echo '">';
+				echo '<a href="?modulo=agenda&acao=imprimir&dia=' . $currentDay . '&mes=' . $mes . '&ano=' . $ano;
+				echo  '&fisioterapeuta=2" target="_blank">';
+				echo $currentDay;
+				echo '</a></div>';
 				
 				for ($i = 0; $i < 23; $i++) {
 									
@@ -655,7 +666,7 @@
 							$conteudo .= 'data-id="' . $id . '" data-dh="' . $dateTime . '" rel="modal">';
 							$conteudo .= '<time datetime="' . $timestamp . '">' . $hora . '</time>';
 							$conteudo .= ' <span>';
-							$conteudo .= compactaTexto($nomePaciente, 25);
+							$conteudo .= compactaTexto($nomePaciente, 24);
 							$conteudo .= '</span>';
 							$conteudo .= '<div class="info">';
 							$conteudo .= '<small><time datetime="">' . $compromissos[$currentDay][$hora]["hora"] . '</time>';
@@ -686,7 +697,6 @@
 
 				}
 				
-				echo '</div>';
 				echo '</td>';
 				// Increment counters
 				$currentDay++;

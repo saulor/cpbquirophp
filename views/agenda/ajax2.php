@@ -9,7 +9,6 @@
 	$dia = 1;
 	$mes = $_POST["mes"];
 	$ano = $_POST["ano"];
-	$fisioterapeuta = $_POST["fisioterapeuta"];
 	
 	$prevData = date('Y-m-d', mktime(0, 0, 0, $mes-1, 1, $ano));
 	$nextData = date('Y-m-d', mktime(0, 0, 0, $mes+1, 1, $ano));
@@ -19,8 +18,8 @@
 		"agenda.ano" => (int) $ano
 	);
 	
-	if (!empty($fisioterapeuta)) {
-		$where["agenda_fisioterapeutas.fisioterapeuta"] = $fisioterapeuta;
+	if (!empty($_POST["fisioterapeuta"])) {
+		$idFisioterapeuta = $where["agenda_fisioterapeutas.fisioterapeuta"] = $_POST["fisioterapeuta"];
 	}
 	
 	$objetos = $dao->findAll($conexao->getConexao(), "agenda", array(
@@ -102,7 +101,7 @@
 			$result .= '</tr>';
 			
 			if (($currentDay+2) > $numberDays) {
-				$dayOfWeek=6;
+				$dayOfWeek = 6;
 				break;
 			}
 			
@@ -126,22 +125,19 @@
 		if (date('d') == $currentDay && date('m') == $mes && date('Y') == $ano) {
 			$result .= ' today';
 		}
-		$result .= '">' . $currentDay . '</div>';
-	
-		$result .= '<div class="compromissos-wrapper';
-				
-		if (date('d') == $currentDay) {
-			$result .= ' today';
-		}
-		
 		$result .= '">';
+		$result .= '<a href="?modulo=agenda&acao=imprimir&dia=' . $currentDay . '&mes=' . $mes . '&ano=' . $ano;
+		$result .=  '&fisioterapeuta=' . $idFisioterapeuta . '" target="_blank">';
+		$result .= $currentDay;
+		$result .= '</a>';
+		$result .= '</div>';
 		
 		for ($i = 0; $i < 23; $i++) {
 								
 			$time = mktime(07, $i*30, 0, 0, 0, 0);
 			$hora = date('H:i', $time);
 			
-			$result .= '<div id="compromisso" style="clear:both;">';
+			$result .= '<div id="compromisso">';
 			$result .= '<div class="circle circle';
 			
 			$tipoCompromisso = 3; // livre
@@ -173,7 +169,7 @@
 					$conteudo .= 'data-id="' . $id . '" data-dh="' . $dateTime . '" rel="modal">';
 					$conteudo .= '<time datetime="' . $timestamp . '">' . $hora . '</time>';
 					$conteudo .= ' <span>';
-					$conteudo .= compactaTexto($nomePaciente, 25);
+					$conteudo .= compactaTexto($nomePaciente, 24);
 					$conteudo .= '</span>';
 					$conteudo .= '<div class="info">';
 					$conteudo .= '<small><time datetime="">' . $compromissos[$currentDay][$hora]["hora"] . '</time>';
@@ -204,7 +200,6 @@
 
 		}
 	
-		$result .= "</div>";
 		$result .= '</td>';
 		// Increment counters
 		$currentDay++;

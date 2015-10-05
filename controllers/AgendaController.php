@@ -389,6 +389,123 @@ class AgendaController extends Controller {
     	exit;
     	
     }
+    
+    public function imprimirAction() {
+    	try {
+    		$conexao = $this->conexao->getConexao();
+    		
+    		$dia = $_GET['dia'];
+    		$mes = $_GET['mes'];
+    		$ano = $_GET['ano'];
+    		$fisioterapeuta = $_GET['fisioterapeuta'];
+    		
+    		$f = $this->dao->findByPk($conexao, "usuarios", $fisioterapeuta);
+    		
+    		$objetos = $this->dao->findAll($conexao, "agenda", array(
+    				"dados" => array(
+    					"agenda.id",
+    					"agenda.tipo",
+    					"agenda.data",
+    					"agenda.hora",
+    					"agenda.dia",
+    					"agenda.mes",
+    					"agenda.ano",
+    					"agenda.telefoneResidencial",
+    					"agenda.telefoneCelular",
+    					"agenda.lembrete",
+    					"agenda.observacoes",
+    					"agenda.ano",
+    					"agenda.nomePaciente",
+    					"CONCAT_WS('T', data, hora) as timestamp"
+    				),
+    				"where" => array(
+    					"agenda.mes" => $mes,
+    					"agenda.ano" => $ano,
+    					"agenda.dia" => $dia,
+    					"agenda_fisioterapeutas.fisioterapeuta" => $fisioterapeuta
+    				),
+    				"leftJoin" => array(
+    					"agenda_fisioterapeutas" => "agenda.id = agenda_fisioterapeutas.compromisso"
+    				),
+    				"order" => array(
+    					"agenda.hora" => "asc"
+    				)
+    			)
+    		);
+    		
+    		$compromissos = array();
+    		$mesAtual = rangeMonth($ano . '-' . $mes . '-' . $dia);
+    		
+    		for ($i=$mesAtual["start"];$i<=$mesAtual["end"];$i++) {
+    			foreach ($objetos as $objeto) {
+    				if ($objeto["dia"] == $i) {
+    					$compromissos[$objeto["hora"]] = $objeto;
+    				}
+    			}
+    		}
+    	    		
+    		$data = str_pad($dia, 2, "0", STR_PAD_LEFT) . "/" . $mes . "/" . $ano;
+
+    		$pdf = new AgendaDiaria();
+    		$pdf->SetTitle(utf8_decode('Agenda Diária'));
+    		$pdf->AddPage();
+    		
+    		$pdf->setTextColor(0,0,0);
+    		$pdf->setY(30);
+    		$pdf->SetFont('Helvetica','B',11);
+    		$pdf->Cell(0,0,utf8_decode('Agenda Dr(a). ' . $f["nome"]));
+    		$pdf->Ln(7);
+    		$pdf->Cell(0,0,utf8_decode('Dia ' . $data));
+    		$pdf->Ln(9);
+    		$pdf->SetFont('Helvetica','',10);
+
+			for ($i = 0; $i < 23; $i++) {
+				$time = mktime(07, $i*30, 0, 0, 0, 0);
+				$hora = date('H:i', $time);
+				$pdf->SetX(12);
+    			if (!array_key_exists($hora, $compromissos)) {
+    				$nome = "";
+    				$pdf->SetFillColor(255,165,0);
+    			}
+    			else {
+    				$nome = $compromissos[$hora]["nomePaciente"];
+    				if ($compromissos[$hora]["tipo"] == 1) {
+	    				$pdf->SetFillColor(0,102,255);
+	    			}
+	    			else if ($compromissos[$hora]["tipo"] == 2) {
+	    				$pdf->SetFillColor(0,153,51);
+	    			} 
+    			}
+    			$pdf->Circle($pdf->GetX(),$pdf->GetY(),1.3,'F');
+    			$item = $hora . " " . utf8_decode($nome);
+    			$pdf->SetX(14);
+    			$pdf->Cell(0,0,$item);
+    			$pdf->Ln(7);
+			}
+    		
+    		$pdf->Ln(10);
+    		
+    		$pdf->SetX(12);
+    		$pdf->SetFillColor(255,165,0);
+    		$pdf->Circle($pdf->GetX(),$pdf->GetY(),1.3,'F');
+    		$pdf->SetX(14);
+    		$pdf->Cell(0,0,'Livre');
+    		$pdf->SetX(26);
+    		$pdf->SetFillColor(0,102,255);
+    		$pdf->Circle($pdf->GetX(),$pdf->GetY(),1.3,'F');
+    		$pdf->SetX(28);
+    		$pdf->Cell(0,0,'Consulta');
+    		$pdf->SetX(46);
+    		$pdf->SetFillColor(0,153,51);
+    		$pdf->Circle($pdf->GetX(),$pdf->GetY(),1.3,'F');
+    		$pdf->SetX(48);
+    		$pdf->Cell(0,0,utf8_decode('Avaliação'));
+    		
+    		$pdf->output('Agenda-' . $f["nome"] . '-' . $data . '.pdf', 'I');
+    	}
+    	catch (Exception $e) {
+    	}
+    }
 	
 }
 

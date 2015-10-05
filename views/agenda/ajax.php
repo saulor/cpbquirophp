@@ -18,7 +18,7 @@
 	);
 	
 	if (!empty($_POST["fisioterapeuta"])) {
-		$where["agenda_fisioterapeutas.fisioterapeuta"] = $_POST["fisioterapeuta"];
+		$idFisioterapeuta = $where["agenda_fisioterapeutas.fisioterapeuta"] = $_POST["fisioterapeuta"];
 	}
 	
 	$objetos = $dao->findAll($conexao->getConexao(), "agenda", array(
@@ -124,22 +124,19 @@
 		if (date('d') == $currentDay && date('m') == $mes && date('Y') == $ano) {
 			$result .= ' today';
 		}
-		$result .= '">' . $currentDay . '</div>';
-	
-		$result .= '<div class="compromissos-wrapper';
-		
-		if (date('d') == $currentDay) {
-			$result .= ' today';
-		}
-		
 		$result .= '">';
+		$result .= '<a href="?modulo=agenda&acao=imprimir&dia=' . $currentDay . '&mes=' . $mes . '&ano=' . $ano;
+		$result .=  '&fisioterapeuta=' . $idFisioterapeuta . '" target="_blank">';
+		$result .= $currentDay;
+		$result .= '</a>';
+		$result .= '</div>';
 		
 		for ($i = 0; $i < 23; $i++) {
 								
 			$time = mktime(07, $i*30, 0, 0, 0, 0);
 			$hora = date('H:i', $time);
 			
-			$result .= '<div id="compromisso" style="clear:both;">';
+			$result .= '<div id="compromisso">';
 			$result .= '<div class="circle circle';
 			
 			$tipoCompromisso = 3; // livre
@@ -171,7 +168,7 @@
 					$conteudo .= 'data-id="' . $id . '" data-dh="' . $dateTime . '" rel="modal">';
 					$conteudo .= '<time datetime="' . $timestamp . '">' . $hora . '</time>';
 					$conteudo .= ' <span>';
-					$conteudo .= compactaTexto($nomePaciente, 25);
+					$conteudo .= compactaTexto($nomePaciente, 24);
 					$conteudo .= '</span>';
 					$conteudo .= '<div class="info">';
 					$conteudo .= '<small><time datetime="">' . $compromissos[$currentDay][$hora]["hora"] . '</time>';
@@ -202,7 +199,6 @@
 
 		}
 	
-		$result .= "</div>";
 		$result .= '</td>';
 		// Increment counters
 		$currentDay++;
