@@ -886,7 +886,7 @@ class PacientesController extends Controller {
 			$f->setX(31);
 			$f->setY($f->getY()+2);
 			$f->setX(30);
-			$f->MultiCell(0,5,  empty($atendimento["hda"]) ? "Nada registrado" : strip_tags($atendimento["hda"]));
+			$f->MultiCell(0,5, empty($atendimento["hda"]) ? "Nada registrado" : strip_tags($atendimento["hda"]));
 			
 			$f->setY($f->getY()+6);
 			$f->setX(30);
