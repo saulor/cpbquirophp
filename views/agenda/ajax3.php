@@ -6,6 +6,7 @@
 	$dao = new DAOGenerico();
 	
 	switch ($_GET['acao']) {
+	
 		case 'recupera' :
 			$compromisso = $dao->findByPk($conexao->getConexao(), "agenda", $_POST['id']);
 			$fisioterapeutas = $dao->findAll($conexao->getConexao(), "agenda_fisioterapeutas", array(
@@ -20,6 +21,16 @@
 			}
 			$compromisso["fisioterapeutas"] = implode(",", $arr);
 			echo json_encode($compromisso);
+		break;
+		
+		case 'telefones' :
+			$paciente = $dao->find($conexao->getConexao(), "pacientes", array(
+					'where' => array(
+						'nome' => $_POST['nome']
+					)
+				)
+			);
+			echo json_encode($paciente);
 		break;
 		
 		case 'cadastra' :

@@ -17,8 +17,19 @@
 	    var objetos1 = [<?php echo $pacientes; ?>];
 	    $(".autocomplete1").autocomplete({
 	      source: objetos1
+    	}).bind('blur', function() {
+    		var nome = $(this).val();
+    		$.ajax({
+    			method: "POST",
+    			url: "views/agenda/ajax3.php?acao=telefones",
+    			dataType: "json",
+    			data: {nome: nome}
+    		}).done(function(response) {
+    			$('#telefoneResidencial').val(response.telefoneResidencial);
+    			$('#telefoneCelular').val(response.telefoneCelular);
+    		});
     	});
-  	});
+  	})
  
 </script>
 
@@ -122,7 +133,7 @@
 		</div>
 		<div class="col-3-12">
 			<div class="content">
-				<input class="form-control telefoneResidencial" placeholder="Telefone Residencial" name="telefoneResidencial" size="40" type="text" value="<?php echo $compromisso["telefoneResidencial"]; ?>" autocomplete="off" />
+				<input class="form-control telefoneResidencial" id="telefoneResidencial" placeholder="Telefone Residencial" name="telefoneResidencial" size="40" type="text" value="<?php echo $compromisso["telefoneResidencial"]; ?>" autocomplete="off" />
 			</div>
 		</div>
 	</div>
@@ -135,7 +146,7 @@
 		</div>
 		<div class="col-3-12">
 			<div class="content">
-				<input class="form-control telefoneCelular" placeholder="Telefone Celular" name="telefoneCelular" size="40" type="text" value="<?php echo $compromisso["telefoneCelular"]; ?>" autocomplete="off" />
+				<input class="form-control telefoneCelular" id="telefoneCelular" placeholder="Telefone Celular" name="telefoneCelular" size="40" type="text" value="<?php echo $compromisso["telefoneCelular"]; ?>" autocomplete="off" />
 			</div>
 		</div>
 	</div>

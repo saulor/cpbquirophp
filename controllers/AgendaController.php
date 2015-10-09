@@ -51,7 +51,8 @@ class AgendaController extends Controller {
     				),
     				"where" => array(
     					"agenda.mes" => $mes,
-    					"agenda.ano" => $ano
+    					"agenda.ano" => $ano,
+    					"agenda_fisioterapeutas.fisioterapeuta" => 2
     				),
     				"leftJoin" => array(
     					"agenda_fisioterapeutas" => "agenda.id = agenda_fisioterapeutas.compromisso"

@@ -142,10 +142,10 @@
 			
 			$tipoCompromisso = 3; // livre
 			$temCompromissoNesseDia = array_key_exists($currentDay, $compromissos);
+			$dateTime = $data . 'T' . $hora;
 			
 			if ($temCompromissoNesseDia) {
 				$id = $compromissos[$currentDay][$hora]["id"];
-				$dateTime = $data . 'T' . $hora;
 				$timestamp = $compromissos[$currentDay][$hora]["timestamp"];
 				$nomePaciente = $compromissos[$currentDay][$hora]["nomePaciente"];
 				$temCompromissoNessHora = array_key_exists($hora, $compromissos[$currentDay]);
@@ -169,20 +169,29 @@
 					$conteudo .= 'data-id="' . $id . '" data-dh="' . $dateTime . '" rel="modal">';
 					$conteudo .= '<time datetime="' . $timestamp . '">' . $hora . '</time>';
 					$conteudo .= ' <span>';
-					$conteudo .= compactaTexto($nomePaciente, 24);
+					$conteudo .= compactaTexto($nomePaciente, 22);
 					$conteudo .= '</span>';
 					$conteudo .= '<div class="info">';
 					$conteudo .= '<small><time datetime="">' . $compromissos[$currentDay][$hora]["hora"] . '</time>';
 					$conteudo .= '<p>' . Agenda::getTipo($compromissos[$currentDay][$hora]["tipo"]) . '</small></p>';
 					$conteudo .= '<p>' . $compromissos[$currentDay][$hora]["nomePaciente"] . '</p>';
+					
+					$telefones = array();
+					
 					if (!empty($compromissos[$currentDay][$hora]["telefoneResidencial"])) {
+						$telefones[] = $compromissos[$currentDay][$hora]["telefoneResidencial"];
+					}
+					
+					if (!empty($compromissos[$currentDay][$hora]["telefoneCelular"])) {
+						$telefones[] = $compromissos[$currentDay][$hora]["telefoneCelular"];
+					}
+					
+					if (count($telefones) > 0) {
 						$conteudo .= '<p><small>';
-						$conteudo .= $compromissos[$currentDay][$hora]["telefoneResidencial"];
-						if (!empty($compromissos[$currentDay][$hora]["telefoneCelular"])) {
-							$conteudo .= ' | ' . $compromissos[$currentDay][$hora]["telefoneCelular"];
-						}
+						$conteudo .= implode(" | ", $telefones);
 						$conteudo .= '</p></small>';
 					}
+					
 					if (!empty($compromissos[$currentDay][$hora]["lembrete"])) {
 						$conteudo .= '<br /><p><strong>Lembrete:</strong> ' . $compromissos[$currentDay][$hora]["lembrete"] . '</p>';
 					}

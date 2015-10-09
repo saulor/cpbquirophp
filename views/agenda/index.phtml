@@ -215,6 +215,17 @@
 		var objetos1 = [<?php echo $pacientes; ?>];
 		$(".autocomplete1").autocomplete({
 		  source: objetos1
+		}).bind('blur', function() {
+			var nome = $(this).val();
+			$.ajax({
+				method: "POST",
+				url: "views/agenda/ajax3.php?acao=telefones",
+				dataType: "json",
+				data: {nome: nome}
+			}).done(function(response) {
+				$('#telefoneResidencial').val(response.telefoneResidencial);
+				$('#telefoneCelular').val(response.telefoneCelular);
+			});
 		});
 		
 		$("a[rel=modal]").click(function(ev){
@@ -672,14 +683,22 @@
 							$conteudo .= '<small><time datetime="">' . $compromissos[$currentDay][$hora]["hora"] . '</time>';
 							$conteudo .= '<p>' . Agenda::getTipo($compromissos[$currentDay][$hora]["tipo"]) . '</small></p>';
 							$conteudo .= '<p>' . $compromissos[$currentDay][$hora]["nomePaciente"] . '</p>';
+							$telefones = array();
+							
 							if (!empty($compromissos[$currentDay][$hora]["telefoneResidencial"])) {
+								$telefones[] = $compromissos[$currentDay][$hora]["telefoneResidencial"];
+							}
+							
+							if (!empty($compromissos[$currentDay][$hora]["telefoneCelular"])) {
+								$telefones[] = $compromissos[$currentDay][$hora]["telefoneCelular"];
+							}
+							
+							if (count($telefones) > 0) {
 								$conteudo .= '<p><small>';
-								$conteudo .= $compromissos[$currentDay][$hora]["telefoneResidencial"];
-								if (!empty($compromissos[$currentDay][$hora]["telefoneCelular"])) {
-									$conteudo .= ' | ' . $compromissos[$currentDay][$hora]["telefoneCelular"];
-								}
+								$conteudo .= implode(" | ", $telefones);
 								$conteudo .= '</p></small>';
 							}
+							
 							if (!empty($compromissos[$currentDay][$hora]["lembrete"])) {
 								$conteudo .= '<br /><p>Lembrete: ' . $compromissos[$currentDay][$hora]["lembrete"] . '</p>';
 							}
