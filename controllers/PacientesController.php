@@ -93,6 +93,7 @@ class PacientesController extends Controller {
 
     		if (count($_POST) > 0) {
     	
+    			$redirecionar = NULL;
     			$dados = $_POST["Paciente"];
     			$dados["tratamentos"] = isset($dados["tratamentos"]) ? implode(",", $dados["tratamentos"]) : NULL;
     			
@@ -105,8 +106,11 @@ class PacientesController extends Controller {
     			
     			$mensagem = validaPost($obrigatorios, $dados);
     			if (!empty($mensagem)) {
-    				$redirecionar = NULL;
     				throw new Exception($mensagem);
+    			}
+    			
+    			if (Funcoes::jaExiste($conexao, $this->dao, $dados, "pacientes", "nome")) {
+    				throw new Exception('Já existe um paciente com esse nome');
     			}
     			
     			if ($dados["id"] == 0) {
@@ -282,14 +286,14 @@ class PacientesController extends Controller {
     		$breadcrumbs[] = array("Pacientes" => "?modulo=" . $_GET["modulo"]);
     		
     		// recupera o paciente e o atendimento.
-    		$paciente = $this->dao->findByPk($conexao, "pacientes", getVariavel("id"));
+    		$paciente = $this->dao->findByPk($conexao, "pacientes", getVariavel("paciente"));
     		$atendimento = $this->dao->find($conexao, "atendimentos", array(
     				"where" => array(
     					"paciente" => (int) $paciente["id"]
     				)
     			)
     		);
-    		
+
     		// se não existir nenhum atendimento, cria um.
     		if (count($atendimento) == 0) {
     			$this->dao->salva($conexao, "atendimentos", array(
@@ -298,7 +302,7 @@ class PacientesController extends Controller {
     				)
     			);
     			$conexao->commit();
-    			Application::redirect('?modulo=pacientes&acao=atendimento&id=' . $paciente['id']);
+    			Application::redirect('?modulo=pacientes&acao=atendimento&paciente=' . $paciente['id']);
     			exit;
     		}
     		
@@ -352,13 +356,6 @@ class PacientesController extends Controller {
     			
     			$atendimento["dores"] = $dores = $_POST['Dores'];
     			
-    			$obrigatorios = array(
-    				"observacoes" => array(
-    					"tipo" => "textarea", 
-    					"nome" => "Observações sobre o atendimento"
-    				)		
-    			);
-    			
 				$locaisAtuais = $locais = array();
 				
     			foreach ($doresAtuais as $dor) {
@@ -391,7 +388,7 @@ class PacientesController extends Controller {
     					"atendimento" => $atendimentoIn["id"],
     					"timestamp" => $time,
     					"data" => date('d/m/Y H:i:s', $time),
-    					"observacoes" => $_POST['observacoes']
+    					"observacoes" => 'Atendimento realizado'
     				)
     			);
     			
@@ -418,7 +415,7 @@ class PacientesController extends Controller {
     			
     			$conexao->commit();
 				setMensagem("info", "Atendimento realizado");
-    			Application::redirect("?modulo=" . $_GET["modulo"] . "&acao=atendimento&id=" . $paciente["id"]);
+    			Application::redirect("?modulo=" . $_GET["modulo"] . "&acao=atendimento&paciente=" . $paciente["id"]);
     			exit;
     			
     		}
@@ -472,7 +469,14 @@ class PacientesController extends Controller {
     		setMensagem("error", $e->getMessage());
     	}
     	
-    	Application::redirect("?modulo=pacientes");
+    	$redirecionar = "?modulo=pacientes";
+    	if (isset($_GET['exibir'])) {
+    		$redirecionar .= '&exibir=' . $_GET['exibir'];
+    	}
+    	if (isset($_GET['order'])) {
+    		$redirecionar .= '&order=' . $_GET['order'];
+    	}
+    	Application::redirect($redirecionar);
     	exit;
     	
     }
@@ -501,7 +505,7 @@ class PacientesController extends Controller {
     		$conexao = $this->conexao->getConexao();
     		$dadosH = $this->dao->findByPk ($conexao, "atendimentos_historico", getVariavel("id"));
     		$dadosA = $this->dao->findByPk ($conexao, "atendimentos", $dadosH["atendimento"]);
-    		
+
     		$affectedRows = $this->dao->excluiByPk($conexao, "atendimentos_historico", $dadosH["id"]);
     		
     		if ($affectedRows) {
@@ -514,17 +518,14 @@ class PacientesController extends Controller {
     		$conexao->rollback();
     		setMensagem("error", $e->getMessage());
     	}
-    	
-    	Application::redirect("?modulo=pacientes&acao=atendimento&id=" . $dadosA["id"]);
+		$redirect = "?modulo=pacientes&acao=atendimento&paciente=" . $dadosA["paciente"];
+    	Application::redirect($redirect);
     	exit;
     	
     }
     
     public function opcoesAction() {
     	try {
-    		//$this->checaPermissao($this->info["modulo"], 'opcoes');
-    		//$redirecionar = montaRedirect($_SERVER["QUERY_STRING"], array("acao", "nome"));
-    		$redirecionar = "?modulo=pacientes";
     		$processados = 0;
     		$naoProcessados = 0;
     		
@@ -582,6 +583,14 @@ class PacientesController extends Controller {
     	
     	if (isset($conexao)) {
     		$conexao->disconnect();
+    	}
+    	
+    	$redirecionar = "?modulo=pacientes";
+    	if (isset($_GET['exibir'])) {
+    		$redirecionar .= '&exibir=' . $_GET['exibir'];
+    	}
+    	if (isset($_GET['order'])) {
+    		$redirecionar .= '&order=' . $_GET['order'];
     	}
     	Application::redirect($redirecionar);
     	exit;

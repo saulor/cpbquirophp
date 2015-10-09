@@ -219,25 +219,25 @@
 		$iniCount = 1;
 		$table = array(
 			'fields' => array(
-	  		'data' => array(
-	  			'label' => 'Data do atendimento',
-	  			'link' => array(
-	  				'condition' => 'return true;',
-	  				'link' => 'return "?modulo=' . $modulo . '&acao=observacoes&id=" . $objeto["id"];'
-	  			),
-	  		),
-	  		'observacoes' => array(
-	  			'label' => 'Observações sobre o atendimento',
-	  		)
-	  	),
-	  	'acoes' => array(
-	  		'Excluir' => array(
-	  			'condition' => 'return true;',
-	  			'acao' => 'return "removerh";',
-	  			'id' => 'return $objeto["id"];',
-	  			'atendimento' => 'return $atendimento["id"];'
-	  		)
-	  	)
+		  		'data' => array(
+		  			'label' => 'Data do atendimento',
+		  			'link' => array(
+		  				'condition' => 'return true;',
+		  				'link' => 'return "?modulo=' . $modulo . '&acao=observacoes&id=" . $objeto["id"];'
+		  			),
+		  		),
+		  		'observacoes' => array(
+		  			'label' => 'Observações',
+		  		)
+		  	),
+		  	'acoes' => array(
+		  		'Excluir' => array(
+		  			'condition' => 'return true;',
+		  			'acao' => 'return "removerh";',
+		  			'id' => 'return $objeto["id"];',
+		  			'atendimento' => 'return $atendimento["id"];'
+		  		)
+		  	)
 		);
 	    
 		include('views/includes/listagem.phtml');
@@ -799,15 +799,6 @@
 			</div>
 		</div-->
 			
-	</fieldset>
-	
-	<fieldset>
-		<legend>Observações sobre o atendimento</legend>
-		<div class="col-1-1">
-			<div class="content">
-				<textarea class="form-control" name="observacoes"><?php if (isset($_POST["observacoes"])) echo $_POST["observacoes"]; ?></textarea>
-			</div>
-		</div>
 	</fieldset>
 	
 	<br />
