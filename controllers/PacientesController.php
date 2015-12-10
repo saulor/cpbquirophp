@@ -604,13 +604,13 @@ class PacientesController extends Controller {
     		$objeto = $this->dao->findByPk ($conexao, "pacientes", (int) $_GET["id"]);	
     		$redirecionar .= "&acao=cadastrar&id=" . $objeto["id"];		
     		$diretorio = DIR_UPLOADS . SEPARADOR_DIRETORIO . "pacientes" . SEPARADOR_DIRETORIO . $objeto["id"];
-    		$file = $diretorio . SEPARADOR_DIRETORIO . $objeto["foto"];
+    		$diretorio .= SEPARADOR_DIRETORIO . $objeto["foto"];
     		
-    		if (!existeArquivo($file)) {
+    		if (!existeArquivo($diretorio)) {
     			throw new Exception ("Imagem não encontrada");
     		}
     		
-    		if (excluiArquivo($file)) {
+    		if (excluiArquivo($diretorio)) {
     			$objeto["foto"] = NULL;
     			$this->dao->salva($conexao, "pacientes", $objeto);
     			$conexao->commit();

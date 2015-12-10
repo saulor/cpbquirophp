@@ -3,54 +3,67 @@
 	$paciente = $params["paciente"];
 ?>	
 
-<div id="my_camera" style="width:320px; height:240px;"></div>
-
-<div id="my_result"></div>
-
-<script>
-
-    Webcam.attach('#my_camera');
-
-    function take_snapshot() {
-    	
-    	$("#tirar").css("display", "none");
-        var data_uri = Webcam.snap();
-        
-     	Webcam.on('uploadProgress', function(progress) {
-             $("#upload").css("display", "block"); 
-        });
-        
-        Webcam.on('uploadComplete', function(code, text) {
-            
-            switch(code) {
-            
-                case 200:
-                	$("#upload").html('Foto enviada com sucesso (<a href="?modulo=pacientes&acao=cadastrar&id=<?php echo$paciente["id"]; ?>">Visualizar</a>)'); 
-                	$("#my_camera").remove(); 
-                break;
-                
-                case 404:
-                	$("#upload").html('Erro'); 
-                	$("#my_camera").remove(); 
-                break;
-                
-                default:
-                break;
-            }
-            
-        });
-        
-        var file = 'upload.php<?php if($paciente["id"] != 0) echo '?id=' . $paciente["id"]; ?>';
-        
-        Webcam.upload(data_uri, file);
-        
-        location.href = '?modulo=pacientes&acao=cadastrar&id=<?php echo $paciente["id"]; ?>';
-       	
-    }
-    
+<script> 
+	$(document).ready(function() {
+		$("#webcam").scriptcam({
+			showMicrophoneErrors:false,
+			onError:onError,
+			cornerRadius:20,
+			disableHardwareAcceleration:1,
+			cornerColor:'e3e5e2',
+			onWebcamReady:onWebcamReady,
+			onPictureAsBase64:base64_tofield_and_image
+		});
+	});
+	function base64_tofield() {
+		$('#formfield').val($.scriptcam.getFrameAsBase64());
+	};
+	function base64_toimage() {
+		//alert("data:image/png;base64,"+$.scriptcam.getFrameAsBase64());
+		$('#image').attr("src","data:image/png;base64,"+$.scriptcam.getFrameAsBase64());
+		$.ajax({
+			type: "POST",
+			dataType : "json",
+			url: 'upload.php<?php if($paciente["id"] != 0) echo '?id=' . $paciente["id"]; ?>',
+			data: { foto : "data:image/png;base64,"+$.scriptcam.getFrameAsBase64() }
+		}).done(function() {
+			
+		})
+	};
+	function base64_tofield_and_image(b64) {
+		
+		$('#formfield').val(b64);
+		$('#image').attr("src","data:image/png;base64," + b64);
+	};
+	function changeCamera() {
+		$.scriptcam.changeCamera($('#cameraNames').val());
+	}
+	function onError(errorId,errorMsg) {
+		$( "#btn1" ).attr( "disabled", true );
+		$( "#btn2" ).attr( "disabled", true );
+		alert(errorMsg);
+	}			
+	function onWebcamReady(cameraNames,camera,microphoneNames,microphone,volume) {
+		$.each(cameraNames, function(index, text) {
+			$('#cameraNames').append( $('<option></option>').val(index).html(text) )
+		}); 
+		$('#cameraNames').val(camera);
+	}
 </script>
 
-<p id="progresso">
-	<a id="tirar" href="javascript:void(take_snapshot())">Tirar foto</a>
-	<span id="upload" style="display: none;">Fazendo upload da foto...</span>
-</p>
+<div style="width:330px;float:left;">
+	<div id="webcam">
+	</div>
+	<div style="margin:5px;">
+		<select id="cameraNames" size="1" onChange="changeCamera()" style="width:245px;font-size:10px;height:25px;">
+		</select>
+	</div>
+</div>
+<div style="width:135px;float:left;">
+	<p><button class="btn btn-small" id="btn1" onclick="base64_tofield()">Snapshot to form</button></p>
+	<p><button class="btn btn-small" id="btn2" onclick="base64_toimage()">Snapshot to image</button></p>
+</div>
+<div style="width:200px;float:left;">
+	<p><textarea id="formfield" style="width:190px;height:70px;"></textarea></p>
+	<p><img id="image" style="width:200px;height:153px;"/></p>
+</div>

@@ -7,54 +7,79 @@
 	[class*='col-'] {
 		margin-bottom: 10px;
 	}
+	#foto {
+		width: 100%;
+	}
+	#webcam {
+		padding-right: 20px;
+	}
 </style>
+
+<script> 
+	$(document).ready(function() {
+		$("#webcam").scriptcam({
+			showMicrophoneErrors:false,
+			cornerRadius:20,
+			disableHardwareAcceleration:1,
+			cornerColor:'e3e5e2',
+		});
+	});
+	function base64_toimage() {
+		$.ajax({
+			type: "POST",
+			url: 'upload.php<?php if($paciente["id"] != 0) echo '?id=' . $paciente["id"]; ?>',
+			data: { foto : "data:image/png;base64,"+$.scriptcam.getFrameAsBase64() }
+		}).done(function() {
+			window.location.href = '?modulo=pacientes&acao=cadastrar&id=<?php echo $paciente["id"]; ?>';
+		})
+	};
+</script>
+
+<?php
+	
+	$src = "imagens/user.gif";
+	
+	if ($paciente["id"] != 0) {
+		if (!empty($paciente["foto"])) {
+			$diretorio = DIR_UPLOADS . SEPARADOR_DIRETORIO . 'pacientes' . SEPARADOR_DIRETORIO . $paciente["id"] . SEPARADOR_DIRETORIO . $paciente["foto"];
+			if (existeArquivo($diretorio)) {
+				$acao = 'Mudar';
+				$excluir = 'Excluir';
+				$src = 'uploads/pacientes/' . $paciente["id"] . '/' . $paciente["foto"];
+			}
+		}
+	}
+	
+?>
 
 <form method="post">
 	<input type="hidden" name="Paciente[id]" value="<?php echo $paciente["id"]; ?>" />
 	<fieldset>
 		<legend>Dados Pessoais</legend>
 		<div class="grid">
-			<div class="col-3-12">
-				<div class="content" style="height: 240px;">
+			<div class="col-3-12" style="height: 280px;">
+				<div class="content" id="<?php if (empty($paciente["foto"]) && $paciente["id"] != 0) echo 'webcam'; else echo 'foto'; ?>">
 					<?php
-						
-						$acao = 'Tirar';
-						$src = "imagens/user.gif";
-						
-						if ($paciente["id"] != 0) {
-							if (!empty($paciente["foto"])) {
-								$diretorio = DIR_UPLOADS . SEPARADOR_DIRETORIO . 'pacientes' . SEPARADOR_DIRETORIO . $paciente["id"] . SEPARADOR_DIRETORIO . $paciente["foto"];
-								if (existeArquivo($diretorio)) {
-									$acao = 'Mudar';
-									$excluir = 'Excluir';
-									$src = 'uploads/pacientes/' . $paciente["id"] . '/' . $paciente["foto"];
-								}
-							}
-						}
-						
-						echo '<img style="width:100%;" src="' . $src . '" alt="" /><br />';
-						
-						if ($paciente["id"] != 0) { 
-							echo '<p style="text-align:center;padding:0;margin:0;">';
-							echo '<a href="?modulo=pacientes&acao=foto&id=' . $paciente["id"] . '">';
-							echo '<small>';
-							echo $acao;
-							echo ' foto';
-							echo '</small>';
-							echo '</a>';
-							echo '</p>';
-							if (isset($excluir)) {
-								echo '<p style="text-align:center;padding:0;margin:0;">';
-								echo '<a onclick="excluir(\'pacientes\', {\'acao\' : \'remover\', \'id\' : ' . $paciente["id"] . '});return false;" href="?modulo=pacientes&acao=remover&id=' . $paciente["id"] . '">';
-								echo '<small>';
-								echo 'Excluir foto';
-								echo '</small>';
-								echo '</a>';
-								echo '</p>';
-							}
-						}
-						
+						echo '<img style="width:100%;" src="' . $src . '" alt="" />';
 					?>
+				</div>
+				<div>
+				<?php
+					if (empty($paciente["foto"]) && $paciente["id"] != 0) {
+						echo '<a style="cursor:pointer; display:block; text-align:center;" onclick="base64_toimage()">';
+						echo '<small>';
+						echo 'Tirar foto';
+						echo '</small>';
+						echo '</a>';
+					}
+					else if ($paciente["foto"] != 0) {
+						echo '<a style="cursor:pointer; display:block; text-align:center; margin-top: 5px;" onclick="excluir(\'pacientes\', {\'acao\' : \'remover\', \'id\' : ' . $paciente["id"] . '});return false;" href="?modulo=pacientes&acao=remover&id=' . $paciente["id"] . '">';
+						echo '<small>';
+						echo 'Excluir foto';
+						echo '</small>';
+						echo '</a>';
+					}
+				?>
 				</div>
 			</div>
 			<div class="col-3-12">
