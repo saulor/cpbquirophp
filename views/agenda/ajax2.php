@@ -20,6 +20,8 @@
 	
 	if (!empty($_POST["fisioterapeuta"])) {
 		$idFisioterapeuta = $where["agenda_fisioterapeutas.fisioterapeuta"] = $_POST["fisioterapeuta"];
+		$fisioterapeuta = $dao->findByPk($conexao->getConexao(), "vw_usuarios", (int) $_POST["fisioterapeuta"]);
+		$fisioterapeuta["diasAtendimento"] = !empty($fisioterapeuta["diasAtendimento"]) ? explode(",", $fisioterapeuta["diasAtendimento"]) : array();
 	}
 	
 	$objetos = $dao->findAll($conexao->getConexao(), "agenda", array(
@@ -132,7 +134,7 @@
 		$result .= '</a>';
 		$result .= '</div>';
 		
-		for ($i = 0; $i < 23; $i++) {
+		for ($i = 0; $i < 24; $i++) {
 								
 			$time = mktime(07, $i*30, 0, 0, 0, 0);
 			$hora = date('H:i', $time);
@@ -163,7 +165,14 @@
 			$conteudo .= '</time>';
 			$conteudo .= '</a>';
 			
-			if ($temCompromissoNesseDia) {
+			if (count($fisioterapeuta["diasAtendimento"]) > 0 && !in_array($dayOfWeek, $fisioterapeuta["diasAtendimento"])) {
+				$conteudo = '<a style="text-decoration:none;color:#ccc;"';
+				$conteudo .= 'data-id="' . $id . '" data-dh="' . $dateTime . '">';
+				$conteudo .= '<time datetime="' . $timestamp . '">' . $hora . '</time>';
+				$conteudo .= ' <span>Não há atendimento</span>';
+				$conteudo .= '</a>';
+			}
+			else if ($temCompromissoNesseDia) {
 				if ($temCompromissoNessHora) {
 					$conteudo = '<a class="ver_conteudo" ';
 					$conteudo .= 'data-id="' . $id . '" data-dh="' . $dateTime . '" rel="modal">';
@@ -205,11 +214,12 @@
 			}
 
 			$result .= $conteudo;
-			$result .= '</div>';
-
+			
 		}
-	
+		
+		$result .= '</div>';
 		$result .= '</td>';
+		
 		// Increment counters
 		$currentDay++;
 		$dayOfWeek++;

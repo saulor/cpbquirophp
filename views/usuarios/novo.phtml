@@ -9,6 +9,14 @@
 	}
 </style>
 
+<script>
+	function showDias(obj) {
+		if (obj.value == <?php echo Permissao::PERMISSAO_FISIOTERAPEUTA; ?>) {
+			$('#dias').css('display', 'block');
+		}
+	}
+</script>
+
 <form method="post">
 	<input type="hidden" name="Usuario[id]" value="<?php echo $usuario["id"]; ?>" />
 	<div class="grid">
@@ -59,7 +67,7 @@
 		</div>
 		<div class="col-4-12">
 			<div class="content">
-				<select class="form-control" name="Usuario[permissao]">
+				<select class="form-control" name="Usuario[permissao]" onchange="showDias(this)">
 					<option value="">--Selecione--</option>
 					<?php
 						foreach ($params["permissoes"] as $permissao) {
@@ -76,7 +84,36 @@
 			</div>
 		</div>
 	</div>
+		
+	<div class="grid" id="dias"<?php if ($usuario["permissao"] != Permissao::PERMISSAO_FISIOTERAPEUTA) echo ' style="display: none;"'; ?>>
+		<div class="col-2-12">
+			<div class="content">
+				<label class="control-label" for="Dias de Atendimento">Dias de Atendimento:</label>
+			</div>
+		</div>
+		
+		<div class="col-10-12">
+			<div class="content">
+				<label class="checkbox-inline">
+					<input type="checkbox" name="Usuario[diasAtendimento][]" value="1"<?php if (in_array(1, $usuario["diasAtendimento"])) echo 'checked="checked"'; ?> /> Segunda-Feira
+				</label>
+				<label class="checkbox-inline">
+					<input type="checkbox" name="Usuario[diasAtendimento][]" value="2"<?php if (in_array(2, $usuario["diasAtendimento"])) echo 'checked="checked"'; ?> /> Terça-Feira
+				</label>
+				<label class="checkbox-inline">
+					<input type="checkbox" name="Usuario[diasAtendimento][]" value="3"<?php if (in_array(3, $usuario["diasAtendimento"])) echo 'checked="checked"'; ?> /> Quarta-Feira
+				</label>
+				<label class="checkbox-inline">
+					<input type="checkbox" name="Usuario[diasAtendimento][]" value="4"<?php if (in_array(4, $usuario["diasAtendimento"])) echo 'checked="checked"'; ?> /> Quinta-Feira
+				</label>
+				<label class="checkbox-inline">
+					<input type="checkbox" name="Usuario[diasAtendimento][]" value="5"<?php if (in_array(5, $usuario["diasAtendimento"])) echo 'checked="checked"'; ?> /> Sexta-Feira
+				</label>
+			</div>
+		</div>
 	
+	</div>
+		
 	<input class="btn btn-default" type="submit" value="Salvar" />
 </form>
 

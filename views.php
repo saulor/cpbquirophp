@@ -16,6 +16,7 @@ $sql .= "DATE_FORMAT(usuarios.data, '%d/%m/%Y') as dataFormatada, ";
 $sql .= "DATE_FORMAT(usuarios.data, '%d/%m/%Y %H:%i') as dataHoraFormatada, ";
 $sql .= "usuarios.timestamp, ";
 $sql .= "usuarios.permissao, ";
+$sql .= "usuarios.diasAtendimento, ";
 $sql .= "permissoes.nome as nomePermissao ";
 $sql .= "from usuarios ";
 $sql .= "join permissoes on permissoes.id = usuarios.permissao ";

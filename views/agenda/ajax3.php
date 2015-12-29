@@ -23,7 +23,7 @@
 			echo json_encode($compromisso);
 		break;
 		
-		case 'telefones' :
+		case 'dados' :
 			$paciente = $dao->find($conexao->getConexao(), "pacientes", array(
 					'where' => array(
 						'nome' => $_POST['nome']
@@ -73,6 +73,35 @@
 					exit;
 				}
 				
+				// verifica se precisa cadastrar o paciente
+				
+				$existe = function ($dao, $conexao, $nome) {
+					return $dao->count($conexao, "pacientes", array(
+								'where' => array(
+									'nome' => $nome
+								)
+							)
+						) > 0;
+				};
+				
+				$mensagem = '';
+				
+				if (!$existe($dao, $conexao->getConexao(), $dados['nomePaciente'])) {
+					$timestamp = time();
+					$data = date('d/m/Y H:i:s', $timestamp);
+					$dao->salva($conexao->getConexao(), "pacientes", array(
+							'id' => 0,
+							'nome' => $dados['nomePaciente'],
+							'telefoneResidencial' => $dados['telefoneResidencial'],
+							'telefoneCelular' => $dados['telefoneCelular'],
+							'observacoes' => 'Paciente cadastrado pela agenda.',
+							"timestamp" => $timestamp,
+							"data" => $data
+						)
+					);
+					$mensagem = 'Paciente cadastrado. ';
+				}
+				
 				$fisioterapeutasAtuais = $dao->findAll($conexao->getConexao(), "agenda_fisioterapeutas", array(
 						"where" => array(
 							"compromisso" => $dados["id"]
@@ -115,11 +144,11 @@
 						)
 					);
 				}
-				
+				$mensagem .= 'Compromisso salvo com sucesso.'.
 				$conexao->getConexao()->commit();
 				echo json_encode(array(
 						'type' => 'success',
-						'message' => 'Salvo com sucesso'
+						'message' => $mensagem
 					)
 				);
 			}

@@ -19,6 +19,10 @@
 		margin-top: 8px;
 	}
 	
+	.radio-inline {
+		margin-left: 2px;
+	}
+	
 </style>
 
 <script>
@@ -256,10 +260,14 @@
 		
 		<div class="grid">
 			<div class="col-2-12">
-				<div class="content checkbox">
-					<label>
-					  <input type="checkbox" name="Atendimento[hipertenso]"<?php if ($atendimento["hipertenso"] == 1) echo ' checked="checked"'; ?>>
-					  <strong>É hipertenso?</strong>
+				<div class="content">
+					<strong>É hipertenso?</strong>
+					<br />
+					<label class="radio-inline">
+					  <input type="radio" name="Atendimento[hipertenso]" value="1" <?php if($atendimento["hipertenso"] == 1) echo 'checked="checked"'; ?>> Sim
+					</label>
+					<label class="radio-inline">
+					  <input type="radio" name="Atendimento[hipertenso]" value="0" <?php if($atendimento["hipertenso"] == 0) echo 'checked="checked"'; ?>> Não
 					</label>
 				</div>
 			</div>
@@ -272,11 +280,15 @@
 		
 		<div class="grid">
 			<div class="col-2-12">
-				<div class="content checkbox">
-					<label>
-					  <input type="checkbox" name="Atendimento[diabetico]"<?php if ($atendimento["diabetico"] == 1) echo ' checked="checked"'; ?>>
+				<div class="content">
 					 <strong>É diabético?</strong>
-					</label>
+					 <br />
+					 <label class="radio-inline">
+					   <input type="radio" name="Atendimento[diabetico]" value="1" <?php if($atendimento["diabetico"] == 1) echo 'checked="checked"'; ?>> Sim
+					 </label>
+					 <label class="radio-inline">
+					   <input type="radio" name="Atendimento[diabetico]" value="0" <?php if($atendimento["diabetico"] == 0) echo 'checked="checked"'; ?>> Não
+					 </label>
 				</div>
 			</div>
 			<div class="col-10-12">
@@ -289,9 +301,13 @@
 		<div class="grid">
 			<div class="col-2-12">
 				<div class="content checkbox">
-					<label>
-					  <input type="checkbox" name="Atendimento[fuma]"<?php if ($atendimento["fuma"] == 1) echo ' checked="checked"'; ?>>
-					  <strong>Fuma?</strong>
+					<strong>Fuma?</strong>
+					<br />
+					<label class="radio-inline">
+					  <input type="radio" name="Atendimento[fuma]" value="1" <?php if($atendimento["fuma"] == 1) echo 'checked="checked"'; ?>> Sim
+					</label>
+					<label class="radio-inline">
+					  <input type="radio" name="Atendimento[fuma]" value="0" <?php if($atendimento["fuma"] == 0) echo 'checked="checked"'; ?>> Não
 					</label>
 				</div>
 			</div>
@@ -305,9 +321,13 @@
 		<div class="grid">
 			<div class="col-2-12">
 				<div class="content checkbox">
-					<label>
-					  <input type="checkbox" name="Atendimento[bebe]"<?php if ($atendimento["bebe"] == 1) echo ' checked="checked"'; ?>>
-					  <strong>Bebe?</strong>
+					<strong>Bebe?</strong>
+					<br />
+					<label class="radio-inline">
+					  <input type="radio" name="Atendimento[bebe]" value="1" <?php if($atendimento["bebe"] == 1) echo 'checked="checked"'; ?>> Sim
+					</label>
+					<label class="radio-inline">
+					  <input type="radio" name="Atendimento[bebe]" value="0" <?php if($atendimento["bebe"] == 0) echo 'checked="checked"'; ?>> Não
 					</label>
 				</div>
 			</div>
@@ -494,9 +514,13 @@
 		<div class="grid">
 			<div class="col-2-12">
 				<div class="content checkbox">
-					<label>
-					  <input type="checkbox" name="Atendimento[esportes]"<?php if ($atendimento["esportes"] == 1) echo ' checked="checked"'; ?>>
-					  <strong>Pratica?</strong>
+					<strong>Pratica?</strong>
+					<br />
+					<label class="radio-inline">
+					  <input type="radio" name="Atendimento[esportes]" value="1" <?php if($atendimento["esportes"] == 1) echo 'checked="checked"'; ?>> Sim
+					</label>
+					<label class="radio-inline">
+					  <input type="radio" name="Atendimento[esportes]" value="0" <?php if($atendimento["esportes"] == 0) echo 'checked="checked"'; ?>> Não
 					</label>
 				</div>
 			</div>
@@ -510,9 +534,13 @@
 		<div class="grid">
 			<div class="col-2-12">
 				<div class="content checkbox">
-					<label>
-					  <input type="checkbox" name="Atendimento[suplementos]"<?php if ($atendimento["suplementos"] == 1) echo ' checked="checked"'; ?>>
-					  <strong>Faz uso?</strong>
+					<strong>Faz uso?</strong>
+					<br />
+					<label class="radio-inline">
+					  <input type="radio" name="Atendimento[suplementos]" value="1" <?php if($atendimento["suplementos"] == 1) echo 'checked="checked"'; ?>> Sim
+					</label>
+					<label class="radio-inline">
+					  <input type="radio" name="Atendimento[suplementos]" value="0" <?php if($atendimento["suplementos"] == 0) echo 'checked="checked"'; ?>> Não
 					</label>
 				</div>
 			</div>
@@ -526,9 +554,13 @@
 		<div class="grid">
 			<div class="col-2-12">
 				<div class="content checkbox">
-					<label>
-					  <input type="checkbox" name="Atendimento[medicamentos]"<?php if ($atendimento["medicamentos"] == 1) echo ' checked="checked"'; ?>>
-					  <strong>Consome?</strong>
+					<strong>Consome?</strong>
+					<br />
+					<label class="radio-inline">
+					  <input type="radio" name="Atendimento[medicamentos]" value="1" <?php if($atendimento["medicamentos"] == 1) echo 'checked="checked"'; ?>> Sim
+					</label>
+					<label class="radio-inline">
+					  <input type="radio" name="Atendimento[medicamentos]" value="0" <?php if($atendimento["medicamentos"] == 0) echo 'checked="checked"'; ?>> Não
 					</label>
 				</div>
 			</div>
@@ -542,9 +574,13 @@
 		<div class="grid">
 			<div class="col-2-12">
 				<div class="content checkbox">
-					<label>
-					  <input type="checkbox" name="Atendimento[doencasFamilia]"<?php if ($atendimento["doencasFamilia"] == 1) echo ' checked="checked"'; ?>>
-					  <strong>Possui?</strong>
+					<strong>Possui?</strong>
+					<br />
+					<label class="radio-inline">
+					  <input type="radio" name="Atendimento[doencasFamilia]" value="1" <?php if($atendimento["doencasFamilia"] == 1) echo 'checked="checked"'; ?>> Sim
+					</label>
+					<label class="radio-inline">
+					  <input type="radio" name="Atendimento[doencasFamilia]" value="0" <?php if($atendimento["doencasFamilia"] == 0) echo 'checked="checked"'; ?>> Não
 					</label>
 				</div>
 			</div>
@@ -558,9 +594,13 @@
 		<div class="grid">
 			<div class="col-2-12">
 				<div class="content checkbox">
-					<label>
-					  <input type="checkbox" name="Atendimento[gravidez]"<?php if ($atendimento["gravidez"] == 1) echo ' checked="checked"'; ?>>
-					  <strong>Existe?</strong>
+					<strong>Existe?</strong>
+					<br />
+					<label class="radio-inline">
+					  <input type="radio" name="Atendimento[gravidez]" value="1" <?php if($atendimento["gravidez"] == 1) echo 'checked="checked"'; ?>> Sim
+					</label>
+					<label class="radio-inline">
+					  <input type="radio" name="Atendimento[gravidez]" value="0" <?php if($atendimento["gravidez"] == 0) echo 'checked="checked"'; ?>> Não
 					</label>
 				</div>
 			</div>

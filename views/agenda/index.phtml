@@ -2,6 +2,7 @@
 	$params = $this->getParams();
 	$compromissos = $params["compromissos"];
 	$fisioterapeutas = $params["fisioterapeutas"];
+	$fisioterapeuta = $params["fisioterapeuta"];
 	$pacientes = $params["pacientes"];
 	$dia = 1;
 	$mes = $params["mes"]; 
@@ -219,13 +220,20 @@
 			var nome = $(this).val();
 			$.ajax({
 				method: "POST",
-				url: "views/agenda/ajax3.php?acao=telefones",
+				url: "views/agenda/ajax3.php?acao=dados",
 				dataType: "json",
 				data: {nome: nome}
 			}).done(function(response) {
-				$('#telefoneResidencial').val(response.telefoneResidencial);
-				$('#telefoneCelular').val(response.telefoneCelular);
+				if (response.telefoneResidencial) {
+					$('#telefoneResidencial').val(response.telefoneResidencial);
+				}
+				if (response.telefoneCelular) {
+					$('#telefoneCelular').val(response.telefoneCelular);
+				}
+				$('#button').prop('disabled', false);
 			});
+		}).bind('focus', function(){
+			$('#button').prop('disabled', true);
 		});
 		
 		$("a[rel=modal]").click(function(ev){
@@ -625,7 +633,9 @@
 				$currentDayRel = str_pad($currentDay, 2, "0", STR_PAD_LEFT);
 				$date = "$ano-$mes-$currentDayRel";
 				$data = "$currentDayRel/$mes/$ano"; 
-				echo '<td rel="' . $date . '"';
+				echo '<td';
+				
+				echo ' rel="' . $date . '"';
 				if (date('d') == $currentDay) {
 					echo ' id="today" class="today"';
 				}
@@ -640,7 +650,7 @@
 				echo $currentDay;
 				echo '</a></div>';
 				
-				for ($i = 0; $i < 23; $i++) {
+				for ($i = 0; $i < 24; $i++) {
 									
 					$time = mktime(07, $i*30, 0, 0, 0, 0);
 					$hora = date('H:i', $time);
@@ -671,13 +681,20 @@
 					$conteudo .= '</time>';
 					$conteudo .= '</a>';
 					
-					if ($temCompromissoNesseDia) {
+					if (count($fisioterapeuta["diasAtendimento"]) > 0 && !in_array($dayOfWeek, $fisioterapeuta["diasAtendimento"])) {
+						$conteudo = '<a style="text-decoration:none;color:#ccc;"';
+						$conteudo .= 'data-id="' . $id . '" data-dh="' . $dateTime . '">';
+						$conteudo .= '<time datetime="' . $timestamp . '">' . $hora . '</time>';
+						$conteudo .= ' <span>Não há atendimento</span>';
+						$conteudo .= '</a>';
+					}
+					else if ($temCompromissoNesseDia) {
 						if ($temCompromissoNessaHora) {	
 							$conteudo = '<a class="ver_conteudo" ';
 							$conteudo .= 'data-id="' . $id . '" data-dh="' . $dateTime . '" rel="modal">';
 							$conteudo .= '<time datetime="' . $timestamp . '">' . $hora . '</time>';
 							$conteudo .= ' <span>';
-							$conteudo .= compactaTexto($nomePaciente, 24);
+							$conteudo .= compactaTexto($nomePaciente, 22);
 							$conteudo .= '</span>';
 							$conteudo .= '<div class="info">';
 							$conteudo .= '<small><time datetime="">' . $compromissos[$currentDay][$hora]["hora"] . '</time>';
@@ -710,13 +727,13 @@
 							$conteudo .= '</a>';
 						}
 					}
-					
+				
 					echo $conteudo;
-					echo '</div>';
-
 				}
 				
+				echo '</div>';
 				echo '</td>';
+				
 				// Increment counters
 				$currentDay++;
 				$dayOfWeek++;

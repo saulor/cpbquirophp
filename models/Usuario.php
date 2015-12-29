@@ -38,9 +38,17 @@ class Usuario extends Model {
     * @column
     * @readwrite
     * @type text
-    * @length 100
+    * @length 255
     */
     protected $_email;
+    
+    /**
+    * @column
+    * @readwrite
+    * @type text
+    * @length 255
+    */
+    protected $_diasAtendimento;
     
     /**
     * @column
@@ -81,6 +89,5 @@ class Usuario extends Model {
     }
 	
 }
-
 
 ?>

@@ -77,6 +77,7 @@ class UsuariosController extends Controller {
     			
     			$id = (int) $_GET["id"]; 
     			$dados = $this->dao->findByPk($conexao, "usuarios", $id);
+    			$dados["diasAtendimento"] = explode(",", $dados["diasAtendimento"]);
 				$senha = $dados["senha"];
     			// desconverte as datas
     			$breadcrumbs[] = array(
@@ -86,8 +87,8 @@ class UsuariosController extends Controller {
     		}
     		else {
     			$breadcrumbs[] = array(
-    					"Cadastrar" => ""
-    				);
+					"Cadastrar" => ""
+				);
     			$acao = "novo";
     		}
 
@@ -127,9 +128,7 @@ class UsuariosController extends Controller {
     			if ($dados["id"] == 0) {
     				$dados["senha"] = md5($dados["senha"]);
     				$dados["timestamp"] = time();
-    				$dados["data"] = date('Y-m-d H:i:s', $dados["timestamp"]);
-    				// realiza casts se necessário
-					$id = $this->dao->salva($conexao, "usuarios", trataDados($dados));
+    				$dados["data"] = date('d/m/Y H:i:s', $dados["timestamp"]);
     			}
     			else {
 					if ($dados["senha"] == "") {
@@ -138,19 +137,21 @@ class UsuariosController extends Controller {
 					else {
 						$dados["senha"] = md5($dados["senha"]);
 					}
-    				$this->dao->salva($conexao, "usuarios", $dados);
     			}	
+    			
+    			$dados["diasAtendimento"] = implode(",", $dados["diasAtendimento"]);
+    			$dados = $this->dao->salva($conexao, "usuarios", $dados);
     			
     			$conexao->commit();
     			
     			if ($acao == "novo") {					
-    				setMensagem("info", "Usuario cadastrado");
-    				Application::redirect("?modulo=".$_GET["modulo"]."&acao=cadastrar");
+    				setMensagem("info", "Usuário cadastrado [" . $dados["nome"] . "]");
+    				Application::redirect("?modulo=usuarios&acao=cadastrar");
     				exit;
     			}
     			else {
-    				setMensagem("info", "Usuario atualizado");
-    				Application::redirect("?modulo=".$_GET["modulo"]);
+    				setMensagem("info", "Usuário atualizado [" . $dados["nome"] . "]");
+    				Application::redirect("?modulo=usuarios");
     				exit;
     			}
     			

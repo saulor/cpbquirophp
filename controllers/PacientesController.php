@@ -298,6 +298,15 @@ class PacientesController extends Controller {
     		if (count($atendimento) == 0) {
     			$this->dao->salva($conexao, "atendimentos", array(
     					"id" => 0,
+    					"hipertenso" => -1,
+    					"diabetico" => -1,
+    					"fuma" => -1,
+    					"bebe" => -1,
+    					"esportes" => -1,
+    					"suplementos" => -1,
+    					"medicamentos" => -1,
+    					"doencasFamilia" => -1,
+    					"gravidez" => -1,
     					"paciente" => $paciente["id"]
     				)
     			);
@@ -340,19 +349,10 @@ class PacientesController extends Controller {
     			
     			$redirecionar = NULL;
     			$atendimentoIn = $atendimento = $_POST['Atendimento'];
-    			$atendimento["hipertenso"] = $atendimentoIn["hipertenso"] = isset($atendimentoIn["hipertenso"]) ? 1 : 0;
-    			$atendimento["diabetico"] = $atendimentoIn["diabetico"] = isset($atendimentoIn["diabetico"]) ? 1 : 0;
-    			$atendimento["fuma"] = $atendimentoIn["fuma"] = isset($atendimentoIn["fuma"]) ? 1 : 0;
-    			$atendimento["bebe"] = $atendimentoIn["bebe"] = isset($atendimentoIn["bebe"]) ? 1 : 0;
     			$atendimento["intestinos"] = $atendimentoIn["intestinos"] = isset($atendimentoIn["intestinos"]) ? $atendimentoIn["intestinos"] : 0;
     			$atendimento["sono"] = $atendimentoIn["sono"] = isset($atendimentoIn["sono"]) ? $atendimentoIn["sono"] : 0;
     			$atendimento["agua"] = $atendimentoIn["agua"] = isset($atendimentoIn["agua"]) ? $atendimentoIn["agua"] : 0;
     			$atendimento["alimentacao"] = $atendimentoIn["alimentacao"] = isset($atendimentoIn["alimentacao"]) ? $atendimentoIn["alimentacao"] : 0;
-    			$atendimento["esportes"] = $atendimentoIn["esportes"] = isset($atendimentoIn["esportes"]) ? 1 : 0;
-    			$atendimento["suplementos"] = $atendimentoIn["suplementos"] = isset($atendimentoIn["suplementos"]) ? 1 : 0;
-    			$atendimento["medicamentos"] = $atendimentoIn["medicamentos"] = isset($atendimentoIn["medicamentos"]) ? 1 : 0;
-    			$atendimento["doencasFamilia"] = $atendimentoIn["doencasFamilia"] = isset($atendimentoIn["doencasFamilia"]) ? 1 : 0;
-    			$atendimento["gravidez"] = $atendimentoIn["gravidez"] = isset($atendimentoIn["gravidez"]) ? 1 : 0;
     			
     			$atendimento["dores"] = $dores = $_POST['Dores'];
     			
