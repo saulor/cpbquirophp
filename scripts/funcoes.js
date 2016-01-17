@@ -7,14 +7,14 @@ function selecionarTodos(obj) {
 }
 
 function consultaCep (obj) {
-	
+
 	if (obj.value.indexOf("_") == -1) {
-	
+
 		$("#notfind").remove();
 		$(".loader").css("display", "inline");
-		
+
 		var cep = "";
-		
+
 		for (var i = 0; i < obj.value.length; i++) {
 			if (isInt(obj.value[i])){
 				cep = cep + obj.value[i];
@@ -22,10 +22,10 @@ function consultaCep (obj) {
 		}
 
 		$.ajax({
-			url: "http://localhost/cpbquirophp/cep.php?cep="+cep,
+			url: "cep.php?cep="+cep,
 			dataType: "json",
 			success: function(json){
-				
+
 				if (json.logradouro) {
 					$("#endereco").val(json.logradouro);
 					$("#bairro").val(json.bairro);
@@ -37,14 +37,14 @@ function consultaCep (obj) {
 					$(".ajax-loader").before(span);
 					$(obj).focus();
 				}
-				
+
 				$(".loader").css("display", "none");
-				
+
 			}
 		});
-		
+
 	}
-	
+
 }
 
 function isInt(value) {
@@ -61,13 +61,13 @@ function calculaIdade(obj, hoje) {
 			var diferenca = anoHoje - anoData;
 			var mesHoje = hojeArray[1];
 			var mesData = dataArray[1];
-			
+
 			switch (true) {
-				
+
 				case mesHoje < mesData :
 					diferenca-=1;
 				break;
-				
+
 				case mesHoje == mesData :
 					var diaHoje = hojeArray[0];
 					var diaData = dataArray[0];
@@ -75,7 +75,7 @@ function calculaIdade(obj, hoje) {
 						diferenca-=1;
 					}
 				break
-				
+
 			}
 		}
 		$("#idade").val(diferenca);
@@ -151,49 +151,49 @@ function buscaAjax (url, dados) {
 }
 
 function pesquisaAjax(pagina, url) {
-	
+
 	$(".ajax-loader").css("display", "block");
 	var exibir = ($("#exibir").val()) ? $("#exibir").val() : 10;
-	
+
 	var busca = {
 		pagina : pagina,
 		exibir : exibir
 	};
-	
+
 	var href = [];
-	
+
 	var opcoesPesquisa = $('#buscaAjax input:hidden');
-	$(opcoesPesquisa).each(function(){		
+	$(opcoesPesquisa).each(function(){
 		busca[$(this).attr('name')] = $(this).val();
 		href.push($(this).attr('name') + "=" + $(this).val());
 	});
-	
+
 	var opcoesPesquisa = $('#buscaAjax input:text');
-	$(opcoesPesquisa).each(function(){		
+	$(opcoesPesquisa).each(function(){
 		busca[$(this).attr('name')] = $(this).val();
 		href.push($(this).attr('name') + "=" + $(this).val());
 	});
-	
+
 	opcoesPesquisa = $('#buscaAjax select');
 	$(opcoesPesquisa).each(function(){
 		busca[$(this).attr('name')] = $(this).val();
 		href.push($(this).attr('name') + "=" + $(this).val());
 	});
-	
+
 	opcoesPesquisa = $('#buscaAjax input:checkbox:checked');
-	
+
 	$(opcoesPesquisa).each(function(){
 		var key = $(this).attr('name');
 		if (!busca[key]) {
 			busca[key] = [];
-		} 
-		busca[key].push($(this).val()); 
+		}
+		busca[key].push($(this).val());
 	});
-	
+
 	buscaAjax(url, busca).success(function (data) {
-		
-		
-		i = 0;		
+
+
+		i = 0;
 		var quantidade = data.quantidade;
 		var inicio = data.inicio;
 		var fim = data.fim;
@@ -201,12 +201,12 @@ function pesquisaAjax(pagina, url) {
 		$("#quantidade").html(quantidade);
 		$("#inicio").html(inicio);
 		$("#fim").html(fim);
-		
+
 		$("tbody tr#buscaAjax").nextAll("tr").remove();
 		$("tbody tr#buscaAjax").after(data.result);
-		
+
 		$(".pagination").html(paginacaoAjax(pagina, quantidade, inicio, fim, exibir));
-		
+
 		$(".pagination a").each(function(){
 			var id = $(this).attr("id");
 			var paginaArray = id.split("_");
@@ -215,11 +215,11 @@ function pesquisaAjax(pagina, url) {
 				return false;
 			});
 		});
-		
+
 		//$(".ajax-loader").css("display", "none");
-		
+
 	});
-		
+
 }
 
 function paginacaoAjax(pagina, quantidade, inicio, fim, exibir) {
@@ -231,47 +231,47 @@ function paginacaoAjax(pagina, quantidade, inicio, fim, exibir) {
 	$("#quantidade").html(quantidade);
 	$("#inicio").html(inicio);
 	$("#fim").html(fim);
-	
+
 	var quantidadePaginas = Math.ceil(quantidade / exibir);
-	
+
 	var html = '';
-	
+
 	inicio = 0;
 	fim = 0;
 	pagina = parseInt(pagina);
-	
+
 	if (pagina % exibir == 0) {
 		inicio = pagina;
 	}
 	else {
 		inicio = pagina - (pagina % exibir) + 1;
 	}
-		
+
 	if (parseInt(pagina) % exibir == 0) {
 		fim = pagina + exibir;
 	}
 	else {
 		fim = (pagina + exibir) - (pagina % exibir);
 	}
-	
+
 	if (fim > quantidadePaginas) {
 		fim = quantidadePaginas;
 	}
-		
+
 	if (pagina > 1) {
 		html += '<li title="Ir para a primeira página">';
 		html += '<a href="#" id="pagina_1">«</a>';
 		html += '</li>';
 	}
-		
+
 	if (pagina > 1 && quantidade > quantidadePaginas) {
 		html += '<li title="Ir para a página anterior">';
 		html += '<a href="#" id="pagina_' + (pagina - 1) + '">‹</a>';
 		html += '</li>';
 	}
-	
+
 	i = 0;
-	
+
 	for (i=inicio; i<=fim; i++) {
 		html += '<li title="Ir para a página '+i+'" id="p'+i+'"';
 		if (i==pagina) {
@@ -279,19 +279,19 @@ function paginacaoAjax(pagina, quantidade, inicio, fim, exibir) {
 		}
 		html += '><a href="#" id="pagina_' + i + '">'+i+'</a></li>';
 	}
-	
+
 	if (pagina < quantidadePaginas) {
 		html += '<li title="Ir para a próxima página">';
 		html += '<a href="#" id="pagina_' + (pagina + 1) + '">›</a>';
 		html += '</li>';
 	}
-	
+
 	if (pagina < quantidadePaginas) {
 		html += '<li title="Ir para a última página">';
 		html += '<a href="#" id="pagina_' + quantidadePaginas + '">»</a>';
 		html += '</li>';
 	}
-	
+
 	return html;
 }
 
@@ -308,37 +308,37 @@ function getPaginacao2(pagina, quantidade, inicio, fim) {
 	$("#inicio").html(inicio);
 	$("#fim").html(fim);
 	var quantidadePaginas = Math.ceil(quantidade / 10);
-	
+
 	html = "<ul>";
-	
+
 	var inicio = 0;
 	var fim = 0;
-	
+
 	if (pagina % 10 == 0)
 		inicio = pagina;
 	else
 		inicio = pagina - (pagina%10) + 1;
-		
-	if (pagina % 10 == 0) 
+
+	if (pagina % 10 == 0)
 		fim = pagina + 10;
 	else
 		fim = pagina + 10 - (pagina%10);
-		
+
 	if (fim > quantidadePaginas)
 		fim = quantidadePaginas;
-		
+
 	if (pagina > 1) {
 		html += '<li title="Ir para a primeira página">';
 		html += '<a href="#" id="pagina_1">«</a>';
 		html += '</li>';
 	}
-		
+
 	if (pagina > 1 && quantidade > quantidadePaginas) {
 		html += '<li title="Ir para a página anterior">';
 		html += '<a href="#" id="pagina_' + (pagina - 1) + '">‹</a>';
 		html += '</li>';
 	}
-	
+
 	i = 0;
 	for (i=inicio; i<=fim; i++) {
 		html += '<li title="Ir para a página '+i+'" id="p'+i+'"';
@@ -346,21 +346,21 @@ function getPaginacao2(pagina, quantidade, inicio, fim) {
 			html += ' class="current"';
 		html += '><a href="#" id="pagina_' + i + '">'+i+'</a></li>';
 	}
-	
+
 	if (pagina < quantidadePaginas) {
 		html += '<li title="Ir para a próxima página">';
 		html += '<a href="#" id="pagina_' + (pagina + 1) + '">›</a>';
 		html += '</li>';
 	}
-	
+
 	if (pagina < quantidadePaginas) {
 		html += '<li title="Ir para a última página">';
 		html += '<a href="#" id="pagina_' + quantidadePaginas + '">»</a>';
 		html += '</li>';
 	}
-	
+
 	html += "</ul>";
-	
+
 	return html;
 }
 
@@ -369,89 +369,89 @@ function getPaginacao2(pagina, quantidade, inicio, fim) {
 function montaTabela (dados, pagina) {
 
 	var html = '';
-	
+
 	var modulo = dados[dados.length - 1].informacoes.modulo;
 	var campos = dados[dados.length - 1].informacoes.campos;
 	var objeto = '';
 
 	for (i=0; i<dados.length-1; i++) {
-	
+
 		html += '<tr>';
 		html += '<td>';
 	    html += '<small>' + ( i + 1 + ((pagina - 1) * 10)) + '</small>';
 	    html += '</td>';
-	    
+
 	    if (dados[dados.length - 1].informacoes.checkbox) {
 		    html += '<td class="checkbox">';
 		    html += '<input type="checkbox" name="' + modulo + '[]" value="' + dados[i].id + '" />';
 		    html += '</td>';
 	   	}
-		
+
 		// fields that will be writen in the table
 		for (c1 in campos) {
-			
+
 			campo = campos[c1];
 			objeto = dados[i][c1];
-			
+
 			html += '<td';
 			html += ' align="' + campo["align"] + '"';
-			
+
 			if (c1 == "observacoes") {
 				html += ' title="' + dados[i]["observacoesNaoCompactada"] + '"';
 			}
-			
+
 			html += '>';
-			
+
 			if (c1 == "objeto") {
 				html += '<span';
 				if (dados[i]["objeto"]["nomeNaoCompactado"]) {
 					html += ' class="hint--top hint--info" data-hint="' + dados[i]["objeto"]["nomeNaoCompactado"] + '"';
 				}
 				html += '>';
-				
+
 				if (dados[i]["objeto"]["link"]) {
 					html += '<a ';
 					if (dados[i]["objeto"]["hint"]) {
 						var hint = dados[i]["objeto"]["hint"];
-						var hintInfo = hint.split("|"); 
+						var hintInfo = hint.split("|");
 						html += 'class="hint--' + hintInfo[0] + ' hint--info" data-hint="' + hintInfo[1] + '" ';
 					}
 					html += 'href="' + dados[i]["objeto"]["link"] + '">';
 				}
-				
+
 				html += '<strong>';
 				objeto = dados[i]["objeto"]["nome"];
 			}
-			
+
 			html += objeto;
-			
+
 			if (c1 == "objeto") {
-			
+
 				html += '</strong>';
-				
+
 				if (dados[i]["objeto"]["link"]) {
 					html += '</a>';
-				}	
-				
+				}
+
 				html += '</span>';
-			
+
 				if (dados[i]["objeto"]["informacoesAdicionais"]) {
 					html += '<br /><small>';
 					html += dados[i]["objeto"]["informacoesAdicionais"];
 					html += '</small>';
 				}
-				
+
 				if (dados[i]["objeto"]["acoes"]) {
-					
+
 					var acoes = dados[i]["objeto"]["acoes"];
-					
+
 					html += '<div>';
-					
+
 					var acoesArray = new Array();
 					var acao = '';
-					
+
 					for (a in acoes) {
-						
+
 						acao += '<a href="' + acoes[a]["link"] + '" target="' + acoes[a]["target"] + '"';
 						if (acoes[a]["onclick"]) {
 							acao += ' onclick="return ' + acoes[a]["onclick"] + '"';
@@ -459,18 +459,18 @@ function montaTabela (dados, pagina) {
 						acao += '>';
 						acao += a;
 						acao += '</a> ';
-						
+
 						acoesArray.push(acao);
 						acao = '';
-						
+
 					}
-					
+
 					html += acoesArray.join(" | ");
 					html += '</div>';
 				}
-			
+
 			}
-			
+
 			html += '</td>';
 
 		}
@@ -529,10 +529,10 @@ function excluirImagem(nome, extensao, id){
 }
 
 
-		
+
 function getRequest(){
     var request = null;
-            
+
     try{
         request = new XMLHttpRequest();
     }
@@ -549,7 +549,7 @@ function getRequest(){
             }
         }
     }
-    return request;		
+    return request;
 }
 
 function criaLink(obj){
@@ -570,7 +570,7 @@ function convertLowerHifen(code){
     var letrasO = new Array(242,243,244,245);
     var letrasU = new Array(249,250,251);
     var target = document.getElementById('link');
-    
+
     if (code == 45) // caractere hífen (-)
         target.value = target.value.substring(0, (target.value.length)-1).toLowerCase();
     else if(code == 231) // cedilha
@@ -589,7 +589,7 @@ function convertLowerHifen(code){
         letra = 'u';
     else
         letra = String.fromCharCode(code).toLowerCase();
-            
+
     if(letras.indexOf(letra) != -1) {
         target.value += letra;
     }
@@ -598,7 +598,7 @@ function convertLowerHifen(code){
 function in_array (needle, haystack) {
     var key = '';
     for (key in haystack) {
-        if (haystack[key] === needle) {                
+        if (haystack[key] === needle) {
             return true;
         }
     }
@@ -610,7 +610,7 @@ function in_array (needle, haystack) {
 function adicionaInputFile(id) {
     var obj = document.getElementById(id);
 	var input = criaElemento("input", {"type" : "file", "name" : "imagens[]"});
-    obj.appendChild(input);  
+    obj.appendChild(input);
 }
 
 function maisGraduacoesAtualizar(obj, name, size) {
@@ -618,7 +618,7 @@ function maisGraduacoesAtualizar(obj, name, size) {
     input.setAttribute("type", "text");
     input.setAttribute("name", name+"[0]"+"[]");
 	input.setAttribute("size", size);
-    $(obj).before(input); 
+    $(obj).before(input);
 }
 
 
@@ -643,7 +643,7 @@ function marcaUnidade(obj, id) {
 
 function adicionaInputText(obj, name) {
 	var input = criaElemento("input", {"type" : "text", "name" : name+"[0]"});
-    $(obj).before(input); 
+    $(obj).before(input);
 }
 
 
@@ -658,7 +658,7 @@ function adicionarCidade() {
 	strong.appendChild(legendTexto);
 	legend.appendChild(strong);
 	var span = criaElemento("span", {
-			"class" : "jvscrpt", 
+			"class" : "jvscrpt",
 			"onclick" : "excluirCidade("+quantidadeCidades+")"
 		}
 	);
@@ -667,113 +667,113 @@ function adicionarCidade() {
 	strong.appendChild(spanTexto);
 	span.appendChild(strong);
 	legend.appendChild(span);
-	
+
 	var ul = criaElemento("ul");
 	var li = criaElemento("li");
 	var label = criaElemento("label", {"class" : "tamanho1", "for" : "Cidade"});
 	var texto = criaElementoTexto("Cidade:");
 	var input = criaElemento("input", {
-			"type" : "text", 
-			"size" : "80", 
+			"type" : "text",
+			"size" : "80",
 			"name" : "cidades["+quantidadeCidades+"][cidade]"
 		}
 	);
-	
+
 	label.appendChild(texto);
 	li.appendChild(label);
 	li.appendChild(input);
 	ul.appendChild(li);
-	
+
 	var li = criaElemento("li", {"class" : "left"});
 	var label = criaElemento("label", {"class" : "tamanho3", "for" : "Desconto (R$)"});
 	var texto = criaElementoTexto("Desconto (R$):");
 	var input = criaElemento("input", {
-			"type" : "text", 
-			"class" : "valor", 
-			"size" : "10", 
+			"type" : "text",
+			"class" : "valor",
+			"size" : "10",
 			"name" : "cidades["+quantidadeCidades+"][valorDesconto]",
 			"value" : "0,00"
 		}
 	);
-	
+
 	label.appendChild(texto);
 	li.appendChild(label);
 	li.appendChild(input);
 	ul.appendChild(li);
-	
+
 	var li = criaElemento("li", {"class" : "left"});
 	var label = criaElemento("label", {"class" : "tamanho3", "for" : "Matrícula (R$)"});
 	var texto = criaElementoTexto("Matrícula (R$):");
 	var input = criaElemento("input", {
-			"type" : "text", 
-			"class" : "valor", 
-			"size" : "10", 
+			"type" : "text",
+			"class" : "valor",
+			"size" : "10",
 			"name" : "cidades["+quantidadeCidades+"][valorMatricula]",
 			"value" : "0,00"
 		}
 	);
-	
+
 	label.appendChild(texto);
 	li.appendChild(label);
 	li.appendChild(input);
 	ul.appendChild(li);
-	
+
 	var li = criaElemento("li", {"class" : "left"});
 	var label = criaElemento("label", {"class" : "tamanho3", "for" : "Curso (R$)"});
 	var texto = criaElementoTexto("Curso (R$):");
 	var input = criaElemento("input", {
-			"type" : "text", 
-			"class" : "valor", 
-			"size" : "10", 
+			"type" : "text",
+			"class" : "valor",
+			"size" : "10",
 			"name" : "cidades["+quantidadeCidades+"][valorCurso]",
 			"value" : "0,00"
 		}
 	);
-	
+
 	label.appendChild(texto);
 	li.appendChild(label);
 	li.appendChild(input);
 	ul.appendChild(li);
-	
+
 	var li = criaElemento("li", {"class" : "left"});
 	var label = criaElemento("label", {"class" : "tamanho3", "for" : "Qtde. parcelas"});
 	var texto = criaElementoTexto("Qtde. parcelas:");
 	var input = criaElemento("input", {
-			"type" : "text", 
-			"size" : "10", 
+			"type" : "text",
+			"size" : "10",
 			"name" : "cidades["+quantidadeCidades+"][quantidadeParcelas]"
 		}
 	);
-	
+
 	label.appendChild(texto);
 	li.appendChild(label);
 	li.appendChild(input);
 	ul.appendChild(li);
-	
+
 	var li = criaElemento("li", {"class" : "left"});
 	var label = criaElemento("label", {"class" : "tamanho3", "for" : "Qtde. módulos"});
 	var texto = criaElementoTexto("Qtde. módulos:");
 	var input = criaElemento("input", {"type" : "text", "size" : "10", "name" : "cidades["+quantidadeCidades+"][quantidadeModulos]"});
-	
+
 	var inputHidden = criaElemento("input", {
-			"type" : "hidden", 
-			"name" : "cidades["+quantidadeCidades+"][id]", 
+			"type" : "hidden",
+			"name" : "cidades["+quantidadeCidades+"][id]",
 			"value" : "0"
 		}
 	);
-	
+
 	label.appendChild(texto);
 	li.appendChild(label);
 	li.appendChild(input);
-	ul.appendChild(li);	
-	
+	ul.appendChild(li);
+
 	fieldset.appendChild(legend);
 	fieldset.appendChild(ul);
 	fieldset.appendChild(inputHidden);
-	
+
 	$("#maisCidades").before(fieldset);
 	$(".valor").autoNumeric({aSep: ".", aDec: ","});
-	
+
 }
 
 function excluirCidade(id) {
@@ -801,7 +801,7 @@ function maisCursos (obj) {
 	span.appendChild(strong);
 	div.appendChild(span);
 	li.appendChild(div);
-	$(ul).append(li);	
+	$(ul).append(li);
 }
 
 function maisDisciplinas (obj) {

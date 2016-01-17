@@ -6,7 +6,7 @@ $conexao = new Conexao();
 
 $conexao->getConexao()->execute("drop view if exists vw_usuarios");
 
-$sql = "create view vw_usuarios as "; 
+$sql = "create view vw_usuarios as ";
 $sql .= "select ";
 $sql .= "usuarios.id, ";
 $sql .= "usuarios.nome, ";
@@ -24,7 +24,7 @@ $conexao->getConexao()->execute($sql);
 
 $conexao->getConexao()->execute("drop view if exists vw_pacientes_atendimentos");
 
-$sql = "create view vw_pacientes_atendimentos as "; 
+$sql = "create view vw_pacientes_atendimentos as ";
 $sql .= "select ";
 $sql .= "pacientes.id, ";
 $sql .= "pacientes.nome, ";
@@ -65,7 +65,7 @@ $conexao->getConexao()->execute($sql);
 
 $conexao->getConexao()->execute("drop view if exists vw_agenda");
 
-$sql = "create view vw_agenda as "; 
+$sql = "create view vw_agenda as ";
 $sql .= "SELECT ";
 $sql .= "agenda.id, ";
 $sql .= "agenda.tipo, ";
@@ -82,6 +82,7 @@ $sql .= "DATE_FORMAT(agenda.data, '%d/%m/%Y') as dataFormatada, ";
 $sql .= "SUBSTR(agenda.hora, 1, 5) as horaFormatada, ";
 $sql .= "agenda.dataC, ";
 $sql .= "agenda.timestampC, ";
+$sql .= "agenda.marcador, ";
 $sql .= "DATE_FORMAT(agenda.dataC, '%d/%m/%Y') as dataCFormatada ";
 $sql .= "FROM agenda ";
 $conexao->getConexao()->execute($sql);

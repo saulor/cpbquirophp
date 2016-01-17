@@ -1,36 +1,36 @@
 @charset "UTF-8";
 /* CSS Document */
 
-html { 
+html {
     font-size:100%;
     overflow-y:scroll;
 }
 
 body {
 	background: #fff;
-    margin:0; 
+    margin:0;
     font-family:Georgia,serif;
     line-height:1.5;
 }
 
 header[role=logo] {
 	background: #fff url('../imagens/background-header.jpg') no-repeat right center;
-    width:100%; 
+    width:100%;
     height:100px;
 }
 
 header hgroup {
-	width: 100%; 
+	width: 100%;
     height:100px;
     margin:0;
 }
 
-header hgroup h1 { 
+header hgroup h1 {
     background: url('../imagens/logo.png') 0 0 no-repeat;
     display:block;
     height:100px;
     text-indent:-9999em;
-    margin:0; 
+    margin:0;
 }
 
 .inner {
@@ -38,15 +38,15 @@ header hgroup h1 {
     margin:0 auto;
 }
 
-.primary { 
-    margin:0; 
-    padding:15px; 
-    overflow:auto; 
+.primary {
+    margin:0;
+    padding:15px;
+    overflow:auto;
 }
 
 .primary p {
-    margin:0 0 10px 0; 
-    padding:0; 
+    margin:0 0 10px 0;
+    padding:0;
 }
 
 .left {
@@ -68,7 +68,7 @@ header hgroup h1 {
 }
 
 .left ul li:hover {
-	cursor:pointer;	
+	cursor:pointer;
 }
 
 .left ul li a {
@@ -89,9 +89,9 @@ header hgroup h1 {
 	display:none;
 }
 
-.right { 
-    margin:0 0 0 160px; 
-    padding:0 0 0 15px; 
+.right {
+    margin:0 0 0 160px;
+    padding:0 0 0 15px;
 }
 
 .alert.login {
@@ -108,7 +108,7 @@ footer {
 }
 
 fieldset legend {
-	font-size:1em; 
+	font-size:1em;
 	width:auto;
 	font-weight:bold;
 	border: 0;
@@ -240,23 +240,23 @@ table.agenda th.header {
 	margin: 1px 5px 0 3px;
 }
 
-.circle {	
+.circle {
 	width: 10px;
-	height: 10px; 
+	height: 10px;
 	border-radius: 50%;
 	float: left;
 	margin: 6px 4px 0 5px;
 }
 
-.circle1 {	
+.circle1 {
 	background-color: #0066FF;
 }
 
-.circle2 {	
+.circle2 {
 	background-color: #009933;
 }
 
-.circle3 {	
+.circle3 {
 	background-color: #ffa500;
 }
 
@@ -300,7 +300,288 @@ table tbody tr:hover div#links {
 .fc-icon-left-single-arrow:after{
 	top:0 !important;
 }
-	
+
 .fc-icon-right-single-arrow:after{
 	top: 0 !important;
+}
+
+/* AGENDA */
+
+/*footer {
+  z-index: -1 !important;
+}
+
+.primary {
+  z-index: -2 !important;
+}
+
+.inner {
+  z-index: -2 !important;
+}
+
+table {
+  z-index: 0;
+}*/
+
+a[rel=modal] {
+  cursor: pointer;
+  position: relative;
+  text-decoration: none;
+}
+
+a[rel=modal] div {
+  background: #f1f0f0;
+  border: 1px solid #ccc;
+  width: 230px;
+  position: absolute;
+  display: none;
+  z-index: 1;
+  top: 25px;
+  left: 2px;
+}
+
+a[rel=modal]:hover div {
+  display: block;
+}
+
+/**
+*** Seta para CIMA
+**/
+.seta-cima:before {
+    content: "";
+    display: none;
+    vertical-align: middle;
+    margin-right: 10px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom-width: 5px;
+    border-bottom-style: solid;
+}
+
+.seta-cima:before {
+  border-left-width: 8px;
+  border-right-width: 8px;
+  border-bottom-width: 8px;
+  position: absolute;
+  top: 17px;
+  left: 20px;
+}
+
+.ver_conteudo:hover .seta-baixo:before,
+.ver_conteudo:hover .seta-direita:before,
+.ver_conteudo:hover .seta-esquerda:before,
+.ver_conteudo:hover .seta-cima:before {
+  display: inline-block;
+}
+
+.window {
+  border: 3px solid #6898d0;
+  display:none;
+  position:absolute;
+  left:0;
+  top:0;
+  background:#FFF;
+  z-index:9900;
+  padding:10px;
+  border-radius:14px;
+}
+
+#mascara {
+  display:none;
+  position:absolute;
+  left:0;
+  top:0;
+  width: 100%;
+  height: 100%;
+  /*z-index:9000;*/
+  background-color:#f1f0f0;
+}
+
+.fechar {
+  display:block;
+  text-align:right;
+}
+
+.ui-autocomplete {
+  z-index: 9999;
+}
+
+table.agenda tbody td {
+  text-align: left;
+  text-decoration: none;
+  font-size: 0.9em;
+}
+
+div.info {
+  z-index: 1;
+  font-family: Tahoma, Arial;
+  border: 0 !important;
+  color: #fff;
+  padding: 10px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  font-size: 0.9em;
+}
+
+.day a {
+  color: #333;
+}
+
+.today a:first-child {
+  color: #fff !important;
+}
+
+table#f2 thead,
+table#f2 div.info,
+table#f2 .day.today {
+  background: #6898d0;
+}
+
+table#f2 tbody td,
+table#f2 tbody th {
+  border: 1px solid #6898d0 !important;
+}
+
+table#f2 .seta-cima:before {
+  border-bottom-color: #6898d0;
+}
+
+table#f4 thead ,
+table#f4 div.info,
+table#f4 .day.today {
+  background: #d06898;
+}
+
+table#f4 tbody td,
+table#f4 tbody th {
+  border: 1px solid #d06898 !important;
+}
+
+table#f4 .seta-cima:before {
+  border-bottom-color: #d06898;
+}
+
+table#f5 thead,
+table#f5 div.info,
+table#f5 .day.today {
+  background: #98d068;
+}
+
+table#f5 tbody td,
+table#f5 tbody th {
+  border: 1px solid #98d068 !important;
+}
+
+table#f5 .seta-cima:before {
+  border-bottom-color: #98d068;
+}
+
+table#f6 thead,
+table#f6 div.info,
+table#f6 .day.today {
+  background: #d0a068;
+}
+
+table#f6 tbody td,
+table#f6 tbody th {
+  border: 1px solid #d0a068 !important;
+}
+
+table#f6 .seta-cima:before {
+  border-bottom-color: #d0a068;
+}
+
+/**/
+
+:root .css3-radios label,
+:root .css3-radios input[type="radio"] + span,
+:root .css3-radios input[type="radio"] + span::before
+{
+    display: inline-block;
+    vertical-align: middle;
+}
+
+:root .css3-radios
+{
+    cursor: pointer;
+    position: absolute;
+}
+
+:root .css3-radios input[type="radio"]
+{
+    opacity: 0;
+}
+
+:root .css3-radios label {
+  margin: 1px 9px 0 0;
+  padding: 0;
+}
+
+:root .css3-radios input[type="radio"] + span::before
+{
+    content: "";
+    width: 13px;
+    height: 13px;
+    margin: -3px 4px 0 0;
+    line-height: 9px;
+    border-radius: 100%;
+}
+
+:root .css3-radios input[type="radio"]:checked + span::before
+{
+    color: #fff;
+}
+
+:root .css3-radios input[type="radio"].mNenhum:checked + span::before
+{
+    color: #333;
+}
+
+:root .css3-radios input[type="radio"]:checked + span::before
+{
+    content: "\2022";
+    font-size: 26px;
+}
+
+.mLembrar {
+  color: #ff525e;
+}
+
+.mDesistiu {
+  color: #c1c5c8;
+}
+
+.mConfirmou {
+  color: #55ce5d;
+}
+
+.mNenhum {
+  color: white;
+}
+
+:root .css3-radios input[type="radio"].mLembrar + span::before
+{
+    border: solid 1px #ff525e;
+    background: radial-gradient(#ff525e, #ff525e);
+}
+
+:root .css3-radios input[type="radio"].mConfirmou + span::before
+{
+    border: solid 1px #55ce5d;
+    background: radial-gradient(#55ce5d, #55ce5d);
+}
+
+:root .css3-radios input[type="radio"].mDesistiu + span::before
+{
+    border: solid 1px #c1c5c8;
+    background: radial-gradient(#c1c5c8, #c1c5c8);
+}
+
+:root .css3-radios input[type="radio"].mNenhum + span::before
+{
+    border: solid 1px #ccc;
+    background: radial-gradient(white, white);
 }

@@ -47,6 +47,7 @@ class AgendaController extends Controller {
     					"agenda.observacoes",
     					"agenda.ano",
     					"agenda.nomePaciente",
+							"agenda.marcador",
     					"CONCAT_WS('T', data, hora) as timestamp"
     				),
     				"where" => array(
@@ -75,7 +76,7 @@ class AgendaController extends Controller {
 
     		$fisioterapeuta = $this->dao->findByPk($conexao, "vw_usuarios", 2);
     		$fisioterapeuta["diasAtendimento"] = !empty($fisioterapeuta["diasAtendimento"]) ? explode(",", $fisioterapeuta["diasAtendimento"]) : array();
-    		
+
     		// recupera os pacientes para o autocomplete
     		$pacientes = $this->dao->findAll($conexao, "pacientes");
     		$pacientesArr = array();
@@ -130,6 +131,7 @@ class AgendaController extends Controller {
     		);
 
     		$dados = inicializaDados(new Agenda());
+				$dados["marcador"] = 0;
     		$dados["data"] = isset($_GET['data']) ? $_GET['data'] : date('d/m/Y');
     		$dados["hora"] = isset($_GET['hora']) ? $_GET['hora'] : '';
     		$dados["tipo"] = isset($_GET['tipo']) ? $_GET['tipo'] : '0';

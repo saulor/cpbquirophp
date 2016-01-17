@@ -30,13 +30,13 @@
     		});
     	});
   	})
- 
+
 </script>
 
 <form method="post">
 
 	<input name="id" type="hidden" value="<?php echo $compromisso["id"]; ?>" />
-	
+
 	<div class="grid">
 		<div class="col-3-12">
 			<div class="content">
@@ -60,7 +60,7 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="grid">
 		<div class="col-3-12">
 			<div class="content">
@@ -84,7 +84,7 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="grid">
 		<div class="col-3-12">
 			<div class="content">
@@ -97,7 +97,7 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="grid">
 		<div class="col-3-12">
 			<div class="content">
@@ -110,7 +110,7 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="grid">
 		<div class="col-3-12">
 			<div class="content">
@@ -123,8 +123,7 @@
 			</div>
 		</div>
 	</div>
-	
-	
+
 	<div class="grid">
 		<div class="col-3-12">
 			<div class="content">
@@ -137,7 +136,7 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="grid">
 		<div class="col-3-12">
 			<div class="content">
@@ -150,7 +149,7 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="grid">
 		<div class="col-3-12">
 			<div class="content">
@@ -163,7 +162,7 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="grid">
 		<div class="col-3-12">
 			<div class="content">
@@ -177,6 +176,37 @@
 		</div>
 	</div>
 
-	<input class="btn btn-default" type="submit" value="Salvar" /> 
+	<div class="grid">
+		<div class="col-3-12">
+			<div class="content">
+				<label for="Fisioterapeuta">Marcadores:</label>
+			</div>
+		</div>
+		<div class="col-7-12">
+			<div class="content css3-radios">
+				<?php
+					foreach (Agenda::getMarcadores() as $key => $value) {
+						list($class, $constante) = explode("-", $key);
+						echo '<label class="radio-inline';
+						$hint = Agenda::getHint($constante);
+						if (!empty($hint)) {
+							echo ' hint--top hint--info"';
+							echo ' data-hint="' . $hint . '"';
+						}
+						echo '">';
+						echo '<input id="m' . $constante . '" class="' . $class . '" name="marcador" type="radio" ';
+						if ($compromisso["marcador"] == $constante) {
+							echo 'checked="checked" ';
+						}
+						echo 'value="' . $constante . '" />';
+						echo '<span>' . $value . '</span>';
+						echo '</label>';
+					}
+				?>
+			</div>
+		</div>
+	</div>
+
+	<input class="btn btn-default" type="submit" value="Salvar" />
 
 </form>

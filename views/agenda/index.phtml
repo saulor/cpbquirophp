@@ -5,210 +5,9 @@
 	$fisioterapeuta = $params["fisioterapeuta"];
 	$pacientes = $params["pacientes"];
 	$dia = 1;
-	$mes = $params["mes"]; 
-	$ano = $params["ano"]; 
+	$mes = $params["mes"];
+	$ano = $params["ano"];
 ?>
-
-<style>
-	
-	/*footer {
-		z-index: -1 !important;
-	}
-	
-	.primary {
-		z-index: -2 !important;	
-	}
-	
-	.inner {
-		z-index: -2 !important;	
-	}
-	
-	table {
-		z-index: 0;
-	}*/
-	
-	a[rel=modal] {
-		cursor: pointer;
-		position: relative;
-	}
-	
-	a[rel=modal] div {
-		background: #f1f0f0;
-		border: 1px solid #ccc;
-		width: 230px;
-		position: absolute;
-		display: none;
-		z-index: 1;
-		top: 25px;
-		left: 2px;
-	}
-	
-	a[rel=modal]:hover div {
-		display: block;
-	}
-		
-	/**
-	*** Seta para CIMA
-	**/
-	.seta-cima:before {
-	  	content: "";
-	    display: none;
-	    vertical-align: middle;
-	    margin-right: 10px;
-	    width: 0; 
-	    height: 0; 
-	    border-left: 5px solid transparent;
-	    border-right: 5px solid transparent;
-	    border-bottom-width: 5px;
-	    border-bottom-style: solid;
-	}
-	
-	.seta-cima:before {
-		border-left-width: 8px;
-		border-right-width: 8px;
-		border-bottom-width: 8px;
-		position: absolute;
-		top: 17px;
-		left: 20px;
-	}
-	
-	.ver_conteudo:hover .seta-baixo:before,
-	.ver_conteudo:hover .seta-direita:before,
-	.ver_conteudo:hover .seta-esquerda:before,
-	.ver_conteudo:hover .seta-cima:before {
-		display: inline-block;
-	}
-	
-	.window {
-		border: 3px solid #6898d0;
-	    display:none;
-	    position:absolute;
-	    left:0;
-	    top:0;
-	    background:#FFF;
-	    z-index:9900;
-	    padding:10px;
-	    border-radius:14px;
-	}
-	 
-	#mascara {
-	    display:none;
-	    position:absolute;
-	    left:0;
-	    top:0;
-	    width: 100%;
-	    height: 100%;
-	    /*z-index:9000;*/
-	    background-color:#f1f0f0;
-	}
-	 
-	.fechar {
-		display:block; 
-		text-align:right;
-	}
-	
-	.ui-autocomplete {
-		z-index: 9999;
-	}
-	
-	table.agenda tbody td {
-		text-align: left;
-		text-decoration: none;
-		font-size: 0.9em;
-	}
-	
-	div.info {
-		z-index: 1;
-		font-family: Tahoma, Arial;
-		border: 0 !important;
-		color: #fff;
-		padding: 10px;
-		-webkit-border-radius: 5px;
-		-moz-border-radius: 5px;
-		border-radius: 5px;
-		font-size: 0.9em;
-	}
-	
-	div.info p {
-		margin: 0;
-		padding: 0;
-	}
-	
-	div.info time {
-		display: block;
-		float: left;
-		margin-right: 10px;
-	}
-	
-	.day a {
-		color: #333;	
-	}
-	
-	.today a:first-child {
-		color: #fff !important;
-	}
-	
-	table#f2 thead,
-	table#f2 div.info,
-	table#f2 .day.today {
-		background: #6898d0;
-	}
-	
-	table#f2 tbody td,
-	table#f2 tbody th {
-		border: 1px solid #6898d0 !important;
-	}
-	
-	table#f2 .seta-cima:before {
-		border-bottom-color: #6898d0;
-	}
-	
-	table#f4 thead ,
-	table#f4 div.info,
-	table#f4 .day.today {
-		background: #d06898;
-	}
-	
-	table#f4 tbody td,
-	table#f4 tbody th {
-		border: 1px solid #d06898 !important;
-	}
-	
-	table#f4 .seta-cima:before {
-		border-bottom-color: #d06898;
-	}
-	
-	table#f5 thead,
-	table#f5 div.info,
-	table#f5 .day.today {
-		background: #98d068;
-	}
-	
-	table#f5 tbody td,
-	table#f5 tbody th {
-		border: 1px solid #98d068 !important;
-	}
-	
-	table#f5 .seta-cima:before {
-		border-bottom-color: #98d068;
-	}
-	
-	table#f6 thead,
-	table#f6 div.info,
-	table#f6 .day.today {
-		background: #d0a068;
-	}
-	
-	table#f6 tbody td,
-	table#f6 tbody th {
-		border: 1px solid #d0a068 !important;
-	}
-	
-	table#f6 .seta-cima:before {
-		border-bottom-color: #d0a068;
-	}
-	
-</style>
 
 <script>
 
@@ -235,7 +34,7 @@
 		}).bind('focus', function(){
 			$('#button').prop('disabled', true);
 		});
-		
+
 		$("a[rel=modal]").click(function(ev){
 			ev.preventDefault();
 			// remove qualquer mensagem de validação/processamento
@@ -257,11 +56,12 @@
 			var offset = $(document).scrollTop();
 			var viewportHeight = $(window).height();
 			var top = (offset  + (viewportHeight/2)) - ($(janela).outerHeight()/2);
-						
+
 			$('#mascara').fadeTo("slow", 0.8, function() {
 				if (idCompromisso == 0) {
 					var fisioterapeuta = $('#fisioterapeutas').val();
 					$('#f' + fisioterapeuta).prop('checked', 'checked');
+					$('#m0').prop('checked', 'checked');
 				}
 				else {
 					$('#id').val(idCompromisso);
@@ -278,6 +78,7 @@
 						$('#telefoneCelular').val(response.telefoneCelular);
 						$('#lembrete').val(response.lembrete);
 						$('#observacoes').val(response.observacoes);
+						$('#m' + response.marcador).prop('checked', 'checked');
 						$('#excluirGrid').css('display', 'block');
 						var fisioterapeutas = response.fisioterapeutas.split(',');
 						for (f in fisioterapeutas) {
@@ -285,21 +86,21 @@
 						}
 					});
 				}
-				
+
 				$('#data').val(data);
 				$('#hora').val(hora);
 				$(janela).css({'top':top,'left':left});
 				$(janela).show();
-				
-			});  
+
+			});
 		});
-	
+
 		$("#mascara").click(function(){
 			$(this).hide();
 			$(".window").hide();
 			clear();
 		});
-		
+
 		$('.fechar').click(function(ev){
 			ev.preventDefault();
 			$("#mascara").hide();
@@ -307,9 +108,9 @@
 			$("#excluirGrid").css('display', 'none');
 			clear();
 		});
-		
+
 	}
-	
+
 	function clear() {
 		$('#id').val(0);
 		$('#form input:text').each(function(){
@@ -324,15 +125,18 @@
 		$('#form input:checkbox').each(function(){
 			$(this).prop('checked', '');
 		});
+		$('#form input:radio').each(function(){
+			$(this).prop('checked', '');
+		});
 	}
-	
+
 	$(document).ready(function(){
 		init();
-		$('#fisioterapeutas').trigger("change");
+		//$('#fisioterapeutas').trigger("change");
 	});
-	
+
 </script>
- 
+
 <div class="grid top-items">
 	<div class="col-1-1">
 		<div class="content">
@@ -349,20 +153,20 @@
 <div class="grid">
 	<div class="col-2-11">
 		<div class="content">
-			<div href="#janela1" class="circle circle3"></div>
-			Livre
+			<div style="float: left; margin-right:7px;">
+				<div href="#janela1" class="circle circle3" style="margin-left:0;"></div>
+				<span>Livre</span>
+			</div>
+			<?php
+				foreach (Agenda::getTipos() as $key => $value) {
+					echo '<div style="float: left; margin-right:7px;">';
+					echo '<div class="circle circle' . $key . '" style="margin-left:0;"></div>';
+					echo '<span>' . $value . '</span>';
+					echo '</div>';
+				}
+			?>
 		</div>
 	</div>
-	<?php
-		foreach (Agenda::getTipos() as $key => $value) {
-			echo '<div class="col-2-11">';
-			echo '<div class="content">';
-			echo '<div class="circle circle' . $key . '"></div>';
-			echo $value;
-			echo '</div>';
-			echo '</div>';
-		}
-	?>
 </div>
 
 <div id="mascara"></div>
@@ -401,7 +205,8 @@
 	    			<?php
 	    				foreach ($fisioterapeutas as $f) {
 	    					echo '<label class="checkbox-inline">';
-	    					echo '<input name="fisioterapeutas[]" id="f' . $f["id"] . '" type="checkbox" value="' . $f["nome"] . '-' . $f["id"] . '" />';
+	    					echo '<input name="fisioterapeutas[]" id="f' . $f["id"] . '" type="checkbox" ';
+								echo 'value="' . $f["nome"] . '-' . $f["id"] . '" />';
 	    					echo $f["nome"];
 	    					echo '</label>';
 	    				}
@@ -417,7 +222,8 @@
 	    	</div>
 	    	<div class="col-3-12">
 	    		<div class="content">
-	    			<input id="data" class="form-control datepicker" id="data" placeholder="Data do compromisso" name="data" type="text" autocomplete="off" />
+	    			<input id="data" class="form-control datepicker" id="data" placeholder="Data do compromisso"
+							name="data" type="text" autocomplete="off" />
 	    		</div>
 	    	</div>
 	    </div>
@@ -429,7 +235,8 @@
 	    	</div>
 	    	<div class="col-3-12">
 	    		<div class="content">
-	    			<input class="form-control hora" id="hora" name="hora" placeholder="Hora do compromisso" type="text" maxlength="5" autocomplete="off" />
+	    			<input class="form-control hora" id="hora" name="hora" placeholder="Hora do compromisso"
+							type="text" maxlength="5" autocomplete="off" />
 	    		</div>
 	    	</div>
 	    </div>
@@ -441,7 +248,8 @@
 	    	</div>
 	    	<div class="col-7-12">
 	    		<div class="content">
-	    			<input class="form-control autocomplete1" id="paciente" name="nomePaciente" placeholder="Nome do paciente" size="60" type="text" />
+	    			<input class="form-control autocomplete1" id="paciente" name="nomePaciente"
+							placeholder="Nome do paciente" size="60" type="text" />
 	    		</div>
 	    	</div>
 	    </div>
@@ -453,7 +261,8 @@
 	    	</div>
 	    	<div class="col-3-12">
 	    		<div class="content">
-	    			<input class="form-control telefoneResidencial" id="telefoneResidencial" name="telefoneResidencial" placeholder="Telefone Residencial" size="40" type="text" autocomplete="off" />
+	    			<input class="form-control telefoneResidencial" id="telefoneResidencial"
+							name="telefoneResidencial" placeholder="Telefone Residencial" size="40" type="text" autocomplete="off" />
 	    		</div>
 	    	</div>
 	    </div>
@@ -465,7 +274,8 @@
 	    	</div>
 	    	<div class="col-3-12">
 	    		<div class="content">
-	    			<input class="form-control telefoneCelular" id="telefoneCelular" name="telefoneCelular" placeholder="Telefone Celular" size="40" type="text" autocomplete="off" />
+	    			<input class="form-control telefoneCelular" id="telefoneCelular" name="telefoneCelular"
+							placeholder="Telefone Celular" size="40" type="text" autocomplete="off" />
 	    		</div>
 	    	</div>
 	    </div>
@@ -477,7 +287,8 @@
 	    	</div>
 	    	<div class="col-7-12">
 	    		<div class="content">
-	    			<textarea class="form-control" id="lembrete" placeholder="Lembrete" name="lembrete" cols="90" rows="2" maxlength="255"></textarea>
+	    			<textarea class="form-control" id="lembrete" placeholder="Lembrete" name="lembrete" cols="90"
+							rows="2" maxlength="255"></textarea>
 	    		</div>
 	    	</div>
 	    </div>
@@ -489,7 +300,35 @@
 	    	</div>
 	    	<div class="col-7-12">
 	    		<div class="content">
-	    			<textarea class="form-control" id="observacoes" placeholder="Observações" name="observacoes" cols="90" rows="2" maxlength="255"></textarea>
+	    			<textarea class="form-control" id="observacoes" placeholder="Observações" name="observacoes"
+							cols="90" rows="2" maxlength="255"></textarea>
+	    		</div>
+	    	</div>
+	    </div>
+			<div class="grid">
+	    	<div class="col-3-12">
+	    		<div class="content">
+	    			<label for="Fisioterapeuta">Marcadores:</label>
+	    		</div>
+	    	</div>
+	    	<div class="col-7-12">
+	    		<div class="content css3-radios">
+						<?php
+	    				foreach (Agenda::getMarcadores() as $key => $value) {
+								list($class, $constante) = explode("-", $key);
+	    					echo '<label class="radio-inline';
+								$hint = Agenda::getHint($constante);
+								if (!empty($hint)) {
+									echo ' hint--top hint--info"';
+									echo ' data-hint="' . $hint . '"';
+								}
+								echo '">';
+	    					echo '<input id="m' . $constante . '" class="' . $class . '" name="marcador" type="radio" ';
+								echo 'value="' . $constante . '" />';
+	    					echo '<span>' . $value . '</span>';
+	    					echo '</label>';
+	    				}
+	    			?>
 	    		</div>
 	    	</div>
 	    </div>
@@ -505,7 +344,7 @@
 	    		</div>
 	    	</div>
 	    </div>
-	    <input id="button" class="btn btn-default" type="button" value="Salvar" /> 
+	    <input id="button" class="btn btn-default" type="button" value="Salvar" />
 	</form>
 </div>
 
@@ -552,7 +391,7 @@
 				<option id="mes12" value="12"<?php if($mes == 12) echo ' selected="selected"'; ?>>Dezembro</option>
 			</select>
 			<select id="ano" name="ano">
-				<?php 
+				<?php
 				for ($i=2013; $i<=$ano+2; $i++) {
 					echo '<option id="ano' . $i . '" value="' . $i . '"';
 					if ($i == $ano) {
@@ -566,204 +405,26 @@
 		</th>
 	</thead>
 	<tbody id="result-ajax">
-		<?php
-			// Create array containing abbreviations of days of week.
-		    $daysOfWeek = array('Seg', 'Ter', 'Qua', 'Qui', 'Sex');
-		    // What is the first day of the month in question?
-		   	$firstDayOfMonth = mktime(0, 0, 0, $mes, $dia, $ano);
-		   	// Retrieve some information about the first day of the month in question.
-		   	$dateComponents = getdate($firstDayOfMonth);
-		   	// What is the index value (0-6) of the first day of the month in question.
-		   	$dayOfWeek = $dateComponents['wday'];
-		   	
-		   	// calcula o primeiro dia útil da semana
-		   	while(in_array($dayOfWeek, array(0,6))) {
-	   			$firstDayOfMonth = mktime(0, 0, 0, $mes, ++$dia, $ano);
-	   			$dateComponents = getdate($firstDayOfMonth);
-	   			$dayOfWeek = $dateComponents['wday'];
-		   	}
-
-		    // How many days does this month contain?
-		    $numberDays = date('t', $firstDayOfMonth);
-		    // What is the name of the month in question?
-		    $mesName = $dateComponents['month'];
-		    
-		    // Create the calendar headers
-		  	
-		  	echo '<tr>';
-		  	
-			foreach($daysOfWeek as $day) {
-				echo '<th class="header">' . $day . '</th>';
-			} 
-			
-			// primeiro dia útil do mês
-			$currentDay = (int) date('d', $firstDayOfMonth);
-			
-			echo '</tr><tr>';
-			
-			// The variable $dayOfWeek is used to
-			// ensure that the calendar
-			// display consists of exactly 7 columns.
-			if ($dayOfWeek > 1) { 
-				echo '<td colspan=' . ($dayOfWeek-1) . '>&nbsp;</td>'; 
-			}
-			
-			$mes = str_pad($mes, 2, "0", STR_PAD_LEFT);
-			
-			while ($currentDay <= $numberDays) {
-			
-				// Seventh column (Saturday) reached. Start a new row.
-				if ($dayOfWeek == 6) {
-					$dayOfWeek = 1;
-					echo '</tr>';
-					
-					if (($currentDay+2) > $numberDays) {
-						$dayOfWeek=6;
-						break;
-					}
-					
-					echo '<tr>';
-					foreach($daysOfWeek as $day) {
-						echo '<th class="header">' . $day . '</th>';
-					} 
-					echo '</tr><tr>';
-					$currentDay+=2;
-				}
-				
-				$currentDayRel = str_pad($currentDay, 2, "0", STR_PAD_LEFT);
-				$date = "$ano-$mes-$currentDayRel";
-				$data = "$currentDayRel/$mes/$ano"; 
-				echo '<td';
-				
-				echo ' rel="' . $date . '"';
-				if (date('d') == $currentDay) {
-					echo ' id="today" class="today"';
-				}
-				echo '>';
-				echo '<div class="day';
-				if (date('d') == $currentDay) {
-					echo ' today';
-				}
-				echo '">';
-				echo '<a href="?modulo=agenda&acao=imprimir&dia=' . $currentDay . '&mes=' . $mes . '&ano=' . $ano;
-				echo  '&fisioterapeuta=2" target="_blank">';
-				echo $currentDay;
-				echo '</a></div>';
-				
-				for ($i = 0; $i < 24; $i++) {
-									
-					$time = mktime(07, $i*30, 0, 0, 0, 0);
-					$hora = date('H:i', $time);
-					
-					echo '<div id="compromisso">';
-					echo '<div class="circle circle';
-					
-					$tipoCompromisso = 3; // livre
-					$temCompromissoNesseDia = array_key_exists($currentDay, $compromissos);
-					
-					if ($temCompromissoNesseDia) {
-						$id = $compromissos[$currentDay][$hora]["id"];
-						$dateTime = $data . 'T' . $hora;
-						$timestamp = $compromissos[$currentDay][$hora]["timestamp"];
-						$nomePaciente = $compromissos[$currentDay][$hora]["nomePaciente"];
-						$temCompromissoNessaHora = array_key_exists($hora, $compromissos[$currentDay]);
-						if ($temCompromissoNessaHora) {
-							$tipoCompromisso = $compromissos[$currentDay][$hora]["tipo"];
-						}
-					}
-					
-					echo $tipoCompromisso;
-					echo '"></div>';
-					
-					$conteudo = '<a data-id="0" data-dh="' . $dateTime . '" rel="modal">';
-					$conteudo .= '<time datetime="' . $hora . '">';
-					$conteudo .= $hora;
-					$conteudo .= '</time>';
-					$conteudo .= '</a>';
-					
-					if (count($fisioterapeuta["diasAtendimento"]) > 0 && !in_array($dayOfWeek, $fisioterapeuta["diasAtendimento"])) {
-						$conteudo = '<a style="text-decoration:none;color:#ccc;"';
-						$conteudo .= 'data-id="' . $id . '" data-dh="' . $dateTime . '">';
-						$conteudo .= '<time datetime="' . $timestamp . '">' . $hora . '</time>';
-						$conteudo .= ' <span>Não há atendimento</span>';
-						$conteudo .= '</a>';
-					}
-					else if ($temCompromissoNesseDia) {
-						if ($temCompromissoNessaHora) {	
-							$conteudo = '<a class="ver_conteudo" ';
-							$conteudo .= 'data-id="' . $id . '" data-dh="' . $dateTime . '" rel="modal">';
-							$conteudo .= '<time datetime="' . $timestamp . '">' . $hora . '</time>';
-							$conteudo .= ' <span>';
-							$conteudo .= compactaTexto($nomePaciente, 22);
-							$conteudo .= '</span>';
-							$conteudo .= '<div class="info">';
-							$conteudo .= '<small><time datetime="">' . $compromissos[$currentDay][$hora]["hora"] . '</time>';
-							$conteudo .= '<p>' . Agenda::getTipo($compromissos[$currentDay][$hora]["tipo"]) . '</small></p>';
-							$conteudo .= '<p>' . $compromissos[$currentDay][$hora]["nomePaciente"] . '</p>';
-							$telefones = array();
-							
-							if (!empty($compromissos[$currentDay][$hora]["telefoneResidencial"])) {
-								$telefones[] = $compromissos[$currentDay][$hora]["telefoneResidencial"];
-							}
-							
-							if (!empty($compromissos[$currentDay][$hora]["telefoneCelular"])) {
-								$telefones[] = $compromissos[$currentDay][$hora]["telefoneCelular"];
-							}
-							
-							if (count($telefones) > 0) {
-								$conteudo .= '<p><small>';
-								$conteudo .= implode(" | ", $telefones);
-								$conteudo .= '</p></small>';
-							}
-							
-							if (!empty($compromissos[$currentDay][$hora]["lembrete"])) {
-								$conteudo .= '<br /><p>Lembrete: ' . $compromissos[$currentDay][$hora]["lembrete"] . '</p>';
-							}
-							if (!empty($compromissos[$currentDay][$hora]["observacoes"])) {
-								$conteudo .= '<br /><p>Observações: ' . $compromissos[$currentDay][$hora]["observacoes"] . '</p>';
-							}
-							$conteudo .= '</div>';
-							$conteudo .= '<span class="seta-cima"></span>';
-							$conteudo .= '</a>';
-						}
-					}
-				
-					echo $conteudo;
-				}
-				
-				echo '</div>';
-				echo '</td>';
-				
-				// Increment counters
-				$currentDay++;
-				$dayOfWeek++;
-			}
-				
-			// Complete the row of the last week in month, if necessary
-			if ($dayOfWeek != 6) { 
-				$remainingDays = 6 - $dayOfWeek;
-				echo '<td colspan="' . $remainingDays . '">&nbsp;</td>'; 
-			}
-		?>
+		<?php include ('monta.php'); ?>
 	</tbody>
 </table>
 
 <script>
-	
+
 	$("#button").click(function(){
-		
+
 		$('#validation').remove();
-		
+
 		var campos = [];
-		
+
 		if ($("#paciente").val() == '') {
 			campos.push('Paciente');
 		}
-		
+
 		if ($("#form input:checkbox:checked").length == 0) {
 			campos.push('Fisioterapeutas');
 		}
-		
+
 		if (campos.length > 0) {
 			$('<div/>', {
 				id : 'validation',
@@ -772,38 +433,43 @@
 			}).appendTo('#validation-container');
 			return;
 		}
-		
+
 		var dados = {};
-		
+
 		var inputs = $('#janela1 input:hidden');
-		$(inputs).each(function(){		
+		$(inputs).each(function(){
 			dados[$(this).attr('name')] = $(this).val();
 		});
-		
+
 		var inputs = $('#janela1 select');
-		$(inputs).each(function(){		
+		$(inputs).each(function(){
 			dados[$(this).attr('name')] = $(this).val();
 		});
-		
+
 		var inputs = $('#janela1 input:text');
-		$(inputs).each(function(){		
+		$(inputs).each(function(){
 			dados[$(this).attr('name')] = $(this).val();
 		});
-		
+
+		var inputs = $('#janela1 input:radio:checked');
+		$(inputs).each(function(){
+			dados[$(this).attr('name')] = $(this).val();
+		});
+
 		var inputs = $('#janela1 textarea');
-		$(inputs).each(function(){		
+		$(inputs).each(function(){
 			dados[$(this).attr('name')] = $(this).val();
 		});
-		
+
 		var fisioterapeutas = [];
 		inputs = $('#janela1 input:checkbox:checked');
-		
+
 		$(inputs).each(function(){
-			fisioterapeutas.push($(this).val()); 
+			fisioterapeutas.push($(this).val());
 		});
-		
+
 		dados['fisioterapeutas'] = fisioterapeutas.join(',');
-		
+
 		$.ajax({
 			method: "POST",
 			url: "views/agenda/ajax3.php?acao=cadastra",
@@ -818,7 +484,7 @@
 			$('#mes').trigger("change");
 		});
 	});
-	
+
 	$("#excluir").click(function(ev){
 		ev.preventDefault();
 		if (confirm('Tem certeza que deseja excluir?')) {
@@ -833,7 +499,7 @@
 			});
 		}
 	});
-	
+
 	$("#mes").on("change", function(){
 		var mes = $("#mes").val();
 		var ano = $("#ano").val();
@@ -841,7 +507,7 @@
 		$("#loader").css("display", "inline");
 		$.ajax({
 			method: "POST",
-			url: "views/agenda/ajax2.php",
+			url: "views/agenda/ajax.php",
 			dataType: "json",
 			data: {mes: mes, ano: ano, fisioterapeuta: fisioterapeuta}
 		}).done(function(response) {
@@ -853,7 +519,7 @@
 			init();
 		});
 	});
-	
+
 	$("#ano").on("change", function(){
 		var mes = $("#mes").val();
 		var ano = $("#ano").val();
@@ -861,7 +527,7 @@
 		$("#loader").css("display", "inline");
 		$.ajax({
 			method: "POST",
-			url: "views/agenda/ajax2.php",
+			url: "views/agenda/ajax.php",
 			dataType: "json",
 			data: {mes: mes, ano: ano, fisioterapeuta: fisioterapeuta}
 		}).done(function(response) {
@@ -873,7 +539,7 @@
 			init();
 		});
 	});
-	
+
 	$("#fisioterapeutas").on("change", function(){
 		var mes = $("#mes").val();
 		var ano = $("#ano").val();
@@ -882,7 +548,7 @@
 		$("#loader").css("display", "inline");
 		$.ajax({
 			method: "POST",
-			url: "views/agenda/ajax2.php",
+			url: "views/agenda/ajax.php",
 			dataType: "json",
 			data: {mes: mes, ano: ano, fisioterapeuta: fisioterapeuta}
 		}).done(function(response) {
@@ -893,9 +559,9 @@
 			$("#loader").css("display", "none");
 			init();
 		});
-		
+
 	});
-	
+
 	$(".fc-prev-button").on("click", function(){
 		var data = $(".fc-prev-button").attr('id');
 		var fisioterapeuta = $("#fisioterapeutas").val();
@@ -909,7 +575,7 @@
 			$("#mes" + response.mes).prop("selected", true);
 			if ($("#ano" + response.ano).length == 0) {
 				$('<option/>', {
-					id: '#ano' + response.ano, 
+					id: '#ano' + response.ano,
 					value: response.ano,
 					selected: 'selected',
 					text: response.ano
@@ -924,7 +590,7 @@
 			init();
 		});
 	});
-	
+
 	$(".fc-next-button").on("click", function(){
 		var data = $(".fc-next-button").attr('id');
 		var fisioterapeuta = $("#fisioterapeutas").val();
@@ -938,7 +604,7 @@
 			$("#mes" + response.mes).prop("selected", true);
 			if ($("#ano" + response.ano).length == 0) {
 				$('<option/>', {
-					id: '#ano' + response.ano, 
+					id: '#ano' + response.ano,
 					value: response.ano,
 					selected: 'selected',
 					text: response.ano
@@ -953,7 +619,7 @@
 			init();
 		});
 	});
-	
+
 	$(".fc-today-button").on("click", function(){
 		var data = $(this).attr('id');
 		var fisioterapeuta = $("#fisioterapeutas").val();
@@ -976,7 +642,7 @@
 				scrollTop: $("#today").offset().top
 			}, 1000);
 		});
-		
+
 	});
 
 </script>
