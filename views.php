@@ -75,6 +75,7 @@ $sql .= "agenda.lembrete, ";
 $sql .= "agenda.data, ";
 $sql .= "agenda.hora, ";
 $sql .= "agenda.nomePaciente, ";
+$sql .= "agenda.fotoPaciente, ";
 $sql .= "DAY(agenda.data) AS diaCompromisso, ";
 $sql .= "MONTH(agenda.data) AS mesCompromisso, ";
 $sql .= "YEAR(agenda.data) AS anoCompromisso, ";

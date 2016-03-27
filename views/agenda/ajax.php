@@ -24,6 +24,8 @@
 		"agenda.ano" => $ano
 	);
 
+	$holidays = Funcoes::getFeriados($mes, $ano);
+
 	if (!empty($_POST["fisioterapeuta"])) {
 		$idFisioterapeuta = $where["agenda_fisioterapeutas.fisioterapeuta"] = $_POST["fisioterapeuta"];
 		$fisioterapeuta = $dao->findByPk($conexao->getConexao(), "vw_usuarios", (int) $_POST["fisioterapeuta"]);
@@ -45,7 +47,7 @@
 				"agenda.observacoes",
 				"agenda.nomePaciente",
 				"agenda.marcador",
-				"CONCAT_WS('T', data, hora) as timestamp"
+				"CONCAT_WS('T', agenda.data, agenda.hora) as timestamp"
 			),
 			"where" => $where,
 			"leftJoin" => array(
@@ -141,24 +143,35 @@
 		$result .= '</a>';
 		$result .= '</div>';
 
+		$result .= '<div class="holiday">';
+
+		if (isset($holidays[$date])) {
+      $result .= '<span>' . $holidays[$date] . '</span>';
+    }
+    else {
+			$result .= '&nbsp;';
+		}
+
+		$result .= '</div>';
+
 		for ($i = 0; $i < 24; $i++) {
 
 			$time = mktime(07, $i*30, 0, 0, 0, 0);
 			$hora = date('H:i', $time);
+			$dateTime = $data . 'T' . $hora;
 
 			$result .= '<div id="compromisso">';
 			$result .= '<div class="circle circle';
 
 			$tipoCompromisso = 3; // livre
 			$temCompromissoNesseDia = array_key_exists($currentDay, $compromissos);
-			$dateTime = $data . 'T' . $hora;
 
 			if ($temCompromissoNesseDia) {
-				$id = $compromissos[$currentDay][$hora]["id"];
-				$timestamp = $compromissos[$currentDay][$hora]["timestamp"];
-				$nomePaciente = $compromissos[$currentDay][$hora]["nomePaciente"];
 				$temCompromissoNessaHora = array_key_exists($hora, $compromissos[$currentDay]);
 				if ($temCompromissoNessaHora) {
+					$id = $compromissos[$currentDay][$hora]["id"];
+					$timestamp = $compromissos[$currentDay][$hora]["timestamp"];
+					$nomePaciente = $compromissos[$currentDay][$hora]["nomePaciente"];
 					$tipoCompromisso = $compromissos[$currentDay][$hora]["tipo"];
 				}
 			}
@@ -172,10 +185,11 @@
 			$conteudo .= '</time>';
 			$conteudo .= '</a>';
 
-			if (count($fisioterapeuta["diasAtendimento"]) > 0 && !in_array($dayOfWeek, $fisioterapeuta["diasAtendimento"])) {
+			if (count($fisioterapeuta["diasAtendimento"]) > 0 &&
+				!in_array($dayOfWeek, $fisioterapeuta["diasAtendimento"])) {
 				$conteudo = '<a style="text-decoration:none;color:#ccc;"';
-				$conteudo .= 'data-id="' . $id . '" data-dh="' . $dateTime . '">';
-				$conteudo .= '<time datetime="' . $timestamp . '">' . $hora . '</time>';
+				$conteudo .= 'data-id="0" data-dh="' . $dateTime . '">';
+				$conteudo .= '<time datetime="' . $hora . '">' . $hora . '</time>';
 				$conteudo .= ' <span>Não há atendimento</span>';
 				$conteudo .= '</a>';
 			}

@@ -79,10 +79,22 @@
     $r .= $currentDay;
     $r .= '</a></div>';
 
+    $r .= '<div class="holiday">';
+
+    if (isset($holidays[$date])) {
+      $r .= '<span>' . $holidays[$date] . '</span>';
+    }
+    else {
+			$r .= '&nbsp;';
+		}
+
+    $r .= '</div>';
+
     for ($i = 0; $i < 24; $i++) {
 
       $time = mktime(07, $i*30, 0, 0, 0, 0);
       $hora = date('H:i', $time);
+      $dateTime = $data . 'T' . $hora;
 
       $r .= '<div id="compromisso">';
       $r .= '<div class="circle circle';
@@ -91,12 +103,11 @@
       $temCompromissoNesseDia = array_key_exists($currentDay, $compromissos);
 
       if ($temCompromissoNesseDia) {
-        $id = $compromissos[$currentDay][$hora]["id"];
-        $dateTime = $data . 'T' . $hora;
-        $timestamp = $compromissos[$currentDay][$hora]["timestamp"];
-        $nomePaciente = $compromissos[$currentDay][$hora]["nomePaciente"];
         $temCompromissoNessaHora = array_key_exists($hora, $compromissos[$currentDay]);
         if ($temCompromissoNessaHora) {
+          $id = $compromissos[$currentDay][$hora]["id"];
+          $timestamp = $compromissos[$currentDay][$hora]["timestamp"];
+          $nomePaciente = $compromissos[$currentDay][$hora]["nomePaciente"];
           $tipoCompromisso = $compromissos[$currentDay][$hora]["tipo"];
         }
       }
@@ -110,10 +121,11 @@
       $conteudo .= '</time>';
       $conteudo .= '</a>';
 
-      if (count($fisioterapeuta["diasAtendimento"]) > 0 && !in_array($dayOfWeek, $fisioterapeuta["diasAtendimento"])) {
+      if (count($fisioterapeuta["diasAtendimento"]) > 0 &&
+        !in_array($dayOfWeek, $fisioterapeuta["diasAtendimento"])) {
         $conteudo = '<a style="text-decoration:none;color:#ccc;"';
-        $conteudo .= 'data-id="' . $id . '" data-dh="' . $dateTime . '">';
-        $conteudo .= '<time datetime="' . $timestamp . '">' . $hora . '</time>';
+        $conteudo .= 'data-id="0" data-dh="' . $dateTime . '">';
+        $conteudo .= '<time datetime="' . $hora . '">' . $hora . '</time>';
         $conteudo .= ' <span>Não há atendimento</span>';
         $conteudo .= '</a>';
       }

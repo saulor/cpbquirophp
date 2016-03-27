@@ -1,0 +1,245 @@
+
+<style>
+	/*.img-thumbnail {
+		position:absolute;
+		top: 0;
+		//display: none;
+		background-color:#eae9d4;
+		padding: 6px;
+		-webkit-box-shadow: 0 0 6px rgba(132, 132, 132, .75);
+		-moz-box-shadow: 0 0 6px rgba(132, 132, 132, .75);
+		box-shadow: 0 0 6px rgba(132, 132, 132, .75);
+		-webkit-border-radius: 4px;
+		-moz-border-radius: 4px;
+		border-radius: 4px;
+	}
+	.miniatura:hover {
+		cursor:pointer;
+	}
+	td {
+		position: relative;
+	}
+	.miniatura {
+		display: block;
+		position: relative;
+		border: 1px solid red;
+	}
+	.miniatura:hover .img-thumbnail {
+		display: block;
+		z-index: 9999;
+	}*/
+</style>
+
+<?php
+
+	$rows = '';
+
+	foreach ($params["objetos"] as $objeto) {
+
+		$classes = array();
+
+		$rows .= '<tr';
+
+		if (isset($objeto["status"]) && $objeto['status'] == 0) {
+			$classes[] = 'desativada';
+		}
+
+		if (count($classes) > 0) {
+			$rows .= ' class="' . implode(" ", $classes) . '"';
+		}
+
+		$rows .= '>';
+		$rows .= '<th scope="row">';
+		$rows .= '<small>' . $iniCount++ . '</small>';
+		$rows .= '</th>';
+
+		if (isset($table["acoesMassa"])) {
+			$rows .= '<td>';
+    	$rows .= '<input type="checkbox" name="objetos[]" value="' . $objeto["id"] . '" />';
+    	$rows .= '</td>';
+    }
+
+		foreach ($table['fields'] as $key => $f) {
+
+			$classes = array();
+
+			$rows .= '<td';
+
+			if (isset($f['align'])) {
+				$classes[] = $f['align'];
+			}
+
+			if (isset($f['preview'])) {
+				$classes[] = 'ver_conteudo';
+			}
+
+			if (count($classes) > 0) {
+				$rows .= ' class="' . implode(" ", $classes) . '"';
+			}
+
+			$rows .= '>';
+
+			$classes = array();
+
+			if (isset($f['type']) && $f['type'] == 'imagem') {
+				if (existeArquivo(eval($f['dir']))) {
+					$rows .= '<img class="img-rounded miniatura" width="' . $f['size'] . '" src="' .
+						eval($f['pathF']) . '" />';
+				}
+			}
+
+			$rows .= '<span';
+
+			if (isset($f['hint'])) {
+				if ((isset($f['hint']['condition']) && eval($f['hint']['condition'])) ||
+					!isset($f['hint']['condition'])) {
+					$rows .= ' data-hint="' . eval($f['hint']['hint']) . '"';
+					$classes[] = 'hint--right';
+					$classes[] = 'hint--info';
+				}
+			}
+
+			if (count($classes) > 0) {
+				$rows .= ' class="' . implode(" ", $classes) . '"';
+			}
+
+			$rows .='>';
+
+			if (isset($f['link'])) {
+				if (isset($f['link']['condition']) && eval($f['link']['condition'])) {
+					$rows .= '<a href="' . eval($f['link']['link']);
+					if (isset($order) && !empty($order)) {
+						$rows .= '&order=' . $order;
+					}
+					$rows .=  '">';
+				}
+				else if (!isset($f['link']['condition'])) {
+					$rows .= '<a href="' . eval($f['link']['link']);
+					if (isset($order) && !empty($order)) {
+						$rows .= '&order=' . $order;
+					}
+					$rows .=  '">';
+				}
+			}
+
+			if (isset($f['type']) && $f['type'] == 'imagem') {
+				if (existeArquivo(eval($f['dir']))) {
+					$rows .= '<img class="img-thumbnail" src="' .
+						eval($f['pathF']) . '" />';
+				}
+				else {
+					$rows .= '<img class="img-rounded" width="' . $f['size'] . '" src="' .
+						eval($f['pathNf']) . '" />';
+				}
+			}
+			else {
+				if (isset($f['content'])) {
+					$rows .= eval($f['content']);
+				}
+				else {
+					$rows .= $objeto[$key];
+				}
+			}
+
+			if (isset($f['link'])) {
+				if (isset($f['link']['condition']) && eval($f['link']['condition'])) {
+					$rows .= '</a>';
+				}
+				else if (!isset($f['link']['condition'])) {
+					$rows .= '</a>';
+				}
+			}
+
+			if (isset($f['preview']) && !empty($objeto[$key])) {
+				$rows .= '<div>';
+				$rows .= $objeto[$key];
+				$rows .= '</div>';
+				$rows .= '<span class="seta-direita"></span>';
+			}
+
+			$rows .= '</span>';
+
+			if (isset($f['info'])) {
+				foreach ($f['info'] as $k => $info) {
+					if (isset($info['condition']) && eval($info['condition'])) {
+						$rows .= '<br /><small>';
+						$rows .= eval($info['info']);
+						$rows .= '</small>';
+					}
+					else if (!isset($info['condition'])) {
+						$rows .= '<br /><small>';
+						$rows .= eval($info['info']);
+						$rows .= '</small>';
+					}
+
+				}
+			}
+
+			if (isset($f['links'])) {
+				$rows .= '<div id="links">';
+				$links = array();
+				foreach ($f['links'] as $label => $link) {
+					if (!isset($link["condition"]) || eval($link['condition'])) {
+						$a = '<a ';
+						if (isset($link['target'])) {
+							$a .= ' target="' . $link['target'] . '"';
+						}
+						$a .= 'href="' . eval($link["url"]);
+						$a .= '">' . $label . '</a>';
+						$links[] = $a;
+					}
+				}
+				$rows .= implode(" | ", $links);
+				$rows .= '</div>';
+			}
+
+			$rows .= '</td>';
+		}
+
+		if (isset($table["acoes"]) && count($table["acoes"]) > 0) {
+
+			foreach ($table["acoes"] as $nomeAcao => $acao) {
+
+				$rows .= '<td align="center">';
+
+				if (isset($acao['condition']) && eval($acao['condition'])) {
+					$rows .= '<a ';
+					$rows .= 'href="?modulo=' . $modulo;
+
+					$arr1 = $arr2 = array();
+					foreach ($acao as $key => $value) {
+						$arr1[] = $key . "=" . eval($value);
+						$arr2[] = '\'' . $key . '\':' . '\'' . eval($value) . '\'';
+					}
+
+					if (isset($pagina) && !empty($pagina) && $pagina > 1) {
+						$arr1[] = 'p=' . $pagina;
+						$arr2[] = '\'p\':' . $pagina;
+					}
+
+					if (isset($order) && !empty($order)) {
+						$arr1[] = 'order=' . $order;
+						$arr2[] = '\'order\':\'' . $order . '\'';
+					}
+
+					if (isset($exibir) && !empty($exibir) && $exibir != QUANTIDADE_POR_PAGINA) {
+						$arr1[] = 'exibir=' . $exibir;
+						$arr2[] = '\'exibir\':' . $exibir . '';
+					}
+
+					$rows .= "&" . implode("&", $arr1);
+					$rows .= '"';
+					$rows .= ' onclick="excluir(\'' . $modulo . '\', {';
+					$rows .= implode(",", $arr2);
+					$rows .= '});return false;"';
+					$rows .= '>';
+					$rows .= $nomeAcao;
+					$rows .= '</a>';
+				}
+
+				$rows .= '</td>';
+			}
+		}
+		$rows .= '</tr>';
+	}
+?>

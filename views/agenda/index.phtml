@@ -7,6 +7,7 @@
 	$dia = 1;
 	$mes = $params["mes"];
 	$ano = $params["ano"];
+	$holidays = $params["holidays"];
 ?>
 
 <script>
@@ -23,8 +24,13 @@
 				dataType: "json",
 				data: {nome: nome}
 			}).done(function(response) {
+				$('#paciente').val(response.id);
 				if (response.telefoneResidencial) {
 					$('#telefoneResidencial').val(response.telefoneResidencial);
+				}
+				if (response.foto) {
+					$('#foto').attr('src', response.pathFoto);
+					$('#fotoPaciente').val(response.foto);
 				}
 				if (response.telefoneCelular) {
 					$('#telefoneCelular').val(response.telefoneCelular);
@@ -73,13 +79,17 @@
 						data: {id : idCompromisso}
 					}).done(function(response) {
 						$('#tipo').val(response.tipo);
-						$('#paciente').val(response.nomePaciente);
+						$('#paciente').val(response.paciente);
+						$('#nomePaciente').val(response.nomePaciente);
 						$('#telefoneResidencial').val(response.telefoneResidencial);
 						$('#telefoneCelular').val(response.telefoneCelular);
 						$('#lembrete').val(response.lembrete);
 						$('#observacoes').val(response.observacoes);
 						$('#m' + response.marcador).prop('checked', 'checked');
 						$('#excluirGrid').css('display', 'block');
+						if (response.pathFoto) {
+							$('#foto').prop('src', response.pathFoto);
+						}
 						var fisioterapeutas = response.fisioterapeutas.split(',');
 						for (f in fisioterapeutas) {
 							$('#f' + fisioterapeutas[f]).prop('checked', 'checked');
@@ -113,9 +123,12 @@
 
 	function clear() {
 		$('#id').val(0);
+		$('#paciente').val(0);
 		$('#form input:text').each(function(){
 			$(this).val('');
 		});
+		$('#form #foto').attr('src', 'imagens/user.gif');
+		$('#form #fotoPaciente').val('');
 		$('#form textarea').each(function(){
 			$(this).val('');
 		});
@@ -132,7 +145,7 @@
 
 	$(document).ready(function(){
 		init();
-		//$('#fisioterapeutas').trigger("change");
+		$('#fisioterapeutas').trigger("change");
 	});
 
 </script>
@@ -176,6 +189,7 @@
     <div id="validation-container"></div>
     <form id="form" method="post">
     	<input type="hidden" id="id" name="id" value="0" />
+			<input type="hidden" id="paciente" name="paciente" value="0" />
 	    <div class="grid">
 	    	<div class="col-3-12">
 	    		<div class="content">
@@ -226,9 +240,7 @@
 							name="data" type="text" autocomplete="off" />
 	    		</div>
 	    	</div>
-	    </div>
-	    <div class="grid">
-	    	<div class="col-3-12">
+				<div class="col-2-12">
 	    		<div class="content">
 	    			<label for="Hora">Hora:</label>
 	    		</div>
@@ -240,15 +252,28 @@
 	    		</div>
 	    	</div>
 	    </div>
+			<div class="grid">
+	    	<div class="col-3-12">
+	    		<div class="content">
+	    			<label for="Foto">Foto:</label>
+	    		</div>
+	    	</div>
+	    	<div class="col-3-12">
+	    		<div class="content">
+	    			<img id="foto" class="img-thumbnail img-responsive" style="width: 60%;" src="imagens/user.gif" alt="" />
+						<input id="fotoPaciente" type="hidden" name="fotoPaciente" value="" />
+	    		</div>
+	    	</div>
+	    </div>
 	    <div class="grid">
 	    	<div class="col-3-12">
 	    		<div class="content">
 	    			<label for="Paciente">Paciente:</label>
 	    		</div>
 	    	</div>
-	    	<div class="col-7-12">
+	    	<div class="col-8-12">
 	    		<div class="content">
-	    			<input class="form-control autocomplete1" id="paciente" name="nomePaciente"
+	    			<input class="form-control autocomplete1" id="nomePaciente" name="nomePaciente"
 							placeholder="Nome do paciente" size="60" type="text" />
 	    		</div>
 	    	</div>
@@ -265,9 +290,7 @@
 							name="telefoneResidencial" placeholder="Telefone Residencial" size="40" type="text" autocomplete="off" />
 	    		</div>
 	    	</div>
-	    </div>
-	    <div class="grid">
-	    	<div class="col-3-12">
+				<div class="col-2-12">
 	    		<div class="content">
 	    			<label for="Telefone">Telefone Celular:</label>
 	    		</div>
@@ -280,12 +303,15 @@
 	    	</div>
 	    </div>
 	    <div class="grid">
+
+	    </div>
+	    <div class="grid">
 	    	<div class="col-3-12">
 	    		<div class="content">
 	    			<label for="Lembrete">Lembrete:</label>
 	    		</div>
 	    	</div>
-	    	<div class="col-7-12">
+	    	<div class="col-8-12">
 	    		<div class="content">
 	    			<textarea class="form-control" id="lembrete" placeholder="Lembrete" name="lembrete" cols="90"
 							rows="2" maxlength="255"></textarea>
@@ -298,7 +324,7 @@
 	    			<label for="Observações">Observações:</label>
 	    		</div>
 	    	</div>
-	    	<div class="col-7-12">
+	    	<div class="col-8-12">
 	    		<div class="content">
 	    			<textarea class="form-control" id="observacoes" placeholder="Observações" name="observacoes"
 							cols="90" rows="2" maxlength="255"></textarea>
@@ -417,7 +443,8 @@
 
 		var campos = [];
 
-		if ($("#paciente").val() == '') {
+		if ($("#nomePaciente").val() == '') {
+			alert($("#nomePaciente").val());
 			campos.push('Paciente');
 		}
 
@@ -428,8 +455,8 @@
 		if (campos.length > 0) {
 			$('<div/>', {
 				id : 'validation',
-			    class : 'alert alert-danger',
-			    text : 'O(s) campo(s) ' + campos.join(', ') + ' é(são) obrigatório(s)'
+		    class : 'alert alert-danger',
+		    text : 'O(s) campo(s) ' + campos.join(', ') + ' é(são) obrigatório(s)'
 			}).appendTo('#validation-container');
 			return;
 		}

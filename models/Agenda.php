@@ -54,6 +54,14 @@ class Agenda extends Model {
 	* @type text
 	* @length 255
 	*/
+	protected $_fotoPaciente;
+
+	/**
+	* @column
+	* @readwrite
+	* @type text
+	* @length 255
+	*/
 	protected $_fisioterapeutas;
 
 	/**

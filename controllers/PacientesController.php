@@ -8,13 +8,13 @@ class PacientesController extends Controller {
 		"labelSing" => "Paciente",
 		"labelPlur" => "Pacientes"
 	);
-	
+
 	public function PacientesController() {
 		parent::__construct();
 	}
-	
+
     public function indexAction() {
-    	
+
     	try {
     		$conexao = $this->conexao->getConexao();
     		$breadcrumbs = array();
@@ -34,7 +34,7 @@ class PacientesController extends Controller {
     		}
     		$quantidade = 0;
     		$objetos = array();
-    		
+
     		$quantidade = $this->dao->count($conexao, "pacientes");
     		$pacientes = $this->dao->findAll($conexao, "pacientes", array(
     				"limit" => $limit,
@@ -42,11 +42,11 @@ class PacientesController extends Controller {
     				"order" => $order
     			)
     		);
-    		
+
     		if (count($pacientes) == 0 && $pagina > 1) {
     			Application::redirect("?modulo=".$_GET["modulo"]."&p=".($pagina-1));
     		}
-    		
+
     	}
     	catch (Exception $e) {
     		setMensagem("error", $e->getMessage());
@@ -54,29 +54,29 @@ class PacientesController extends Controller {
     	$conexao->disconnect();
     	$view = new View($_GET["modulo"], "painel", "index.phtml");
     	$view->setParams(array(
-    			"title" => getTitulo($breadcrumbs), 
+    			"title" => getTitulo($breadcrumbs),
     			"objetos" => $pacientes,
     			"quantidade" => $quantidade,
     			"quantidadePorPagina" => $quantidadePorPagina,
     			"pagina" => $pagina,
     			"breadcrumbs" => $breadcrumbs
-    			
+
     		)
     	);
     	$view->showContents();
-		
+
     }
-    
+
     public function cadastrarAction() {
-    	
+
     	try {
     		$conexao = $this->conexao->getConexao();
     		$redirecionar = "?modulo=pacientes";
     		$breadcrumbs = array();
     		$breadcrumbs[] = array("Pacientes" => "?modulo=".$_GET["modulo"]);
-    		
+
     		$dados = inicializaDados(new Paciente());
-    		
+
     		if (isset($_GET["id"])) {
     			$dados = $this->dao->findByPk($conexao, "pacientes", (int) $_GET["id"]);
     			$breadcrumbs[] = array(
@@ -92,53 +92,60 @@ class PacientesController extends Controller {
     		}
 
     		if (count($_POST) > 0) {
-    	
+
     			$redirecionar = NULL;
     			$dados = $_POST["Paciente"];
     			$dados["tratamentos"] = isset($dados["tratamentos"]) ? implode(",", $dados["tratamentos"]) : NULL;
-    			
+
     			$obrigatorios = array(
     				"nome" => array(
-    					"tipo" => "input", 
+    					"tipo" => "input",
     					"nome" => "Nome"
-    				)	
+    				)
     			);
-    			
+
     			$mensagem = validaPost($obrigatorios, $dados);
     			if (!empty($mensagem)) {
     				throw new Exception($mensagem);
     			}
-    			
+
     			if (Funcoes::jaExiste($conexao, $this->dao, $dados, "pacientes", "nome")) {
     				throw new Exception('Já existe um paciente com esse nome');
     			}
-    			
+
     			if ($dados["id"] == 0) {
     				$dados["timestamp"] = time();
     				$dados["data"] = date('d/m/Y H:i:s', $dados["timestamp"]);
     			}
-    			
+
     			$dados = $this->dao->salva($conexao, "pacientes", $dados);
-    			
-    			if ($acao == "novo") {					
+
+    			if ($acao == "novo") {
     				setMensagem("info", "Paciente cadastrado [" . $dados["nome"] . "]");
     			}
     			else {
+						$conexao->query()
+							->from("agenda")
+							->where("paciente = ?", (int) $dados["id"])
+							->save(array(
+									'nomePaciente' => $dados["nome"]
+								)
+							);
     				setMensagem("info", "Paciente atualizado [" . $dados["nome"] . "]");
     			}
-    			
+
     			$redirecionar = "?modulo=pacientes&acao=cadastrar&id=" . $dados["id"];
     			if (isset($_GET["r"])) {
     				$redirecionar = urldecode($_GET["r"]);
     			}
-    			
-    			$conexao->commit();	
+
+    			$conexao->commit();
     			$conexao->disconnect();
     			Application::redirect($redirecionar);
     			exit;
-    			
+
     		}
-    		
+
     	}
     	catch (Exception $e) {
     		$conexao->rollback();
@@ -148,21 +155,21 @@ class PacientesController extends Controller {
     			exit;
     		}
     	}
-    	
-    	$conexao->disconnect();					
+
+    	$conexao->disconnect();
     	$view = new View($_GET["modulo"], "painel", "novo.phtml");
     	$view->setParams(array(
-    			"title" => getTitulo($breadcrumbs), 
+    			"title" => getTitulo($breadcrumbs),
     			"breadcrumbs" => $breadcrumbs,
     			"paciente" => $dados
     		)
     	);
     	$view->showContents();
-    	
+
     }
-    
+
     public function observacoesAction() {
-        	
+
     	try {
     		$conexao = $this->conexao->getConexao();
     		$redirecionar = "?modulo=pacientes";
@@ -170,44 +177,44 @@ class PacientesController extends Controller {
     		$breadcrumbs[] = array(
     			"Pacientes" => "?modulo=pacientes",
     		);
-    		
+
     		$dadosHistorico = $this->dao->findByPk($conexao, "atendimentos_historico", getVariavel("id"));
 			$dadosAtendimento = $this->dao->findByPk($conexao, "atendimentos", $dadosHistorico["atendimento"]);
 			$dadosPaciente = $this->dao->findByPk($conexao, "pacientes", $dadosAtendimento["paciente"]);
-			
+
 			$breadcrumbs[] = array(
 				$dadosPaciente["nome"] => "?modulo=pacientes&acao=atendimento&id=" . $dadosPaciente["id"],
 				"Observações sobre o atendimento" => ""
 			);
 
     		if (count($_POST) > 0) {
-    	
+
     			$dados = $_POST;
-    			
+
     			$obrigatorios = array(
     				"observacoes" => array(
-    					"tipo" => "textarea", 
+    					"tipo" => "textarea",
     					"nome" => "Observações sobre o atendimento"
-    				)	
+    				)
     			);
-    			
+
     			$mensagem = validaPost($obrigatorios, $dados);
     			if (!empty($mensagem)) {
     				$redirecionar = NULL;
     				throw new Exception($mensagem);
     			}
-    			
+
 				$this->dao->salva($conexao, "atendimentos_historico", $dados);
 				setMensagem("info", "Observações atualizadas");
-    			
-    			$conexao->commit();	
+
+    			$conexao->commit();
     			$conexao->disconnect();
     			$redirecionar = "?modulo=pacientes&acao=atendimento&id=" . $dadosPaciente["id"];
     			Application::redirect($redirecionar);
     			exit;
-    			
+
     		}
-    		
+
     	}
     	catch (Exception $e) {
     		$conexao->rollback();
@@ -217,11 +224,11 @@ class PacientesController extends Controller {
     			exit;
     		}
     	}
-    	
-    	$conexao->disconnect();					
+
+    	$conexao->disconnect();
     	$view = new View($_GET["modulo"], "painel", "observacoes.phtml");
     	$view->setParams(array(
-    			"title" => getTitulo($breadcrumbs), 
+    			"title" => getTitulo($breadcrumbs),
     			"breadcrumbs" => $breadcrumbs,
     			"paciente" => $dadosPaciente,
     			"atendimento" => $dadosAtendimento,
@@ -229,32 +236,32 @@ class PacientesController extends Controller {
     		)
     	);
     	$view->showContents();
-    	
+
     }
-    
+
     public function fotoAction() {
-        	
+
     	try {
     		$conexao = $this->conexao->getConexao();
     		$redirecionar = "?modulo=pacientes";
     		$breadcrumbs = array();
-    		
+
     		$breadcrumbs[] = array(
     			"Pacientes" => "?modulo=".$_GET["modulo"],
     		);
-    		
+
     		$dados = inicializaDados(new Paciente());
-    		
+
     		if (isset($_GET["id"])) {
-    			$id = (int) $_GET["id"]; 
+    			$id = (int) $_GET["id"];
     			$dados = $this->dao->findByPk($conexao, "pacientes", $id);
     		}
-    		
+
     		$breadcrumbs[] = array(
     			$dados["nome"] => "?modulo=pacientes&acao=cadastrar&id=" . $dados["id"],
     			"Tirar foto" => ""
     		);
-    		
+
     	}
     	catch (Exception $e) {
     		$conexao->rollback();
@@ -264,27 +271,27 @@ class PacientesController extends Controller {
     			exit;
     		}
     	}
-    	
-    	$conexao->disconnect();					
+
+    	$conexao->disconnect();
     	$view = new View($_GET["modulo"], "painel", "foto.phtml");
     	$view->setParams(array(
-    			"title" => getTitulo($breadcrumbs), 
+    			"title" => getTitulo($breadcrumbs),
     			"breadcrumbs" => $breadcrumbs,
     			"paciente" => $dados
     		)
     	);
     	$view->showContents();
-    	
+
     }
-    
+
     public function atendimentoAction() {
-        	
+
     	try {
     		$conexao = $this->conexao->getConexao();
     		$redirecionar = "?modulo=" . $_GET["modulo"];
     		$breadcrumbs = array();
     		$breadcrumbs[] = array("Pacientes" => "?modulo=" . $_GET["modulo"]);
-    		
+
     		// recupera o paciente e o atendimento.
     		$paciente = $this->dao->findByPk($conexao, "pacientes", getVariavel("paciente"));
     		$atendimento = $this->dao->find($conexao, "atendimentos", array(
@@ -314,14 +321,14 @@ class PacientesController extends Controller {
     			Application::redirect('?modulo=pacientes&acao=atendimento&paciente=' . $paciente['id']);
     			exit;
     		}
-    		
+
     		$doresAtuais = $atendimento["dores"] = $this->dao->findAll($conexao, "atendimentos_dores", array(
     				"where" => array(
     					"atendimento" => (int) $atendimento["id"]
     				)
     			)
     		);
-    		
+
     		$historico = $this->dao->findAll($conexao, "atendimentos_historico", array(
     				"where" => array(
     					"atendimento" => (int) $atendimento["id"]
@@ -331,7 +338,7 @@ class PacientesController extends Controller {
     				)
     			)
     		);
-    		
+
     		if (isset($_GET["id"])) {
     			$breadcrumbs[] = array(
     				"Atendimento" => ""
@@ -346,28 +353,28 @@ class PacientesController extends Controller {
     		}
 
     		if (count($_POST) > 0) {
-    			
+
     			$redirecionar = NULL;
     			$atendimentoIn = $atendimento = $_POST['Atendimento'];
     			$atendimento["intestinos"] = $atendimentoIn["intestinos"] = isset($atendimentoIn["intestinos"]) ? $atendimentoIn["intestinos"] : 0;
     			$atendimento["sono"] = $atendimentoIn["sono"] = isset($atendimentoIn["sono"]) ? $atendimentoIn["sono"] : 0;
     			$atendimento["agua"] = $atendimentoIn["agua"] = isset($atendimentoIn["agua"]) ? $atendimentoIn["agua"] : 0;
     			$atendimento["alimentacao"] = $atendimentoIn["alimentacao"] = isset($atendimentoIn["alimentacao"]) ? $atendimentoIn["alimentacao"] : 0;
-    			
+
     			$atendimento["dores"] = $dores = $_POST['Dores'];
-    			
+
 				$locaisAtuais = $locais = array();
-				
+
     			foreach ($doresAtuais as $dor) {
     				$locaisAtuais[$dor["id"]] = $dor["local"];
     			}
-    			
+
     			foreach ($dores as $dor) {
     				if (isset($dor["local"])) {
     					$locais[$dor["id"]] = $dor["local"];
     				}
     			}
-    			
+
     			$mensagens = array();
     			$mensagem = validaPost($obrigatorios, $atendimentoIn);
     			if (!empty($mensagem)) {
@@ -380,7 +387,7 @@ class PacientesController extends Controller {
     			if (count($mensagens) > 0) {
     				throw new Exception(implode("<br />", $mensagens));
     			}
-    			
+
     			$atendimentoIn = $this->dao->salva($conexao, "atendimentos", $atendimentoIn);
     			$time = time();
     			$historico = $this->dao->salva($conexao, "atendimentos_historico", array(
@@ -391,13 +398,13 @@ class PacientesController extends Controller {
     					"observacoes" => 'Atendimento realizado'
     				)
     			);
-    			
+
     			$result = array_diff($locaisAtuais, $locais);
-    			
+
     			foreach (array_diff($locaisAtuais, $locais) as $id => $value) {
     				$this->dao->excluiByPk($conexao, "atendimentos_dores", $id);
     			}
-    			
+
     			foreach ($dores as $dor) {
     				$d = array();
     				// só vai cadastrar se for definida a localização da dor
@@ -408,18 +415,18 @@ class PacientesController extends Controller {
     					$d["local"] = $dor["local"];
     					$d["caracteristica"] = $dor["caracteristica"];
     					$d["grau"] = $dor["grau"];
-    					$d["intensidade"] = isset($dor["intensidade"]) ? implode(",", $dor["intensidade"]) : 0;	
+    					$d["intensidade"] = isset($dor["intensidade"]) ? implode(",", $dor["intensidade"]) : 0;
 						$this->dao->salva($conexao, "atendimentos_dores", $d);
-    				}	
+    				}
     			}
-    			
+
     			$conexao->commit();
 				setMensagem("info", "Atendimento realizado");
     			Application::redirect("?modulo=" . $_GET["modulo"] . "&acao=atendimento&paciente=" . $paciente["id"]);
     			exit;
-    			
+
     		}
-    		
+
     	}
     	catch (Exception $e) {
     		$conexao->rollback();
@@ -429,11 +436,11 @@ class PacientesController extends Controller {
     			exit;
     		}
     	}
-    	
-    	$conexao->disconnect();					
+
+    	$conexao->disconnect();
     	$view = new View($_GET["modulo"], "painel", "atendimento.phtml");
     	$view->setParams(array(
-    			"title" => getTitulo($breadcrumbs), 
+    			"title" => getTitulo($breadcrumbs),
     			"breadcrumbs" => $breadcrumbs,
     			"paciente" => $paciente,
     			"atendimento" => $atendimento,
@@ -441,11 +448,11 @@ class PacientesController extends Controller {
     		)
     	);
     	$view->showContents();
-    	
+
     }
-    
+
     public function excluirAction() {
-    
+
     	try {
     		$conexao = $this->conexao->getConexao();
     		$dados = $this->dao->findByPk($conexao, "pacientes", getVariavel("id"));
@@ -456,7 +463,7 @@ class PacientesController extends Controller {
     				)
     			)
     		);
-    		
+
     		if ($affectedRows) {
     			$diretorio = DIR_UPLOADS . SEPARADOR_DIRETORIO . "pacientes" . SEPARADOR_DIRETORIO . $dados["id"];
     			excluiDiretorio($diretorio);
@@ -468,7 +475,7 @@ class PacientesController extends Controller {
     		$conexao->rollback();
     		setMensagem("error", $e->getMessage());
     	}
-    	
+
     	$redirecionar = "?modulo=pacientes";
     	if (isset($_GET['exibir'])) {
     		$redirecionar .= '&exibir=' . $_GET['exibir'];
@@ -478,15 +485,15 @@ class PacientesController extends Controller {
     	}
     	Application::redirect($redirecionar);
     	exit;
-    	
+
     }
-    
+
     public function removeraAction() {
     	try {
     		$conexao = $this->conexao->getConexao();
     		$dados = $this->dao->findByPk ($conexao, "atendimentos", getVariavel("atendimento"));
     		$diretorio = DIR_UPLOADS . SEPARADOR_DIRETORIO . 'atendimentos' . SEPARADOR_DIRETORIO . $dados['id'] . SEPARADOR_DIRETORIO . $_GET['arquivo'];
-    		if (excluiArquivo($diretorio)) {				
+    		if (excluiArquivo($diretorio)) {
     			setMensagem("info", "Arquivo excluído [" . $_GET['arquivo'] . "]");
     		}
     	}
@@ -494,12 +501,12 @@ class PacientesController extends Controller {
     		$conexao->rollback();
     		setMensagem("error", $e->getMessage());
     	}
-    	
+
     	Application::redirect("?modulo=pacientes&acao=atendimento&id=" . $dados["id"]);
     	exit;
-    	
+
     }
-    
+
     public function removerhAction() {
     	try {
     		$conexao = $this->conexao->getConexao();
@@ -507,12 +514,12 @@ class PacientesController extends Controller {
     		$dadosA = $this->dao->findByPk ($conexao, "atendimentos", $dadosH["atendimento"]);
 
     		$affectedRows = $this->dao->excluiByPk($conexao, "atendimentos_historico", $dadosH["id"]);
-    		
+
     		if ($affectedRows) {
     			$conexao->commit();
     			setMensagem("info", "Registro excluído do histórico de atendimentos com sucesso");
     		}
-    		
+
     	}
     	catch (Exception $e) {
     		$conexao->rollback();
@@ -521,33 +528,33 @@ class PacientesController extends Controller {
 		$redirect = "?modulo=pacientes&acao=atendimento&paciente=" . $dadosA["paciente"];
     	Application::redirect($redirect);
     	exit;
-    	
+
     }
-    
+
     public function opcoesAction() {
     	try {
     		$processados = 0;
     		$naoProcessados = 0;
-    		
+
     		if (empty($_POST["acoes"])) {
     			throw new Exception("É necessário escolher uma ação");
     		}
-    		
+
     		$conexao = $this->conexao->getConexao();
     		$objetos = isset($_POST["objetos"]) ? $_POST["objetos"] : array();
-    		
+
     		// retira o elemento -1, caso exista
     		if (count($objetos) > 0 && $objetos[0] == -1) {
     			array_shift($objetos);
     		}
-    		
+
     		foreach ($objetos as $id) {
     			$dados = $this->dao->findByPk ($conexao, $this->info["tabela"], $id);
     			switch ($_POST['acoes']) {
-    			
+
     				case 'excluir' :
-    					$opcao = "excluído(a)(s)";	
-    					try {	
+    					$opcao = "excluído(a)(s)";
+    					try {
     						$affectedRows = $this->dao->excluiByPk ($conexao, $this->info["tabela"], $dados["id"]);
     						if ($affectedRows > 0) {
     							$processados += 1;
@@ -560,10 +567,10 @@ class PacientesController extends Controller {
     						$naoProcessados+=1;
     					}
     				break;
-    				
+
     			}
     		}
-    		
+
     	}
     	catch (Exception $e) {
     		if (isset($conexao)) {
@@ -571,20 +578,20 @@ class PacientesController extends Controller {
     		}
     		setMensagem("error", $e->getMessage());
     	}
-    	
+
     	if ($processados > 0) {
     		$conexao->commit();
     		setMensagem("info", $processados . " " . $opcao);
     	}
-    	
+
     	if ($naoProcessados > 0) {
     		setMensagem("error", $naoProcessados . " não pode(m) ser " . $opcao);
     	}
-    	
+
     	if (isset($conexao)) {
     		$conexao->disconnect();
     	}
-    	
+
     	$redirecionar = "?modulo=pacientes";
     	if (isset($_GET['exibir'])) {
     		$redirecionar .= '&exibir=' . $_GET['exibir'];
@@ -595,31 +602,31 @@ class PacientesController extends Controller {
     	Application::redirect($redirecionar);
     	exit;
     }
-    
+
     public function removerAction() {
-    	
+
     	try {
     		$conexao = $this->conexao->getConexao();
-    		$redirecionar = "?modulo=pacientes";				
-    		$objeto = $this->dao->findByPk ($conexao, "pacientes", (int) $_GET["id"]);	
-    		$redirecionar .= "&acao=cadastrar&id=" . $objeto["id"];		
+    		$redirecionar = "?modulo=pacientes";
+    		$objeto = $this->dao->findByPk ($conexao, "pacientes", (int) $_GET["id"]);
+    		$redirecionar .= "&acao=cadastrar&id=" . $objeto["id"];
     		$diretorio = DIR_UPLOADS . SEPARADOR_DIRETORIO . "pacientes" . SEPARADOR_DIRETORIO . $objeto["id"];
     		$diretorio .= SEPARADOR_DIRETORIO . $objeto["foto"];
-    		
+
     		if (!existeArquivo($diretorio)) {
     			throw new Exception ("Imagem não encontrada");
     		}
-    		
+
     		if (excluiArquivo($diretorio)) {
     			$objeto["foto"] = NULL;
     			$this->dao->salva($conexao, "pacientes", $objeto);
     			$conexao->commit();
     			setMensagem("info", "Foto excluída");
     		}
-    		
+
     		Application::redirect($redirecionar);
     		exit;
-    		
+
     	}
     	catch (Exception $e) {
     		$conexao->rollback();
@@ -629,9 +636,9 @@ class PacientesController extends Controller {
     			exit;
     		}
     	}
-    
+
     }
-    
+
     public function fichaAction() {
     	try {
     		$conexao = $this->conexao->getConexao();
@@ -648,18 +655,18 @@ class PacientesController extends Controller {
     		}
     		$f = new Ficha();
     		$f->AddPage();
-    		
+
     		$f->setTextColor(0,0,0);
     		$f->setY(38);
     		$f->setX(30);
     		$f->SetFont('Helvetica','B',12);
     		$f->SetFont('Helvetica','B',11);
     		$f->Cell(0,0,utf8_decode('FICHA DO PACIENTE'));
-    		
+
     		$f->setY(48);
     		$f->setX(30);
     		$f->SetFont('Helvetica','B',10);
-    		
+
 			$f->Cell(0,0,utf8_decode('IDENTIFICAÇÃO'));
 
 			$f->setY($f->getY()+6);
@@ -673,7 +680,7 @@ class PacientesController extends Controller {
 			$f->setY($f->getY()-2);
 			$f->setX(30);
 			$f->Cell(0,0,utf8_decode($dados["nome"]));
-			
+
 			$f->setY($f->getY()-4);
 			$f->setX(138);
 			$f->SetFont('Helvetica','B',10);
@@ -685,7 +692,7 @@ class PacientesController extends Controller {
 			$f->setY($f->getY()-2);
 			$f->setX(138);
 			$f->Cell(0,0,utf8_decode($dados["idade"]) . " ano(s)");
-					
+
 			$f->setY($f->getY()-4);
 			$f->setX(156);
 			$f->SetFont('Helvetica','B',10);
@@ -696,8 +703,8 @@ class PacientesController extends Controller {
 			$f->Cell(36,0.1,'',0,0,0,true,'');
 			$f->setY($f->getY()-2);
 			$f->setX(156);
-			$f->Cell(0,0,utf8_decode($dados["cpf"]));	
-			
+			$f->Cell(0,0,utf8_decode($dados["cpf"]));
+
 			$f->setY($f->getY() + 6);
 			$f->setX(30);
 			$f->SetFont('Helvetica','B',10);
@@ -709,7 +716,7 @@ class PacientesController extends Controller {
 			$f->setY($f->getY() - 2);
 			$f->setX(30);
 			$f->Cell(0,0,$dados["dataNascimento"]);
-			
+
 			$f->setY($f->getY() - 4);
 			$f->setX(72);
 			$f->SetFont('Helvetica','B',10);
@@ -721,7 +728,7 @@ class PacientesController extends Controller {
 			$f->setY($f->getY() - 2);
 			$f->setX(72);
 			$f->Cell(0,0,utf8_decode($dados["sexo"]));
-			
+
 			$f->setY($f->getY() - 4);
 			$f->setX(114);
 			$f->SetFont('Helvetica','B',10);
@@ -729,11 +736,11 @@ class PacientesController extends Controller {
 			$f->SetFont('Helvetica','',9);
 			$f->setY($f->getY() + 6);
 			$f->setX(115);
-			$f->Cell(78,0.1,'',0,0,0,true,'');		
+			$f->Cell(78,0.1,'',0,0,0,true,'');
 			$f->setY($f->getY() - 2);
 			$f->setX(114);
 			$f->Cell(0,0,utf8_decode($dados["estadoCivil"]));
-			
+
 			$f->setY($f->getY() + 6);
 			$f->setX(30);
 			$f->SetFont('Helvetica','B',10);
@@ -745,7 +752,7 @@ class PacientesController extends Controller {
 			$f->setY($f->getY() - 2);
 			$f->setX(30);
 			$f->Cell(0,0,utf8_decode($dados["cep"]));
-			
+
 			$f->setY($f->getY() - 4);
 			$f->setX(72);
 			$f->SetFont('Helvetica','B',10);
@@ -764,9 +771,9 @@ class PacientesController extends Controller {
 				$endereco .= " " . $dados["complemento"];
 			}
 			$f->Cell(0,0,utf8_decode($endereco));
-			
-		
-			
+
+
+
 			$f->setY($f->getY()+6);
 			$f->setX(30);
 			$f->SetFont('Helvetica','B',10);
@@ -802,7 +809,7 @@ class PacientesController extends Controller {
 			$f->setY($f->getY()-2);
 			$f->setX(30);
 			$f->Cell(0,0,utf8_decode($dados["telefoneCelular"]));
-			
+
 			$f->setY($f->getY()-4);
 			$f->setX(71);
 			$f->SetFont('Helvetica','B',10);
@@ -826,7 +833,7 @@ class PacientesController extends Controller {
 			$f->setY($f->getY()-2);
 			$f->setX(30);
 			$f->Cell(0,0,utf8_decode($dados["email"]));
-			
+
 			$f->setY($f->getY()-4);
 			$f->setX(113);
 			$f->SetFont('Helvetica','B',10);
@@ -838,7 +845,7 @@ class PacientesController extends Controller {
 			$f->setY($f->getY()-2);
 			$f->setX(113);
 			$f->Cell(0,0,utf8_decode($dados["profissao"]));
-			
+
 			$f->setY($f->getY()+6);
 			$f->setX(30);
 			$f->SetFont('Helvetica','B',10);
@@ -850,7 +857,7 @@ class PacientesController extends Controller {
 			$f->setY($f->getY()-2);
 			$f->setX(30);
 			$f->Cell(0,0,utf8_decode(Paciente::getTratamentos($dados["tratamentos"])));
-			
+
 			$f->setY($f->getY()+6);
 			$f->setX(30);
 			$f->SetFont('Helvetica','B',10);
@@ -862,7 +869,7 @@ class PacientesController extends Controller {
 			$f->setY($f->getY()-2);
 			$f->setX(30);
 			$f->Cell(0,0, $atendimento["altura"]);
-			
+
 			$f->setY($f->getY()-4);
 			$f->setX(45);
 			$f->SetFont('Helvetica','B',10);
@@ -874,7 +881,7 @@ class PacientesController extends Controller {
 			$f->setY($f->getY()-2);
 			$f->setX(45);
 			$f->Cell(0,0,utf8_decode($atendimento["peso"]));
-			
+
 			$f->setY($f->getY()-4);
 			$f->setX(60);
 			$f->SetFont('Helvetica','B',10);
@@ -886,7 +893,7 @@ class PacientesController extends Controller {
 			$f->setY($f->getY()-2);
 			$f->setX(60);
 			$f->Cell(0,0,utf8_decode($atendimento["imc"]));
-			
+
 			$f->setY($f->getY()+8);
 			$f->setX(30);
 			$f->SetFont('Helvetica','B',10);
@@ -896,7 +903,7 @@ class PacientesController extends Controller {
 			$f->setY($f->getY()+2);
 			$f->setX(30);
 			$f->MultiCell(0,5, empty($atendimento["hda"]) ? "Nada registrado" : strip_tags($atendimento["hda"]));
-			
+
 			$f->setY($f->getY()+6);
 			$f->setX(30);
 			$f->SetFont('Helvetica','B',10);
@@ -906,7 +913,7 @@ class PacientesController extends Controller {
 			$f->setY($f->getY()+2);
 			$f->setX(30);
 			$f->MultiCell(0,5, empty($atendimento["avaliacaoPostural"]) ? "Nada registrado" : strip_tags($atendimento["avaliacaoPostural"]));
-			
+
 			$f->setY($f->getY()+6);
 			$f->setX(30);
 			$f->SetFont('Helvetica','B',10);
@@ -916,15 +923,15 @@ class PacientesController extends Controller {
 			$f->setY($f->getY()+2);
 			$f->setX(30);
 			$f->MultiCell(0,5,  empty($atendimento["evolucao"]) ? "Nada registrado" : strip_tags($atendimento["evolucao"]));
-			
+
 			$f->output();
-    		
+
     	}
     	catch (Exception $e) {
-    		
+
     	}
     }
-	
+
 }
 
 ?>

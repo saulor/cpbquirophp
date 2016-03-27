@@ -1,90 +1,100 @@
 <?php
 	$params = $this->getParams();
-    $modulo = $_GET["modulo"];
-    $exibir = isset($_GET["exibir"]) ? $_GET["exibir"] : NULL;
-    $order = isset($_GET["order"]) ? $_GET["order"] : NULL;
-    $quantidade = $params["quantidade"];
-    $quantidadePorPagina = $params["quantidadePorPagina"];
-    $pagina = $params["pagina"];
-    $objetos = $params["objetos"];
-    
-    if ($quantidade == 0) {
-        $iniCount = $inicio = 0;
-   	}
-    else {
-        $iniCount = $inicio = ($quantidadePorPagina * $pagina) - ($quantidadePorPagina - 1);
-   	}
-    
-    if ($inicio + ($quantidadePorPagina - 1) > $quantidade) {
-        $fim = $quantidade;
-   	}
-    else {
-        $fim = $inicio + ($quantidadePorPagina - 1);
-  	}
-  	
-  	$table = array(
-  		'fields' => array(
-	  		'nome' => array(
-	  			'ajax' => 'ajax.php',
-	  			'order' => true,
-	  			'link' => array(
-	  				'condition' => 'return true;',
-	  				'link' => 'return "?modulo=' . $modulo . '&acao=cadastrar&id=" . $objeto["id"];'
-	  			),
-	  			'label' => 'Nome',
-	  			'info' => array(
-	  				0 => array(
-	  					'info' => 'return Paciente::getTratamentos($objeto["tratamentos"]);'
-	  				)
-	  			),
-	  			'links' => array(
-	  				'Atendimento' => array(
-	  					'condition' => 'return true;',
-	  					'url' => 'return "?modulo=' . $modulo . '&acao=atendimento&paciente=" . $objeto["id"];'
-	  				),
-	  				'Ficha' => array(
-	  					'condition' => 'return true;',
-	  					'url' => 'return "?modulo=' . $modulo . '&acao=ficha&id=" . $objeto["id"];'
-	  				)
-	  			)
-	  		),
-	  		'cpf' => array(
-	  			'ajax' => 'ajax.php',
-	  			'align' => 'center',
-	  			'class' => 'cpf',
-	  			'label' => 'CPF',
-	  		),
-	  		'email' => array(
-	  			'align' => 'center',
-	  			'label' => 'Email',
-	  		),
-	  		'telefoneResidencial' => array(
-	  			'align' => 'center',
-	  			'label' => 'Tel. Res.',
-	  		),
-	  		'telefoneCelular' => array(
-	  			'align' => 'center',
-	  			'label' => 'Tel. Cel.',
-	  		),
-	  		'dataFormatada' => array(
-	  			'content' => 'return date("d/m/Y", $objeto["timestamp"]);',
-	  			'ajax' => 'ajax.php',
-	  			'class' => 'data',
-	  			'align' => 'center',
-	  			'label' => 'Data',
-	  		)
-	  	),
-	  	'acoes' => array(
-	  		'Excluir' => array(
-	  			'condition' => 'return true;',
-	  			'acao' => 'return "excluir";',
-	  			'id' => 'return $objeto["id"];'
-	  		)
-	  	),
-  		'acoesMassa' => array(
-  			'excluir' => 'Excluir'
+  $modulo = $_GET["modulo"];
+  $exibir = isset($_GET["exibir"]) ? $_GET["exibir"] : NULL;
+  $order = isset($_GET["order"]) ? $_GET["order"] : NULL;
+  $quantidade = $params["quantidade"];
+  $quantidadePorPagina = $params["quantidadePorPagina"];
+  $pagina = $params["pagina"];
+  $objetos = $params["objetos"];
+
+  if ($quantidade == 0) {
+      $iniCount = $inicio = 0;
+ 	}
+  else {
+      $iniCount = $inicio = ($quantidadePorPagina * $pagina) - ($quantidadePorPagina - 1);
+ 	}
+
+  if ($inicio + ($quantidadePorPagina - 1) > $quantidade) {
+      $fim = $quantidade;
+ 	}
+  else {
+      $fim = $inicio + ($quantidadePorPagina - 1);
+	}
+
+	$table = array(
+		'fields' => array(
+			'thumbnail' => array(
+				'dir' => 'return DIR_UPLOADS . "/" . "pacientes" . "/" . $objeto["id"] . "/" . $objeto["foto"];',
+				'path' => 'return "uploads/pacientes/" . $objeto["id"] . "/" . $objeto["foto"];',
+  			'align' => 'center',
+  			'class' => 'foto',
+  			'label' => 'Foto',
+  		),
+  		'nome' => array(
+  			'ajax' => 'ajax.php',
+  			'order' => true,
+  			'link' => array(
+  				'condition' => 'return true;',
+  				'link' => 'return "?modulo=' . $modulo . '&acao=cadastrar&id=" . $objeto["id"];'
+  			),
+  			'label' => 'Nome',
+  			'info' => array(
+  				0 => array(
+  					'info' => 'return Paciente::getTratamentos($objeto["tratamentos"]);'
+  				)
+  			),
+  			'links' => array(
+  				'Atendimento' => array(
+  					'condition' => 'return true;',
+  					'url' => 'return "?modulo=' . $modulo . '&acao=atendimento&paciente=" . $objeto["id"];'
+  				),
+  				'Ficha' => array(
+  					'condition' => 'return true;',
+  					'url' => 'return "?modulo=' . $modulo . '&acao=ficha&id=" . $objeto["id"];'
+  				)
+  			)
+  		),
+			'observacoes' => array(
+  			'label' => 'Observações',
+  		),
+  		'cpf' => array(
+  			'ajax' => 'ajax.php',
+  			'align' => 'center',
+  			'class' => 'cpf',
+  			'label' => 'CPF',
+  		),
+  		'email' => array(
+  			'align' => 'center',
+  			'label' => 'Email',
+  		),
+  		'telefoneResidencial' => array(
+  			'align' => 'center',
+  			'label' => 'Tel. Res.',
+  		),
+  		'telefoneCelular' => array(
+  			'align' => 'center',
+  			'label' => 'Tel. Cel.',
+  		),
+  		'dataFormatada' => array(
+  			'content' => 'return date("d/m/Y", $objeto["timestamp"]);',
+  			'ajax' => 'ajax.php',
+  			'class' => 'data',
+  			'align' => 'center',
+  			'label' => 'Data',
   		)
-  	);
-        
-	include('views/includes/listagem.phtml'); 
+  	),
+  	'acoes' => array(
+  		'Excluir' => array(
+  			'condition' => 'return true;',
+  			'acao' => 'return "excluir";',
+  			'id' => 'return $objeto["id"];'
+  		)
+  	),
+		'acoesMassa' => array(
+			'excluir' => 'Excluir'
+		)
+	);
+
+	include('views/includes/listagem.phtml');
 ?>
